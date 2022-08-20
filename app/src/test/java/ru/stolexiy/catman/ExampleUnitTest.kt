@@ -1,4 +1,4 @@
-package ru.stolexiy.timemanager
+package ru.stolexiy.catman
 
 import org.junit.Test
 
