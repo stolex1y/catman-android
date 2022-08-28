@@ -10,19 +10,22 @@ import java.util.*
     foreignKeys = [
         ForeignKey(
             entity = CategoryEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["category_id"],
+            parentColumns = ["category_id"],
+            childColumns = ["purpose_category_id"],
             onUpdate = CASCADE,
             onDelete = CASCADE
         )
     ],
-    indices = [Index("category_id")]
+    indices = [Index("purpose_category_id"), Index("purpose_category_id", "purpose_priority", unique = true)]
 )
 data class PurposeEntity(
-    @PrimaryKey val id: Long,
-    val name: String,
-    @ColumnInfo(name = "category_id") val categoryId: Long,
-    val deadline: Date,
-    val priority: Int,
-    @ColumnInfo(name = "is_finished") val isFinished: Boolean
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "purpose_id") val id: Long,
+    @ColumnInfo(name = "purpose_name") val name: String,
+    @ColumnInfo(name = "purpose_category_id") val categoryId: Long,
+    @ColumnInfo(name = "purpose_deadline") val deadline: Calendar,
+    @ColumnInfo(name = "purpose_description") val description: String?,
+    @ColumnInfo(name = "purpose_priority") val priority: Int,
+    @ColumnInfo(name = "purpose_is_finished") val isFinished: Boolean,
+    @ColumnInfo(name = "purpose_progress") val progress: Int,
+
 )

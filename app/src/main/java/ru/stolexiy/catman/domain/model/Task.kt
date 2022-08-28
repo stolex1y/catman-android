@@ -3,13 +3,14 @@ package ru.stolexiy.catman.domain.model
 import java.util.*
 
 data class Task(
-    val id: Long,
     val purposeId: Long,
     val name: String,
-    val description: String?,
-    val deadline: Date?,
-    val parentTask: Task?,
-    val priority: Int,
-    val subtasks: List<Task>?
+    val deadline: Calendar,
+    val description: String? = null,
+    val isFinished: Boolean = false,
+    val progress: Int = 0,
+    val priority: Int = 0,
+    val id: Long = 0,
+    val subtasks: List<Subtask>? = null
 ) {
 }

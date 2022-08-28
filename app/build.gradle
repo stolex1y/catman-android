@@ -30,6 +30,7 @@ android {
 
     buildFeatures {
         dataBinding true
+        viewBinding true
     }
 
     compileOptions {
@@ -43,39 +44,49 @@ android {
 
 dependencies {
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     def navVersion = "2.5.1"
     def roomVersion = "2.4.3"
+    def lifecycleVersion = "2.5.1"
 
     // androidx room
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
-    // To use Kotlin annotation processing tool (kapt)
     kapt "androidx.room:room-compiler:$roomVersion"
+    testImplementation "androidx.room:room-testing:$roomVersion"
     // To use Kotlin Symbol Processing (KSP)
 //    ksp "androidx.room:room-compiler:$roomVersion"
 
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+    //lifecycle
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
+
+    //androidx
     implementation "androidx.core:core-ktx:1.8.0"
     implementation "androidx.appcompat:appcompat:1.5.0"
     implementation "androidx.activity:activity-ktx:1.5.1"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android"
-    implementation "com.google.android.material:material:1.6.1"
     implementation "androidx.fragment:fragment-ktx:1.5.2"
-
-    //navigation
-    implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
-    implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
-    androidTestImplementation "androidx.navigation:navigation-testing:$navVersion"
-
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
-    testImplementation "androidx.room:room-testing:$roomVersion"
     testImplementation "androidx.fragment:fragment-testing:1.5.2"
     androidTestImplementation "androidx.test.ext:junit:1.1.3"
     androidTestImplementation "androidx.test.ext:junit-ktx:1.1.3"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
+
+    //material
+    implementation "com.google.android.material:material:1.6.1"
+
+    //coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
+
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    //navigation
+    implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
+    implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
+    api "androidx.navigation:navigation-fragment-ktx:$navVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$navVersion"
+
+    testImplementation "junit:junit:4.13.2"
+
 }

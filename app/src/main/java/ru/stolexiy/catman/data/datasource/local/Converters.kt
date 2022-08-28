@@ -1,14 +1,14 @@
 package ru.stolexiy.catman.data.datasource.local
 
+import android.graphics.Color
+import android.graphics.ColorSpace
 import androidx.room.TypeConverter
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.*
 
 object Converters {
     @TypeConverter
-    fun dateToMillis(date: Date): Long = date.time
+    fun calendarToMillis(calendar: Calendar): Long = calendar.timeInMillis
 
     @TypeConverter
-    fun dateFromMillis(millis: Long): Date = Date(millis)
+    fun calendarFromMillis(millis: Long): Calendar = Calendar.getInstance().apply { timeInMillis = millis }
 }

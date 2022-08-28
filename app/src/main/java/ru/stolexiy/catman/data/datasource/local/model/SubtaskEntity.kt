@@ -4,7 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import androidx.room.PrimaryKey
 import java.time.LocalDateTime
+import java.util.Calendar
 import java.util.Date
 
 @Entity(
@@ -12,22 +14,22 @@ import java.util.Date
     foreignKeys = [
         ForeignKey(
             entity = TaskEntity::class,
-            parentColumns = ["id"],
+            parentColumns = ["task_id"],
             childColumns = ["parent_task_id"],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         ),
     ],
-    indices = [Index("parent_task_id")]
+    indices = [Index("parent_task_id"), Index("parent_task_id", "subtask_priority", unique = true)]
 )
 data class SubtaskEntity(
-    val id: Long,
-    val name: String,
-    val description: String?,
-    val deadline: Date,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "subtask_id") val id: Long,
+    @ColumnInfo(name = "subtask_name") val name: String,
+    @ColumnInfo(name = "subtask_description") val description: String?,
+    @ColumnInfo(name = "subtask_deadline") val deadline: Calendar,
     @ColumnInfo(name = "parent_task_id") val parentTaskId: Long,
-    val priority: Int,
-    @ColumnInfo(name = "is_finished") val isFinished: Boolean,
+    @ColumnInfo(name = "subtask_priority") val priority: Int,
+    @ColumnInfo(name = "subtask_is_finished") val isFinished: Boolean,
 //    val regularity: Int?,
 ) {
 }

@@ -7,4 +7,24 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!--  Theming  -->
+    <color name="background_grad_start">#252F4A</color>
+    <color name="background_grad_end">#414D77</color>
+    <color name="text_light">#E0E3FF</color>
+    <color name="button_border_grad_start">#48C6EF</color>
+    <color name="button_border_grad_end">#6F86D6</color>
+    <color name="button_violet_background_grad_start">#9380EC</color>
+    <color name="button_violet_background_grad_end">#F975B1</color>
+    <color name="secondary">#F975B1</color>
+
+
+
+    <!--  Colors for categories  -->
+    <color name="cream">#FDF4E3</color>
+    <color name="aquamarine">#7FFFD4</color>
+    <color name="amaranth_pink">#F19CBB</color>
+
+    <!--  Dialog top dash  -->
+    <color name="dialog_dash">#E0E3FF</color>
 </resources>

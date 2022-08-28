@@ -3,11 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/categoryListFragment">
+    app:startDestination="@id/category_list_fragment">
 
     <fragment
-        android:id="@+id/categoryListFragment"
-        android:name="ru.stolexiy.catman.CategoryListFragment"
-        android:label="fragment_category_list"
-        tools:layout="@layout/fragment_category_list" />
+        android:id="@+id/category_list_fragment"
+        android:name="ru.stolexiy.catman.ui.categorylist.CategoryListFragment"
+        android:label=" "
+        tools:layout="@layout/fragment_category_list">
+        <action
+            android:id="@+id/action_category_list_fragment_to_taskListFragment"
+            app:destination="@id/task_list_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/testFragment"
+        android:name="ru.stolexiy.catman.TestFragment"
+        android:label="fragment_test"
+        tools:layout="@layout/fragment_test" />
+    <fragment
+        android:id="@+id/task_list_fragment"
+        android:name="ru.stolexiy.catman.ui.tasklist.TaskListFragment">
+        <argument
+            android:name="purposeId"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/today_plan_fragment"
+        android:name="ru.stolexiy.catman.ui.plan.TodayPlanFragment"
+        android:label="@string/today_plan" />
+    <fragment
+        android:id="@+id/settings_fragment"
+        android:name="ru.stolexiy.catman.ui.settings.SettingsFragment"
+        android:label="@string/settings" />
+    <fragment
+        android:id="@+id/statistics_fragment"
+        android:name="ru.stolexiy.catman.ui.statistics.StatisticsFragment"
+        android:label="@string/statistics" />
+    <fragment
+        android:id="@+id/timer_fragment"
+        android:name="ru.stolexiy.catman.ui.timer.TimerFragment"
+        android:label="@string/timer" />
 </navigation>

@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.LocalDateTime
+import java.util.Calendar
 import java.util.Date
 
 @Entity(
@@ -13,22 +14,23 @@ import java.util.Date
     foreignKeys = [
         ForeignKey(
             entity = PurposeEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["purpose_id"],
+            parentColumns = ["purpose_id"],
+            childColumns = ["task_purpose_id"],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("purpose_id")]
+    indices = [Index("task_purpose_id"), Index("task_purpose_id", "task_priority", unique = true)]
 )
 data class TaskEntity(
-    @PrimaryKey val id: Long,
-    @ColumnInfo(name = "purpose_id") val purposeId: Long,
-    val name: String,
-    val description: String?,
-    val deadline: Date,
-    val priority: Int,
-    @ColumnInfo(name = "is_finished") val isFinished: Boolean
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_id") val id: Long,
+    @ColumnInfo(name = "task_purpose_id") val purposeId: Long,
+    @ColumnInfo(name = "task_name") val name: String,
+    @ColumnInfo(name = "task_description") val description: String?,
+    @ColumnInfo(name = "task_deadline") val deadline: Calendar,
+    @ColumnInfo(name = "task_priority") val priority: Int,
+    @ColumnInfo(name = "task_is_finished") val isFinished: Boolean,
+    @ColumnInfo(name = "task_progress") val progress: Int,
 //    val regularity: Int?,
 ) {
 }

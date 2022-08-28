@@ -1,6 +1,7 @@
 package ru.stolexiy.catman.data.datasource.local.model
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import ru.stolexiy.catman.core.DayOfTheWeek
 
 
@@ -9,7 +10,7 @@ import ru.stolexiy.catman.core.DayOfTheWeek
     primaryKeys = ["id", "weekday"]
 )
 data class RegularWorkEntity(
-    val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long,
     val weekday: DayOfTheWeek?,
     val period: Int?
 ) {

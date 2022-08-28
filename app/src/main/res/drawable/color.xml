@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item>
+    <shape android:layout_width="match_parent" android:innerRadius="15dp" android:layout_height="match_parent" android:shape="oval">
+      <solid android:color="@color/cream" />
+    </shape>
+  </item>
+</selector>
+    <!--
+    <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="10dp"
+        android:height="10dp"
+        android:viewportWidth="30"
+        android:viewportHeight="30">
+      <path
+          android:pathData="M15,15m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"
+          android:fillColor="#4AE9FF"/>
+    </vector>
+    -->
