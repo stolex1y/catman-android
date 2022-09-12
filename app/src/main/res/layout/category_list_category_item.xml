@@ -10,23 +10,24 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        tools:background="@color/blue">
 
         <ImageView
             android:id="@+id/purpose_color"
-            android:layout_height="15dp"
-            android:layout_width="15dp"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
             app:layout_constraintBottom_toBottomOf="@+id/category_name"
             app:layout_constraintEnd_toStartOf="@+id/category_name"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/category_name"
-            app:srcCompat="@drawable/color"
-            android:background="@drawable/shadow"
-            app:colorWithShadow="@{data.color}" />
+            app:shadowColor="@{data.color}" />
 
         <TextView
             android:id="@+id/category_name"
+            style="@style/BodyAppearance.TextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"

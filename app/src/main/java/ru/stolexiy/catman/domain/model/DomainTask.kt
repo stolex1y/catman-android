@@ -2,7 +2,7 @@ package ru.stolexiy.catman.domain.model
 
 import java.util.*
 
-data class Task(
+data class DomainTask(
     val purposeId: Long,
     val name: String,
     val deadline: Calendar,
@@ -11,6 +11,6 @@ data class Task(
     val progress: Int = 0,
     val priority: Int = 0,
     val id: Long = 0,
-    val subtasks: List<Subtask>? = null
+    val subtasks: List<DomainSubtask>? = null
 ) {
 }

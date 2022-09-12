@@ -1,10 +1,9 @@
 package ru.stolexiy.catman.domain.model
 
 import java.util.Calendar
-import java.util.Date
 
-data class Plan(
+data class DomainPlan(
     val date: Calendar,
-    val tasks: List<Task>
+    val tasks: List<DomainTask>
 ) {
 }

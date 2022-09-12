@@ -12,7 +12,10 @@
         tools:layout="@layout/fragment_category_list">
         <action
             android:id="@+id/action_category_list_fragment_to_taskListFragment"
-            app:destination="@id/task_list_fragment" />
+            app:destination="@id/task_list_fragment" >
+            <argument
+                android:name="purpose_name" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/testFragment"

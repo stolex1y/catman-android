@@ -1,20 +1,19 @@
 package ru.stolexiy.catman.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import ru.stolexiy.catman.domain.model.Category
-import ru.stolexiy.catman.domain.model.Purpose
+import ru.stolexiy.catman.domain.model.DomainPurpose
 
 interface PurposeRepository {
-    fun getPurpose(id: Long): Flow<Purpose>
-    fun getAllPurposes(): Flow<List<Purpose>>
-    suspend fun getAllPurposesOnce(): List<Purpose>
-    suspend fun getPurposeOnce(id: Long): Purpose
-    fun getAllPurposesByCategoryOrderByPriority(categoryId: Long): Flow<List<Purpose>>
+    fun getPurpose(id: Long): Flow<DomainPurpose>
+    fun getAllPurposes(): Flow<List<DomainPurpose>>
+    suspend fun getAllPurposesOnce(): List<DomainPurpose>
+    suspend fun getPurposeOnce(id: Long): DomainPurpose
+    fun getAllPurposesByCategoryOrderByPriority(categoryId: Long): Flow<List<DomainPurpose>>
 
-    suspend fun getAllPurposesByCategoryOrderByPriorityOnce(categoryId: Long): List<Purpose>
-    fun getPurposeWithTasks(id: Long): Flow<Purpose>
-    suspend fun updatePurpose(vararg purposes: Purpose)
-    suspend fun insertPurpose(vararg purposes: Purpose)
-    suspend fun deletePurpose(vararg purposes: Purpose)
+    suspend fun getAllPurposesByCategoryOrderByPriorityOnce(categoryId: Long): List<DomainPurpose>
+    fun getPurposeWithTasks(id: Long): Flow<DomainPurpose>
+    suspend fun updatePurpose(vararg domainPurposes: DomainPurpose)
+    suspend fun insertPurpose(vararg domainPurposes: DomainPurpose)
+    suspend fun deletePurpose(vararg domainPurposes: DomainPurpose)
     suspend fun deleteAllPurposes()
 }

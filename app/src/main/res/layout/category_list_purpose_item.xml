@@ -10,13 +10,16 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingStart="20dp"
+        tools:background="@drawable/background_gradient">
 
         <TextView
             android:id="@+id/purpose_name"
+            style="@style/BodyAppearance.TextView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="10dp"
             android:layout_marginEnd="5dp"
             android:text="@{data.name}"
             app:layout_constraintBottom_toBottomOf="@+id/frameLayout2"
@@ -50,6 +53,7 @@
 
         <TextView
             android:id="@+id/purpose_deadline"
+            style="@style/BodyAppearance.TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
@@ -63,8 +67,8 @@
 
         <RelativeLayout
             android:id="@+id/relativeLayout"
-            android:layout_width="37dp"
-            android:layout_height="37dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/purpose_deadline"
@@ -77,8 +81,10 @@
                 android:gravity="center"
                 android:text="@{data.textProgress}"
                 android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceOverline"
+                android:textColor="?android:attr/textColor"
                 android:textSize="11sp"
-                tools:text="50%" />
+                tools:text="100%" />
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/purpose_progress"
@@ -87,8 +93,8 @@
                 android:layout_centerInParent="true"
                 android:indeterminate="false"
                 android:progress="@{data.progress}"
-                app:indicatorSize="37dp"
-                app:trackThickness="2.5dp"
+                app:indicatorInset="0dp"
+                app:indicatorSize="40dp"
                 tools:progress="50" />
         </RelativeLayout>
 

@@ -1,16 +1,77 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.TimeManager" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/background_grad_end</item>
-        <item name="colorPrimaryVariant">@color/background_grad_start</item>
-        <item name="colorOnPrimary">@color/text_light</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorSecondaryVariant">@color/secondary</item>
-        <item name="colorOnSecondary">@color/text_light</item>
+    <style name="Theme.CATMan" parent="Theme.CATManBase">
 
-        <!-- Status bar color. -->
-        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.CATManBase" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/deep_blue</item>
+        <item name="colorPrimaryVariant">@color/blue</item>
+        <item name="colorPrimaryDark">@color/deep_blue</item>
+        <item name="colorOnPrimary">@color/dirty_white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/violet</item>
+        <item name="colorSecondaryVariant">@color/pink</item>
+        <item name="colorOnSecondary">@color/dirty_white</item>
+        <item name="colorSurface">@color/light_blue</item>
+        <item name="colorSurfaceVariant">@color/violet_blue</item>
+        <item name="colorOnSurface">@color/dirty_white</item>
+        <item name="colorOnSurfaceVariant">@color/dirty_white</item>
+
+        <item name="colorError">@color/pink</item>
+        <item name="background">@drawable/background_gradient</item>
+        <item name="backgroundColor">@color/deep_blue</item>
+
+        <item name="android:textColor">@color/dirty_white</item>
+        <item name="android:textColorPrimary">@color/dirty_white</item>
+        <item name="android:textColorSecondary">@color/dirty_white</item>
+        <item name="android:color">@color/dirty_white</item>
+        <item name="errorTextColor">@color/pink</item>
+        <item name="hintTextColor">@color/dirty_white_half_opacity</item>
+
+        <item name="textAppearanceHeadline1">@style/Headline1</item>
+        <item name="textAppearanceHeadline2">@style/Headline2</item>
+        <item name="textAppearanceHeadline3">@style/Headline3</item>
+        <item name="textAppearanceHeadline4">@style/Headline4</item>
+        <item name="textAppearanceHeadline5">@style/Headline5</item>
+        <item name="textAppearanceHeadline6">@style/Headline6</item>
+        <item name="textAppearanceBody1">@style/Body1</item>
+        <item name="textAppearanceBody2">@style/Body2</item>
+        <item name="textAppearanceSubtitle1">@style/Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/Subtitle2</item>
+        <item name="textAppearanceButton">@style/TextButton</item>
+        <item name="textAppearanceCaption">@style/Caption</item>
+        <item name="textAppearanceOverline">@style/Overline</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.App.LargeComponent</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.SmallComponent</item>
+
+        <item name="navigationViewStyle">@style/NavigationView</item>
+        <item name="materialButtonOutlinedStyle">@style/OutlinedButton</item>
+        <item name="materialButtonStyle">@style/ContainedButton</item>
+
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
+        <item name="bottomSheetDialogTheme">@style/ModalBottomSheetDialog</item>
+
+        <item name="textInputOutlinedStyle">@style/TextInputLayout</item>
+        <item name="textInputStyle">@style/TextInputLayout</item>
+        <item name="textInputOutlinedExposedDropdownMenuStyle">@style/TextInputLayout.Dropdown</item>
+        <item name="editTextStyle">@style/EditText</item>
+        <item name="android:editTextStyle">@style/EditText</item>
+        <item name="autoCompleteTextViewStyle">@style/AutoCompleteTextView</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextView</item>
+        <item name="circularProgressIndicatorStyle">@style/CircularProgressIndicator</item>
+
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/ActionMode</item>
+        <item name="toolbarStyle">@style/Toolbar</item>
+<!--        <item name="actionModeCloseDrawable"></item>-->
     </style>
 </resources>

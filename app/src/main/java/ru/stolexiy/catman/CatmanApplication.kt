@@ -1,13 +1,12 @@
 package ru.stolexiy.catman
 
 import android.app.Application
-import android.graphics.Color
 import kotlinx.coroutines.*
 import ru.stolexiy.catman.data.CategoryRepositoryImpl
 import ru.stolexiy.catman.data.PurposeRepositoryImpl
 import ru.stolexiy.catman.data.datasource.local.LocalDatabase
-import ru.stolexiy.catman.domain.model.Category
-import ru.stolexiy.catman.domain.model.Purpose
+import ru.stolexiy.catman.domain.model.DomainCategory
+import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.UseCases
 import timber.log.Timber
 import java.util.GregorianCalendar
@@ -19,7 +18,7 @@ class CatmanApplication: Application() {
     val purposeRepository get() = PurposeRepositoryImpl(localDatabase.purposeDao())
 //    val categoryWithPurposeRepository get() = CategoryWithPurposeRepositoryImpl(localDatabase.categoryWithPurposesDao())
 
-    val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+    private val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         Timber.e(exception.stackTraceToString())
     }
     val applicationScope = CoroutineScope(SupervisorJob() + coroutineExceptionHandler + Dispatchers.Main)
@@ -45,19 +44,19 @@ class CatmanApplication: Application() {
             categoryRepository.getAllCategoriesOnce().let { categories ->
                 if (categories.isEmpty()) {
                     categoryRepository.insertCategory(
-                        Category("Образование", this@CatmanApplication.resources.getColor(R.color.aquamarine)),
-                        Category("Работа", this@CatmanApplication.resources.getColor(R.color.amaranth_pink))
+                        DomainCategory("Образование", 0x7FFFD4),
+                        DomainCategory("Работа", 0x66CC66)
                     )
                     categoryRepository.getAllCategoriesOnce().let { categories ->
                         if (categories.size >= 2) {
                             useCases.addPurposeToCategory(
-                                Purpose(
+                                DomainPurpose(
                                     "Диплом",
                                     categories[0].id,
                                     GregorianCalendar(2023, 4, 31),
                                     progress = 10
                                 ),
-                                Purpose(
+                                DomainPurpose(
                                     "Стажировка",
                                     categories[1].id,
                                     GregorianCalendar(2022, 7, 28),

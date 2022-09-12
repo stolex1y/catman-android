@@ -1,9 +1,8 @@
 package ru.stolexiy.catman.domain.model
 
-import androidx.room.ColumnInfo
 import java.util.*
 
-data class Subtask(
+data class DomainSubtask(
     val name: String,
     val deadline: Calendar,
     val parentTaskId: Long,

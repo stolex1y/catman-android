@@ -1,18 +1,18 @@
 package ru.stolexiy.catman.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import ru.stolexiy.catman.domain.model.Category
+import ru.stolexiy.catman.domain.model.DomainCategory
 
 interface CategoryRepository {
-    fun getAllCategories(): Flow<List<Category>>
-    fun getCategory(id: Long): Flow<Category>
-    suspend fun getAllCategoriesOnce(): List<Category>
-    suspend fun getCategoryOnce(id: Long): Category
-    suspend fun updateCategory(vararg categories: Category)
-    suspend fun insertCategory(vararg categories: Category)
-    suspend fun deleteCategory(vararg categories: Category)
+    fun getAllCategories(): Flow<List<DomainCategory>>
+    fun getCategory(id: Long): Flow<DomainCategory>
+    suspend fun getAllCategoriesOnce(): List<DomainCategory>
+    suspend fun getCategoryOnce(id: Long): DomainCategory
+    suspend fun updateCategory(vararg categories: DomainCategory)
+    suspend fun insertCategory(vararg categories: DomainCategory)
+    suspend fun deleteCategory(vararg categories: DomainCategory)
     suspend fun deleteAllCategories()
 
-    fun getAllCategoriesWithPurposes(): Flow<List<Category>>
-    fun getCategoryWithPurposes(id: Long): Flow<Category>
+    fun getAllCategoriesWithPurposes(): Flow<List<DomainCategory>>
+    fun getCategoryWithPurposes(id: Long): Flow<DomainCategory>
 }

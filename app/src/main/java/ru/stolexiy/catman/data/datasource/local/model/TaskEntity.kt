@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import ru.stolexiy.catman.domain.model.DomainSubtask
+import ru.stolexiy.catman.domain.model.DomainTask
 import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.Date
@@ -33,4 +35,7 @@ data class TaskEntity(
     @ColumnInfo(name = "task_progress") val progress: Int,
 //    val regularity: Int?,
 ) {
+    fun toTask(subtasks: List<DomainSubtask>? = null) = DomainTask(id = id, name = name, purposeId = purposeId, deadline = deadline, description = description, priority = priority, isFinished = isFinished, subtasks = subtasks)
 }
+
+fun DomainTask.toTaskEntity() = TaskEntity(id = id, name = name, purposeId = purposeId, deadline = deadline, description = description, priority = priority, isFinished = isFinished, progress = progress)

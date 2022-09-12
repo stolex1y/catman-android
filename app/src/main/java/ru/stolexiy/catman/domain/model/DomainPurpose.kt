@@ -1,13 +1,9 @@
 package ru.stolexiy.catman.domain.model
 
-import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.temporal.TemporalAccessor
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-data class Purpose(
+data class DomainPurpose(
     val name: String,
     val categoryId: Long,
     val deadline: Calendar,
@@ -16,7 +12,7 @@ data class Purpose(
     val progress: Int = 0,
     val id: Long = 0,
     val priority: Int = 0,
-    val tasks: List<Task>? = null
+    val tasks: List<DomainTask>? = null
 ) {
     val isDeadlineBurning: Boolean
         get() {

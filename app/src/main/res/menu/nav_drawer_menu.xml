@@ -5,7 +5,7 @@
         android:checkableBehavior="single" >
         <item
             android:id="@+id/category_list_fragment"
-            android:title="@string/purpose_list"
+            android:title="@string/category_list"
             android:checkable="true"/>
         <item
             android:id="@+id/today_plan_fragment"

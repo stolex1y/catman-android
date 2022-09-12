@@ -1,38 +1,36 @@
 package ru.stolexiy.catman.ui.categorylist
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.CatmanApplication
 import ru.stolexiy.catman.R
+import ru.stolexiy.catman.core.ViewModelFactory
 import ru.stolexiy.catman.databinding.FragmentCategoryListBinding
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListFragmentState
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
-import ru.stolexiy.catman.ui.dialog.addPurpose.AddPurposeBottomDialogFragment
+import ru.stolexiy.catman.ui.dialog.purpose.add.AddPurposeBottomDialogFragment
+import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import timber.log.Timber
 
 class CategoryListFragment : Fragment() {
 
+    private var dialogIsShowing: Boolean = false
+
     private val viewModel: CategoryListViewModel by viewModels {
-        CategoryListViewModel.Factory(
+        ViewModelFactory(
             this,
-            Dispatchers.Default,
-            (requireActivity().application as CatmanApplication).categoryRepository
+            requireActivity().application as CatmanApplication,
         )
     }
 
@@ -44,7 +42,6 @@ class CategoryListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -65,16 +62,16 @@ class CategoryListFragment : Fragment() {
             lifecycleOwner = this@CategoryListFragment.viewLifecycleOwner
             categoryList.adapter = adapter
             addPurposeButton.setOnClickListener {
-                addPurposeDialog()
-            }
-            addTaskButton.setOnClickListener {
-                val action = CategoryListFragmentDirections.actionCategoryListFragmentToTaskListFragment(1)
-                findNavController().navigate(action)
+                if (!dialogIsShowing)
+                    addPurposeDialog()
             }
         }
         observeState()
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -90,7 +87,7 @@ class CategoryListFragment : Fragment() {
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state1.collect {
+                viewModel.state.collect {
                     handleState(it)
                 }
             }
@@ -106,7 +103,18 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun addPurposeDialog() {
-        val dialog = AddPurposeBottomDialogFragment()
-        dialog.show(childFragmentManager, "ADD_PURPOSE")
+        val dialog = AddPurposeBottomDialogFragment(onDismiss = { dialogIsShowing = false })
+        dialog.show(parentFragmentManager, "ADD_PURPOSE")
+        dialogIsShowing = true
     }
+
+    /*private fun setResultListeners() {
+        findNavController().currentBackStackEntry!!
+            .savedStateHandle.getLiveData<Purpose>(AddPurposeBottomDialogFragment.RESULT).observe(viewLifecycleOwner) {
+
+            }
+        childFragmentManager.setFragmentResultListener(AddPurposeBottomDialogFragment.RESULT, viewLifecycleOwner) { _, bundle ->
+            viewModel.addingPurpose = bundle.getSerializable(AddPurposeBottomDialogFragment.RESULT) as Purpose
+        }
+    }*/
 }
