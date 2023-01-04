@@ -172,14 +172,8 @@
         <item name="android:paddingEnd">16dp</item>
         <item name="android:textAppearance">?attr/textAppearanceBody2</item>
         <item name="android:textColor">?android:attr/textColor</item>
-        <item name="android:dropDownSelector">@color/pink</item>
-        <item name="android:background">@color/pink</item>
-        <item name="android:popupBackground">@color/light_blue</item>
-    </style>
-    
-    <style name="AutoCompleteTextView.ListView" parent="Widget.AppCompat.ListPopupWindow">
         <item name="shapeAppearanceOverlay">?attr/shapeAppearanceSmallComponent</item>
-        <item name="background">@color/pink</item>
+        <item name="android:dropDownSelector">@drawable/popup_rounded_background</item>
     </style>
 
     <style name="BodyAppearance.TextView" parent="Widget.AppCompat.TextView">
@@ -199,9 +193,6 @@
         <item name="titleTextAppearance">?attr/textAppearanceHeadline5</item>
         <item name="titleTextColor">?android:attr/textColor</item>
         <item name="iconTint">?android:attr/textColor</item>
-<!--        <item name="paddingStart">0dp</item>-->
-<!--        <item name="marginHorizontal">0dp</item>-->
-<!--        <item name="expandedTitleMarginStart">0dp</item>-->
         <item name="contentInsetLeft">0dp</item>
         <item name="contentInsetStart">0dp</item>
         <item name="contentInsetRight">0dp</item>
@@ -215,6 +206,10 @@
     <style name="ActionMode" parent="Widget.AppCompat.ActionMode">
         <item name="titleTextStyle">?attr/textAppearanceHeadline6</item>
         <item name="subtitleTextStyle">?attr/textAppearanceSubtitle1</item>
-        <item name="background">?attr/background</item>
+        <item name="background">?attr/colorPrimary</item>
+    </style>
+
+    <style name="DatePicker" parent="Widget.MaterialComponents.TimePicker">
+
     </style>
 </resources>

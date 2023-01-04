@@ -14,15 +14,7 @@ class CategoryListViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
-//    private val ADDING_PURPOSE_HANDLE = "ADDING_PURPOSE"
-
     var state: StateFlow<CategoryListFragmentState>
-
-    /*var addingPurpose: Purpose? = null
-        set(value) {
-            field = value
-            handle[ADDING_PURPOSE_HANDLE] = value
-        }*/
 
     init {
             state = loadCategoriesWithPurposes()
@@ -31,20 +23,14 @@ class CategoryListViewModel(
                     started = SharingStarted.WhileSubscribed(5000),
                     initialValue = CategoryListFragmentState.IsLoading
                 )
-//            addingPurpose = handle[ADDING_PURPOSE_HANDLE]
-            /*viewModelScope.launch(coroutineExceptionHandler + dispatcher) {
-                state.collect {
-                    handle["saved"] = it
-                    Timber.d(handle.get<CategoryListFragmentState>("saved").toString())
-                }
-            }*/
     }
 
     private fun loadCategoriesWithPurposes() = categoryRepository.getAllCategoriesWithPurposes()
 //        .onEach { delay(5000) }
+        .onEach { Timber.d("start loading categories with purposes") }
         .map { it.toCategoryListItems() }
         .map { CategoryListFragmentState.LoadedData(it) }
+        .onEach { Timber.d("end mapping categories with purposes: ${it.data.size}") }
         .flowOn(dispatcher)
         .catch { Timber.e(it) }
-
 }

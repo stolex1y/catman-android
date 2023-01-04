@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.stolexiy.catman.BR
+import timber.log.Timber
 
 abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.ViewHolder>(
     diffCallback()
@@ -18,6 +19,11 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
             override fun areItemsTheSame(oldItem: T, newItem: T): Boolean = oldItem.id == newItem.id
             override fun areContentsTheSame(oldItem: T, newItem: T): Boolean = oldItem.areContentEquals(newItem)
         }
+    }
+
+    override fun submitList(list: MutableList<T>?) {
+        super.submitList(list)
+        Timber.d("submit list")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

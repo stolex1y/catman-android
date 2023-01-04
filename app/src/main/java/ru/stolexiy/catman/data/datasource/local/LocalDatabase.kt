@@ -26,12 +26,12 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun purposeDao(): PurposeDao
-//    abstract fun categoryWithPurposesDao(): CategoryWithPurposeDao
 
     companion object {
         val DATABASE_NAME = "catman-db"
 
-        @Volatile var instance: LocalDatabase? = null
+        @Volatile
+        var instance: LocalDatabase? = null
 
         fun getInstance(context: Context): LocalDatabase {
             return instance ?: synchronized(this) {

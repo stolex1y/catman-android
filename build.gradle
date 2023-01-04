@@ -3,6 +3,7 @@ buildscript {
     dependencies {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.5.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
+        classpath 'com.google.gms:google-services:4.3.13'
     }
     repositories {
         mavenCentral()
@@ -10,7 +11,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.android.application' version '7.4.0-alpha08' apply false
-    id 'com.android.library' version '7.4.0-alpha08' apply false
-    id 'org.jetbrains.kotlin.android' version '1.6.20-M1' apply false
+    id 'com.android.application' version '8.0.0-alpha02' apply false
+    id 'com.android.library' version '8.0.0-alpha02' apply false
+    id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
 }
