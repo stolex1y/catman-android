@@ -9,8 +9,7 @@ class UseCases(
     private val categoryRepository: CategoryRepository,
     private val purposeRepository: PurposeRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-//    private val categoryWithPurposeRepository: CategoryWithPurposeRepository
 ) {
-    val addPurposeToCategory: AddPurposeToCategory
-        get() = AddPurposeToCategory(dispatcher, purposeRepository)
+    val purposeCommon: PurposeCommon
+        get() = PurposeCommon(dispatcher, purposeRepository, categoryRepository)
 }

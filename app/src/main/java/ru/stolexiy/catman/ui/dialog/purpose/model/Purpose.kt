@@ -2,6 +2,7 @@ package ru.stolexiy.catman.ui.dialog.purpose.model
 
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.ui.mapper.toDmyString
+import java.io.Serializable
 import java.util.*
 
 data class Purpose(
@@ -9,10 +10,9 @@ data class Purpose(
     var categoryId: Long? = null,
     var deadline: Calendar? = null,
     var description: String = ""
-) : java.io.Serializable {
+) : Serializable {
     val textDeadline: String
         get() = deadline?.toDmyString() ?: ""
-
 
     fun toDomainPurpose() = DomainPurpose(
         name = name,

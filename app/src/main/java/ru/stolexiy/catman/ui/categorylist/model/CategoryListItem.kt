@@ -30,11 +30,11 @@ fun DomainCategory.toCategoryItem() = CategoryListItem.CategoryItem(id, name, co
 fun DomainPurpose.toPurposeItem(): CategoryListItem.PurposeItem {
     return CategoryListItem.PurposeItem(id, name, deadline.toDmyString(), isDeadlineBurning, progress)
 }
-fun List<DomainCategory>.toCategoryListItems(): List<CategoryListItem> {
+fun Map<DomainCategory, List<DomainPurpose>>.toCategoryListItems(): List<CategoryListItem> {
     val result = mutableListOf<CategoryListItem>()
-    this.forEach { category ->
-        result += category.toCategoryItem()
-        result += category.domainPurposes?.map(DomainPurpose::toPurposeItem) ?: emptyList()
+    this.forEach { mapEntry ->
+        result += mapEntry.key.toCategoryItem()
+        result += mapEntry.value.map(DomainPurpose::toPurposeItem)
     }
     return result
 }

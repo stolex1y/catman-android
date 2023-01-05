@@ -11,31 +11,29 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
 abstract class PurposeDao : Dao<PurposeEntity>() {
 
     @Query("SELECT * FROM purposes")
-    abstract override fun getAllNotDistinct(): Flow<List<PurposeEntity>>
+    abstract fun getAll(): Flow<List<PurposeEntity>>
+
     @Query("SELECT * FROM purposes")
-    abstract override fun getAllOnce(): List<PurposeEntity>
+    abstract fun getAllOnce(): List<PurposeEntity>
 
     @Query("SELECT * FROM purposes WHERE purpose_id = :id")
-    abstract override fun getNotDistinct(id: Long): Flow<PurposeEntity>
+    abstract override fun get(id: Long): Flow<PurposeEntity>
+
     @Query("SELECT * FROM purposes WHERE purpose_id = :id")
     abstract override fun getOnce(id: Long): PurposeEntity
 
     @Query("SELECT * FROM purposes WHERE purpose_category_id = :categoryId ORDER BY purpose_priority")
-    protected abstract fun getAllByCategoryOrderByPriorityNotDistinct(categoryId: Long): Flow<List<PurposeEntity>>
-
-    fun getAllByCategoryOrderByPriority(categoryId: Long): Flow<List<PurposeEntity>> =
-        getAllByCategoryOrderByPriorityNotDistinct(categoryId).distinctUntilChanged()
+    abstract fun getAllByCategoryOrderByPriority(categoryId: Long): Flow<List<PurposeEntity>>
 
     @Query("SELECT * FROM purposes WHERE purpose_category_id = :categoryId ORDER BY purpose_priority")
     abstract fun getAllByCategoryOrderByPriorityOnce(categoryId: Long): List<PurposeEntity>
 
-    @Query("SELECT * FROM purposes " +
-            "JOIN tasks ON task_purpose_id = purpose_id " +
-            "WHERE purpose_id = :id")
-    protected abstract fun getWithTasksNotDistinct(id: Long): Flow<Map<PurposeEntity, List<TaskEntity>>>
-
-    fun getWithTasks(id: Long): Flow<Map<PurposeEntity, List<TaskEntity>>> =
-        getWithTasksNotDistinct(id).distinctUntilChanged()
+    @Query(
+        "SELECT * FROM purposes " +
+                "JOIN tasks ON task_purpose_id = purpose_id " +
+                "WHERE purpose_id = :id"
+    )
+    abstract fun getWithTasks(id: Long): Flow<Map<PurposeEntity, List<TaskEntity>>>
 
     @Query("DELETE FROM purposes")
     abstract override suspend fun deleteAll()

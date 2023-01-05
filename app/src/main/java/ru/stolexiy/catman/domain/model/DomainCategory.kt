@@ -4,7 +4,6 @@ data class DomainCategory(
     val name: String,
     val color: Int,
     val id: Long = 0,
-    val description: String? = null,
-    val domainPurposes: List<DomainPurpose>? = null,
+    val description: String? = null
 ) {
 }

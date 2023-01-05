@@ -15,7 +15,7 @@ import ru.stolexiy.catman.ui.categorylist.CategoryListViewModel
 import ru.stolexiy.catman.ui.dialog.purpose.PurposeSettingsViewModel
 
 class ViewModelFactory(
-    private val savedStateRegistryOwner: SavedStateRegistryOwner,
+    savedStateRegistryOwner: SavedStateRegistryOwner,
     private val categoryRepository: CategoryRepository,
     private val purposeRepository: PurposeRepository,
     private val useCases: UseCases,
@@ -41,8 +41,17 @@ class ViewModelFactory(
         handle: SavedStateHandle
     ): T {
         return when (modelClass) {
-            CategoryListViewModel::class.java -> CategoryListViewModel(categoryRepository, dispatcher) as T
-            PurposeSettingsViewModel::class.java -> PurposeSettingsViewModel(useCases.addPurposeToCategory, categoryRepository, purposeRepository, externalScope) as T
+            CategoryListViewModel::class.java -> CategoryListViewModel(
+                categoryRepository,
+                dispatcher
+            ) as T
+            PurposeSettingsViewModel::class.java -> PurposeSettingsViewModel(
+                useCases.purposeCommon,
+                categoryRepository,
+                purposeRepository,
+                externalScope,
+                handle
+            ) as T
             else -> throw IllegalArgumentException("Couldn't create view model: unknown class")
         }
     }

@@ -78,7 +78,7 @@ class CategoryListFragment : Fragment() {
         _binding = null
     }
 
-    private fun onDataLoaded(data: List<CategoryListItem>) = adapter.submitList(data)
+    private fun onDataLoaded(data: List<CategoryListItem>) = adapter.submitList(data as MutableList<CategoryListItem>)
 
     private fun onLoading() {
         Toast.makeText(requireContext(), "Data is loading...", Toast.LENGTH_LONG).show()

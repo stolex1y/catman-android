@@ -3,6 +3,7 @@ plugins {
     id "org.jetbrains.kotlin.android"
     id "org.jetbrains.kotlin.kapt"
     id "androidx.navigation.safeargs"
+    id 'com.google.gms.google-services'
 }
 
 
@@ -52,6 +53,10 @@ dependencies {
     def navVersion = "2.5.1"
     def roomVersion = "2.4.3"
     def lifecycleVersion = "2.5.1"
+
+    //firebase
+    implementation platform('com.google.firebase:firebase-bom:30.4.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
     // androidx room
     implementation "androidx.room:room-runtime:$roomVersion"

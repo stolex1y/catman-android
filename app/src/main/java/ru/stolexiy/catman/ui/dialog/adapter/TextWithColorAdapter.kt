@@ -7,10 +7,8 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.google.android.material.imageview.ShapeableImageView
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.setShadowColor
-import ru.stolexiy.catman.ui.dialog.model.Color
+import ru.stolexiy.catman.core.color
 import ru.stolexiy.catman.ui.dialog.purpose.model.Category
 
 class TextWithColorAdapter<T>(
@@ -25,7 +23,7 @@ class TextWithColorAdapter<T>(
         val view: View = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.item_with_color_list_item, parent, false)
         view.findViewById<ImageView>(R.id.item_color).apply {
-            setShadowColor(this, item.color)
+            color(this, item.color)
         }
         view.findViewById<TextView>(R.id.item_name).apply {
             text = item.name

@@ -49,7 +49,7 @@ class CatmanApplication: Application() {
                     )
                     categoryRepository.getAllCategoriesOnce().let { categories ->
                         if (categories.size >= 2) {
-                            useCases.addPurposeToCategory(
+                            useCases.purposeCommon(
                                 DomainPurpose(
                                     "Диплом",
                                     categories[0].id,

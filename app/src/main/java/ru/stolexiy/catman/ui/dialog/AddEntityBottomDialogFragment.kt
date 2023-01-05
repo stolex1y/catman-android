@@ -45,7 +45,6 @@ abstract class AddEntityBottomDialogFragment(
         val bottomSheetBehavior = (dialog as BottomSheetDialog).behavior
         bottomSheetBehavior.saveFlags = BottomSheetBehavior.SAVE_ALL
         bottomSheetBehavior.addBottomSheetCallback(callback)
-//        bottomSheetBehavior.maxWidth = requireParentFragment().view?.width ?: bottomSheetBehavior.maxWidth
         bottomSheetBehavior.maxHeight = Int.MAX_VALUE
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         bottomSheetBehavior.halfExpandedRatio = 0.5f
@@ -58,14 +57,9 @@ abstract class AddEntityBottomDialogFragment(
     }
 
     protected fun onStateChanged(bottomSheet: View, newState: Int) {
-//        Timber.d("state: $newState")
-//        if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-//            BottomSheetBehavior.from(bottomSheet).peekHeight = Resources.getSystem().displayMetrics.heightPixels
-//        }
     }
 
     protected fun onSlide(bottomSheet: View, slideOffset: Float) {
-
     }
 
     override fun onCancel(dialog: DialogInterface) {

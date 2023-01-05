@@ -11,9 +11,9 @@ data class DomainPurpose(
     val isFinished: Boolean = false,
     val progress: Int = 0,
     val id: Long = 0,
-    val priority: Int = 0,
-    val tasks: List<DomainTask>? = null
+    val priority: Int = 0
 ) {
+
     val isDeadlineBurning: Boolean
         get() {
             val difference = deadline.timeInMillis - System.currentTimeMillis()
@@ -21,4 +21,6 @@ data class DomainPurpose(
                 return true
             return difference < TimeUnit.DAYS.toMillis(3)
         }
+
+
 }
