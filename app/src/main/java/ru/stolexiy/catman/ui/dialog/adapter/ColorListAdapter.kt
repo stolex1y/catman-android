@@ -5,10 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
-import com.google.android.material.imageview.ShapeableImageView
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.setShadowColor
 import ru.stolexiy.catman.ui.dialog.model.Color
 
 class ColorListAdapter(

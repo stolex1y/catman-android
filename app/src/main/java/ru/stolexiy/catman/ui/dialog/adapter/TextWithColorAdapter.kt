@@ -31,8 +31,6 @@ class TextWithColorAdapter<T>(
         return view
     }
 
-
-
     data class Item(
         val id: Long,
         val color: Int,

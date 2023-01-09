@@ -49,6 +49,7 @@
                 android:hint="@string/purpose"
                 android:minWidth="100dp"
                 app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/dialog_title">
@@ -71,6 +72,7 @@
                 android:layout_marginTop="15dp"
                 android:hint="@string/category"
                 app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_name_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_name_layout"
                 app:layout_constraintTop_toBottomOf="@+id/purpose_name_layout"
@@ -96,6 +98,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
                 app:endIconIsGone="@{true}"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_category_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_category_layout"
@@ -142,6 +145,8 @@
                 android:layout_marginTop="20dp"
                 android:text="@string/required_field_legend"
                 android:textAlignment="textStart"
+                app:textColoring="@{R.color.pink}"
+                app:textColoringPart='@{"*"}'
                 app:layout_constraintEnd_toEndOf="@+id/purpose_description_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_description_layout"
                 app:layout_constraintTop_toBottomOf="@+id/purpose_description_layout" />
