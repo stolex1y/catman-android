@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit
 data class DomainPurpose(
     val name: String,
     val categoryId: Long,
+//    val category: DomainCategory,
     val deadline: Calendar,
     val description: String? = null,
     val isFinished: Boolean = false,

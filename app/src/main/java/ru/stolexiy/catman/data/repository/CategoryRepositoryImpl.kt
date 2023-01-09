@@ -1,9 +1,17 @@
-package ru.stolexiy.catman.data
+package ru.stolexiy.catman.data.repository
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.data.datasource.local.dao.CategoryDao
-import ru.stolexiy.catman.data.datasource.local.model.*
+import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
+import ru.stolexiy.catman.data.datasource.local.model.toCategoryEntities
+import ru.stolexiy.catman.data.datasource.local.model.toDomainMap
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.CategoryRepository

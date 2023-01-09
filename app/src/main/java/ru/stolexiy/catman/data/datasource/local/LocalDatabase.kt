@@ -19,7 +19,7 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
         TaskEntity::class,
         PlanEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -40,6 +40,8 @@ abstract class LocalDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(context: Context): LocalDatabase =
-            Room.databaseBuilder(context, LocalDatabase::class.java, DATABASE_NAME).build()
+            Room.databaseBuilder(context, LocalDatabase::class.java, DATABASE_NAME)
+                .fallbackToDestructiveMigration()
+                .build()
     }
 }

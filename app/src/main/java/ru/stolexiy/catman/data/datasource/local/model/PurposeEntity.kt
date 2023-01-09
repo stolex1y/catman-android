@@ -16,11 +16,7 @@ import java.util.*
             onDelete = CASCADE
         )
     ],
-    indices = [Index("purpose_category_id"), Index(
-        "purpose_category_id",
-        "purpose_priority",
-        unique = true
-    )]
+    indices = [Index("purpose_category_id"), Index("purpose_category_id", "purpose_priority")]
 )
 data class PurposeEntity(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "purpose_id") val id: Long,

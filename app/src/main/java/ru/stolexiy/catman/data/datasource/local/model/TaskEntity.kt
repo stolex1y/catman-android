@@ -19,7 +19,7 @@ import java.util.Calendar
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("task_purpose_id"), Index("task_purpose_id", "task_priority", unique = true)]
+    indices = [Index("task_purpose_id"), Index("task_purpose_id", "task_priority")]
 )
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_id") val id: Long,
