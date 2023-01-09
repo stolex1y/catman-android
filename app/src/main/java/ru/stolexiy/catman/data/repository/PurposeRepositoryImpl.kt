@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.data
+package ru.stolexiy.catman.data.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

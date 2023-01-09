@@ -7,5 +7,4 @@ data class DomainPlan(
     val tasks: List<DomainTask> = listOf()
 ) {
 
-
 }

@@ -1,6 +1,6 @@
 package ru.stolexiy.catman.domain.model
 
-import java.util.*
+import java.util.Calendar
 
 data class DomainTask(
     val purposeId: Long,
