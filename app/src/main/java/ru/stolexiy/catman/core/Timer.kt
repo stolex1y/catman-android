@@ -5,14 +5,16 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import lombok.EqualsAndHashCode
-import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -21,119 +23,118 @@ import kotlin.system.measureTimeMillis
 const val SEC_TO_MS = 1000L
 const val MIN_TO_SEC = 60L
 const val MIN_TO_MS = MIN_TO_SEC * SEC_TO_MS
-
-class Timer {
-    private val DEFAULT_TIME_MAX: Long = (999L * MIN_TO_SEC + 59L) * SEC_TO_MS
+class Timer(
+    coroutineScope: CoroutineScope,
+    initTime: Time,
+    updateTimeMs: Long = 1 * SEC_TO_MS,
+) {
+    val DEFAULT_TIME_MAX: Long = (999L * MIN_TO_SEC + 59L) * SEC_TO_MS
 
     private val mutex = Mutex()
-    
-    var maxInitTime: Long = DEFAULT_TIME_MAX
-    var listener: TimerListener = LogTimerListener
 
-    @GuardedBy("mutex")
-    var initTime: Time = Time(0)
+    @Volatile
+    var maxInitTime: Long = DEFAULT_TIME_MAX
+
+    @Volatile
+    var listener: TimerListener? = null
+
+    @Volatile
+    var initTime: Time = initTime
         set(value) {
-            coroutineScope.launch {
-                mutex.withLock {
-                    if (state != TimerState.STOPPED)
-                        throw IllegalStateException("Couldn't set time while timer's not stopped")
-                    field = Time(min(value.ms, maxInitTime))
-                }
-            }
+            field = Time(max(value.ms, maxInitTime))
         }
 
-    private var curTime: Time = initTime
+    private val mCurTimeFlow: MutableStateFlow<Time> = MutableStateFlow(initTime)
+    val curTime: StateFlow<Time> = mCurTimeFlow.asStateFlow()
+
+    var updateTimeMs: Long = updateTimeMs
+        set(value) {
+            require(value > 0)
+            field = value
+        }
 
     @GuardedBy("mutex")
+    @Volatile
     var state: TimerState = TimerState.STOPPED
         private set
 
-    @GuardedBy("mutex")
+    @Volatile
     var coroutineContext: CoroutineContext = CoroutineName("pomodoro timer") + Dispatchers.Default
         set(value) {
-            coroutineScope.launch {
-                mutex.withLock {
-                    if (state == TimerState.RUNNING)
-                        throw IllegalStateException("Couldn't change coroutine context while timer's running")
-                    field = value
-                }
-            }
+            if (state == TimerState.RUNNING)
+                throw IllegalStateException("Couldn't change coroutine context while timer's running")
+            field = value
         }
 
-    @GuardedBy("mutex")
-    var coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
+    @Volatile
+    var coroutineScope: CoroutineScope = coroutineScope
         set(value) {
-            coroutineScope.let {
-                it.launch {
-                    mutex.withLock {
-                        if (state == TimerState.RUNNING)
-                            throw IllegalStateException("Couldn't change coroutine scope while timer's running")
-                        field = value
-                    }
-                }
-            }
+            if (state == TimerState.RUNNING)
+                throw IllegalStateException("Couldn't change coroutine scope while timer's running")
+            field = value
         }
 
     private var timerJob: Job? = null
+    private var mCurTime: Time = initTime
 
     fun start() {
-        coroutineScope.launch {
+        coroutineScope.launch(coroutineContext) {
             mutex.withLock {
                 when (state) {
                     TimerState.RUNNING -> return@launch
                     TimerState.STOPPED -> {
-                        curTime = initTime
-                        timerRun()
+                        mCurTime = initTime
+                        timerJob = timerRun()
                     }
-                    TimerState.PAUSED -> timerRun()
-                    else -> throw NotImplementedError()
+                    TimerState.PAUSED -> timerJob = timerRun()
                 }
             }
         }
     }
 
     fun pause() {
-        coroutineScope.launch {
+        coroutineScope.launch(coroutineContext) {
             mutex.withLock {
-                timerJob?.cancel()
-                state = TimerState.PAUSED
-                coroutineScope.launch(Dispatchers.Main) {
-                    listener.onPause()
+                if (state == TimerState.RUNNING) {
+                    timerJob = timerJob?.let {
+                        it.cancelAndJoin()
+                        null
+                    }
+                    state = TimerState.PAUSED
+                    listener?.onPause()
                 }
             }
         }
     }
 
     fun stop() {
-        coroutineScope.launch {
+        coroutineScope.launch(coroutineContext) {
             mutex.withLock {
-                timerJob?.cancel()
-                state = TimerState.STOPPED
-                coroutineScope.launch(Dispatchers.Main) {
-                    listener.onStop()
+                if (state == TimerState.STOPPED)
+                    return@launch
+                timerJob = timerJob?.let {
+                    it.cancelAndJoin()
+                    null
                 }
+                state = TimerState.STOPPED
+                listener?.onStop()
             }
         }
     }
 
     private fun timerRun(): Job {
-        return coroutineScope.launch {
-            withContext(Dispatchers.Main) {
-                listener.onStart()
+        return coroutineScope.launch(coroutineContext) {
+            mCurTimeFlow.value = mCurTime
+            listener?.onStart()
+            state = TimerState.RUNNING
+            while (mCurTime > 0) {
+                val delayTime = min(updateTimeMs, mCurTime.ms)
+                delay(delayTime)
+                mCurTime -= delayTime
+                mCurTimeFlow.value = mCurTime
             }
-            mutex.withLock {
-                state = TimerState.RUNNING
-            }
-            while (curTime > 0) {
-                delay(1000)
-                curTime--
-            }
-            mutex.withLock {
-                state = TimerState.STOPPED
-            }
-            withContext(Dispatchers.Main) {
-                listener.onFinish()
-            }
+            state = TimerState.STOPPED
+            listener?.onFinish()
         }
     }
 
@@ -147,7 +148,7 @@ class Timer {
             private set
 
         init {
-            this.ms = ms
+            setTime(ms)
         }
 
         constructor(min: Long, sec: Long) : this(minAndSecToMs(min, sec)) {}
@@ -156,7 +157,7 @@ class Timer {
             require(ms >= 0)
             this.ms = ms
             min = ms / MIN_TO_MS
-            sec = ms % SEC_TO_MS
+            sec = ms % MIN_TO_MS / SEC_TO_MS
         }
 
         fun setTime(min: Long, sec: Long) {
@@ -166,8 +167,8 @@ class Timer {
             this.ms = minAndSecToMs(min, sec)
         }
 
-        operator fun dec(): Time {
-            return Time(max(this.ms - 1, 0))
+        operator fun minus(ms: Long): Time {
+            return Time(max(this.ms - ms, 0))
         }
 
         operator fun compareTo(ms: Long): Int {
@@ -197,33 +198,53 @@ class Timer {
         fun onPause() {}
         fun onFinish() {}
     }
-
-    private object LogTimerListener : TimerListener {
-        override fun onStart() {
-            Timber.d("timer started at ${System.currentTimeMillis()}")
-        }
-
-        override fun onStop() {
-            Timber.d("timer stopped at ${System.currentTimeMillis()}")
-        }
-
-        override fun onPause() {
-            Timber.d("timer paused at ${System.currentTimeMillis()}")
-        }
-
-        override fun onFinish() {
-            Timber.d("timer finished at ${System.currentTimeMillis()}")
-        }
-    }
 }
 
 fun main() {
-    val timer = Timer()
-    timer.initTime = Timer.Time(1, 0)
+    var sumTime = 0L
     runBlocking {
-        val actualExecutionTime = measureTimeMillis {
-            timer.start()
+        val timer = Timer(
+            this,
+            Timer.Time(0, 5),
+            1000
+        ).apply {
+            listener = LogTimerListener
         }
-        println("Timer set on 1 min finished wih ${Timer.Time(actualExecutionTime)}")
+        val collecting = launch {
+            timer.curTime.collect {
+                println("Time updated $it")
+            }
+        }
+        sumTime = measureTimeMillis {
+            runBlocking {
+                timer.coroutineScope = this
+                timer.start()
+                delay(3000)
+                timer.stop()
+                timer.start()
+                delay(5000)
+                collecting.cancel()
+            }
+        }
+    }
+    println("Sum time: ${Timer.Time(sumTime)}")
+
+}
+
+private object LogTimerListener : Timer.TimerListener {
+    override fun onStart() {
+        println("timer started at ${System.currentTimeMillis()}")
+    }
+
+    override fun onStop() {
+        println("timer stopped at ${System.currentTimeMillis()}")
+    }
+
+    override fun onPause() {
+        println("timer paused at ${System.currentTimeMillis()}")
+    }
+
+    override fun onFinish() {
+        println("timer finished at ${System.currentTimeMillis()}")
     }
 }
