@@ -1,7 +1,8 @@
 package ru.stolexiy.catman.data.datasource.local.model
 
 import androidx.room.*
-import androidx.room.ForeignKey.CASCADE
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.CASCADE
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import java.util.*
 

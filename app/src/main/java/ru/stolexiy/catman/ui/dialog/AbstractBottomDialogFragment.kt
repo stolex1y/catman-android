@@ -13,20 +13,18 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import timber.log.Timber
 
-abstract class AddEntityBottomDialogFragment(
-    private val layout: Int,
-    private val onDismiss: () -> Unit = {},
-    private val onCancel: () -> Unit = {}
+abstract class AbstractBottomDialogFragment(
+    private val mLayout: Int,
 ) : BottomSheetDialogFragment() {
-    protected var _binding: ViewDataBinding? = null
+    protected var binding: ViewDataBinding? = null
 
-    private val callback = object : BottomSheetBehavior.BottomSheetCallback() {
+    private val mCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
-            this@AddEntityBottomDialogFragment.onStateChanged(bottomSheet, newState)
+            this@AbstractBottomDialogFragment.onStateChanged(bottomSheet, newState)
         }
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            this@AddEntityBottomDialogFragment.onSlide(bottomSheet, slideOffset)
+            this@AbstractBottomDialogFragment.onSlide(bottomSheet, slideOffset)
         }
     }
 
@@ -40,15 +38,16 @@ abstract class AddEntityBottomDialogFragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(layout, container, false)
-        _binding = DataBindingUtil.bind(view)
-        val bottomSheetBehavior = (dialog as BottomSheetDialog).behavior
-        bottomSheetBehavior.saveFlags = BottomSheetBehavior.SAVE_ALL
-        bottomSheetBehavior.addBottomSheetCallback(callback)
-        bottomSheetBehavior.maxHeight = Int.MAX_VALUE
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-        bottomSheetBehavior.halfExpandedRatio = 0.5f
-        bottomSheetBehavior.expandedOffset = 0
+        val view = inflater.inflate(mLayout, container, false)
+        binding = DataBindingUtil.bind(view)
+        (dialog as BottomSheetDialog).behavior.apply {
+            saveFlags = BottomSheetBehavior.SAVE_ALL
+            addBottomSheetCallback(mCallback)
+            maxHeight = Int.MAX_VALUE
+            state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            halfExpandedRatio = 0.5f
+            expandedOffset = 0
+        }
         return view
     }
 
@@ -63,19 +62,21 @@ abstract class AddEntityBottomDialogFragment(
     }
 
     override fun onCancel(dialog: DialogInterface) {
-        onCancel()
         super.onCancel(dialog)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
         Toast.makeText(requireContext(), "Dismiss dialog...", Toast.LENGTH_SHORT).show()
-        onDismiss()
         super.onDismiss(dialog)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Timber.d("destroy dialog")
-        _binding = null
     }
 }

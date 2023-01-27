@@ -1,6 +1,5 @@
-package ru.stolexiy.catman.ui.util.validators
+package ru.stolexiy.catman.ui.util.validation
 
-import android.content.Context
 import androidx.annotation.StringRes
 
 fun interface Condition<T> {
@@ -30,21 +29,16 @@ fun interface Condition<T> {
         }
     }
 
+
     companion object {
         inline fun <V> create(
-            context: Context,
-            @StringRes description: Int,
-            crossinline isValueValid: (value: V?) -> Boolean
-        ): Condition<V?> = create(context.getString(description), isValueValid)
-
-        inline fun <V> create(
-            errorMessage: String? = null,
+            @StringRes errorMessageRes: Int,
             crossinline isValueValid: (value: V?) -> Boolean
         ): Condition<V?> = Condition { value ->
             if (isValueValid(value)) {
                 ValidationResult.valid()
             } else {
-                ValidationResult.invalid(errorMessage)
+                ValidationResult.invalid(errorMessageRes)
             }
         }
 

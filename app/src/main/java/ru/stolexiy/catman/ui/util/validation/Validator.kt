@@ -1,6 +1,7 @@
-package ru.stolexiy.catman.ui.util.validators
+package ru.stolexiy.catman.ui.util.validation
 
-import ru.stolexiy.catman.ui.util.validators.Validator.Operator
+import androidx.annotation.StringRes
+import ru.stolexiy.catman.ui.util.validation.Validator.Operator
 
 /**
  * Validate the value of <T> against multiple conditions
@@ -20,7 +21,7 @@ open class Validator<T>(
     private var operator: Operator = Operator.Conjunction()
 ) : Condition<T?> {
     private val conditions: MutableSet<Condition<T?>> by lazy {
-        LinkedHashSet<Condition<T?>>()
+        LinkedHashSet()
     }
 
     private val onOperatorChangedListeners: ArrayList<OnOperatorChangedListener> by lazy { ArrayList() }
@@ -172,10 +173,10 @@ open class Validator<T>(
         /**
          * Creates an instance of the [Validator] with initial condition from the parameters
          *
-         * @param errorMessage - Error message [ValidationResult.errorMessage] of the initial condition
+         * @param errorMessage - Error message [ValidationResult.errorMessageRes] of the initial condition
          * @param isValueValid - Initial condition [Condition.validate] function
          * **/
-        fun <V> create(errorMessage: String? = null, isValueValid: (value: V?) -> Boolean): Validator<V?> =
-            Validator(Condition.create(errorMessage, isValueValid))
+        fun <V> create(@StringRes errorStringRes: Int, isValueValid: (value: V?) -> Boolean): Validator<V?> =
+            Validator(Condition.create(errorStringRes, isValueValid))
     }
 }

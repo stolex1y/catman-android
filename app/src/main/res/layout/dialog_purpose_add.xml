@@ -5,6 +5,7 @@
 
     <data>
         <import type="ru.stolexiy.catman.R"/>
+        <import type="ru.stolexiy.catman.ui.util.Converters"/>
         <variable
             name="purpose"
             type="ru.stolexiy.catman.ui.dialog.purpose.model.Purpose" />
@@ -48,6 +49,7 @@
                 android:layout_marginEnd="25dp"
                 android:hint="@string/purpose"
                 android:minWidth="100dp"
+                app:validateBy="@{purpose.name}"
                 app:boxBackgroundMode="outline"
                 app:hintAsterisk="@{R.color.pink}"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -58,9 +60,7 @@
                     android:id="@+id/purpose_name"
                     style="@style/EditText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@={purpose.name}"
-                    tools:text="Asdf" />
+                    android:layout_height="wrap_content" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -71,14 +71,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:hint="@string/category"
+                app:bindError="@{purpose.category}"
                 app:boxBackgroundMode="outline"
                 app:hintAsterisk="@{R.color.pink}"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_name_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_name_layout"
                 app:layout_constraintTop_toBottomOf="@+id/purpose_name_layout"
                 app:startIconDrawable="@drawable/oval_color"
-                app:startIconIsGone="@{purpose.categoryId == null}"
-                app:startIconTint="@color/dirty_white">
+                app:startIconIsGone="@{purpose.category.asFlow == null}"
+                app:startIconTintColor="@{purpose.category.asFlow.color}" >
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/purpose_category"
@@ -87,6 +88,7 @@
                     android:layout_height="wrap_content"
                     android:focusable="false"
                     android:inputType="none"
+                    android:text="@{purpose.category.asFlow.name}"
                     app:popupBackground="@{R.drawable.popup_rounded_background}" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -97,6 +99,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
+                app:bind="@{purpose.deadline.asFlow}"
+                app:bindConverter='@{Converters.calendarToString("dd.MM.yyyy")}'
+                app:bindError="@{purpose.deadline}"
                 app:boxBackgroundMode="outline"
                 app:hintAsterisk="@{R.color.pink}"
                 app:endIconIsGone="@{true}"
@@ -113,8 +118,7 @@
                     android:focusable="false"
                     android:hint="@string/deadline"
                     android:inputType="none"
-                    android:minWidth="250dp"
-                    android:text="@{purpose.textDeadline}" />
+                    android:minWidth="250dp" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -124,6 +128,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:hint="@string/description"
+                app:validateBy="@{purpose.description}"
                 app:boxBackgroundMode="outline"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_deadline_layout"
                 app:layout_constraintStart_toStartOf="@id/purpose_deadline_layout"
@@ -133,8 +138,7 @@
                     android:id="@+id/purpose_description"
                     style="@style/EditText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@={purpose.description}" />
+                    android:layout_height="wrap_content" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -159,9 +163,10 @@
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="30dp"
                 android:contentDescription="@string/add_purpose"
+                android:text="@string/add"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                android:text="@string/add"
+                android:enabled="@{purpose.isValidAsFlow}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

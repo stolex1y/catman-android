@@ -2,8 +2,6 @@ package ru.stolexiy.catman.data.datasource.local.dao
 
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
 
@@ -13,20 +11,11 @@ abstract class PurposeDao : Dao<PurposeEntity>() {
     @Query("SELECT * FROM purposes")
     abstract fun getAll(): Flow<List<PurposeEntity>>
 
-    @Query("SELECT * FROM purposes")
-    abstract fun getAllOnce(): List<PurposeEntity>
-
     @Query("SELECT * FROM purposes WHERE purpose_id = :id")
-    abstract override fun get(id: Long): Flow<PurposeEntity>
-
-    @Query("SELECT * FROM purposes WHERE purpose_id = :id")
-    abstract override fun getOnce(id: Long): PurposeEntity
+    abstract fun get(id: Long): Flow<PurposeEntity?>
 
     @Query("SELECT * FROM purposes WHERE purpose_category_id = :categoryId ORDER BY purpose_priority")
     abstract fun getAllByCategoryOrderByPriority(categoryId: Long): Flow<List<PurposeEntity>>
-
-    @Query("SELECT * FROM purposes WHERE purpose_category_id = :categoryId ORDER BY purpose_priority")
-    abstract fun getAllByCategoryOrderByPriorityOnce(categoryId: Long): List<PurposeEntity>
 
     @Query(
         "SELECT * FROM purposes " +

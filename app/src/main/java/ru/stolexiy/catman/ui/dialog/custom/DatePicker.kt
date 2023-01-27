@@ -1,19 +1,37 @@
 package ru.stolexiy.catman.ui.dialog.custom
 
+import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable.Creator
 import androidx.annotation.StringRes
 import com.google.android.material.datepicker.CalendarConstraints
-import com.google.android.material.datepicker.CalendarConstraints.DateValidator
 import com.google.android.material.datepicker.MaterialDatePicker
 import ru.stolexiy.catman.R
+import ru.stolexiy.catman.core.DateUtils.toCalendar
+import ru.stolexiy.catman.ui.util.validation.Condition
+import ru.stolexiy.catman.ui.util.validation.Condition.Companion.isValid
+import java.io.Serializable
+import java.util.Calendar
 
 class DatePicker(
     @StringRes title: Int,
     selection: Long = System.currentTimeMillis(),
-    start: Long = 0,
-    end: Long = Long.MAX_VALUE
+    isValid: (Long) -> Boolean
 ) {
+
+    constructor(
+        @StringRes title: Int,
+        selection: Long = System.currentTimeMillis(),
+        condition: Condition<Calendar?>
+    ) : this(title, selection, { condition.isValid(it.toCalendar()) })
+
+    constructor(
+        @StringRes title: Int,
+        selection: Long = System.currentTimeMillis(),
+        min: Long = 0,
+        max: Long = Long.MAX_VALUE
+    ) : this(title, selection, { it in min..max })
+
     val dialog: MaterialDatePicker<Long>
 
     init {
@@ -21,7 +39,9 @@ class DatePicker(
             .setTitleText(title)
             .setSelection(selection)
             .setCalendarConstraints(
-                CalendarConstraints.Builder().setValidator(DateRangeValidator(start, end)).build()
+                CalendarConstraints.Builder().setValidator(
+                    DateValidator(isValid)
+                ).build()
             )
             .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
             .setPositiveButtonText(R.string.choose)
@@ -29,17 +49,20 @@ class DatePicker(
             .build()
     }
 
-    data class DateRangeValidator(
-        val start: Long = 0,
-        val end: Long = Long.MAX_VALUE
-    ) : DateValidator {
+    data class DateValidator(
+        val validator: Validator
+    ) : CalendarConstraints.DateValidator {
 
-        companion object CREATOR : Creator<DateRangeValidator?> {
-            override fun createFromParcel(source: Parcel): DateRangeValidator? {
-                return DateRangeValidator(source.readLong(), source.readLong())
+        companion object CREATOR : Creator<DateValidator?> {
+
+            private val VALIDATOR = "VALIDATOR"
+            override fun createFromParcel(source: Parcel): DateValidator? {
+                return source.readBundle(CREATOR::class.java.classLoader)?.getSerializable(VALIDATOR)?.let {
+                    DateValidator(it as Validator)
+                }
             }
 
-            override fun newArray(size: Int): Array<DateRangeValidator?> {
+            override fun newArray(size: Int): Array<DateValidator?> {
                 return arrayOfNulls(size)
             }
         }
@@ -49,12 +72,16 @@ class DatePicker(
         }
 
         override fun writeToParcel(dest: Parcel, flags: Int) {
-            dest.writeLong(start)
-            dest.writeLong(end)
+            dest.writeBundle(Bundle().apply { putSerializable(VALIDATOR, validator) })
         }
 
         override fun isValid(date: Long): Boolean {
-            return date in start..end
+            return validator.isValid(date)
         }
     }
+
+    fun interface Validator : Serializable {
+        fun isValid(date: Long): Boolean
+    }
+
 }

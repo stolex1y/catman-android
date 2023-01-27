@@ -6,8 +6,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.data.datasource.local.LocalDatabase
 import ru.stolexiy.catman.data.repository.CategoryRepositoryImpl
@@ -49,46 +48,41 @@ class CatmanApplication: Application() {
         if (BuildConfig.DEBUG)
             Timber.plant(Timber.DebugTree())
 
-//        applicationScope.launch {
+        applicationScope.launch {
 //            categoryCrud.clear()
-        fillDatabase()
-//        }
+            fillDatabase()
+        }
     }
 
-    private fun fillDatabase() {
-        applicationScope.launch {
-            categoryRepository.getAllCategoriesOnce().let { categories ->
-                if (categories.isEmpty()) {
-                    categoryCrud.create(DomainCategory("Образование", 0x7FFFD4))
-                    categoryCrud.create(DomainCategory("Работа", 0x66CC66))
-                    categoryCrud.getAll().take(1).collect { categories ->
-                        if (categories.size >= 2) {
-                            purposeCrud.create(
-                                DomainPurpose(
-                                    "Диплом",
-                                    categories[0].id,
-                                    GregorianCalendar(2023, 4, 31),
-                                    progress = 10
-                                )
-                            )
-                            purposeCrud.create(
-                                DomainPurpose(
-                                    "Стажировка",
-                                    categories[1].id,
-                                    GregorianCalendar(2023, 7, 28),
-                                    progress = 27
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-            launch {
-                categoryRepository.getAllCategoriesWithPurposes().collect {
-                    Timber.d("init db $it")
-                    cancel()
-                }
-            }
+    private suspend fun clearDatabase() {
+        categoryCrud.clear()
+    }
+
+    private suspend fun fillDatabase() {
+        var categories = categoryRepository.getAllCategoriesOnce()
+        if (categories.isEmpty()) {
+            val category1 = DomainCategory("Образование", 0x7FFFD4)
+            val category2 = DomainCategory("Работа", 0x66CC66)
+            categoryCrud.create(category1)
+            categoryCrud.create(category2)
+            categories = categoryCrud.getAll().first().getOrNull() ?: return
+            val purpose1 = DomainPurpose(
+                "Диплом",
+                categories[0].id,
+                GregorianCalendar(2023, 4, 31),
+                progress = 10
+            )
+            val purpose2 = DomainPurpose(
+                "Стажировка",
+                categories[1].id,
+                GregorianCalendar(2023, 7, 28),
+                progress = 27
+            )
+            purposeCrud.create(purpose1)
+            purposeCrud.create(purpose2)
+        }
+        categoryRepository.getAllCategoriesWithPurposes().first().let {
+            Timber.d("init db $it")
         }
     }
 }
