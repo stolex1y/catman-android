@@ -1,12 +1,11 @@
 package ru.stolexiy.catman.domain.model
 
-import java.util.*
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 data class DomainPurpose(
     val name: String,
     val categoryId: Long,
-//    val category: DomainCategory,
     val deadline: Calendar,
     val description: String? = null,
     val isFinished: Boolean = false,
@@ -14,7 +13,6 @@ data class DomainPurpose(
     val id: Long = 0,
     val priority: Int = 0
 ) {
-
     val isDeadlineBurning: Boolean
         get() {
             val difference = deadline.timeInMillis - System.currentTimeMillis()
@@ -22,6 +20,4 @@ data class DomainPurpose(
                 return true
             return difference < TimeUnit.DAYS.toMillis(3)
         }
-
-
 }

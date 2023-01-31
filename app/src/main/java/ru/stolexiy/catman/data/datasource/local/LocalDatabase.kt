@@ -5,9 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import ru.stolexiy.catman.data.datasource.local.dao.CategoriesWithPurposesDao
 import ru.stolexiy.catman.data.datasource.local.dao.CategoryDao
 import ru.stolexiy.catman.data.datasource.local.dao.PurposeDao
 import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
+import ru.stolexiy.catman.data.datasource.local.model.ColorEntity
 import ru.stolexiy.catman.data.datasource.local.model.PlanEntity
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
@@ -17,15 +19,17 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
         CategoryEntity::class,
         PurposeEntity::class,
         TaskEntity::class,
-        PlanEntity::class
+        PlanEntity::class,
+        ColorEntity::class
     ],
-    version = 2,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class LocalDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun purposeDao(): PurposeDao
+    abstract fun categoriesWithPurposesDao(): CategoriesWithPurposesDao
 
     companion object {
         val DATABASE_NAME = "catman-db"

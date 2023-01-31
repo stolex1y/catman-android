@@ -1,8 +1,9 @@
 package ru.stolexiy.catman.ui.util.validation
 
 import androidx.annotation.StringRes
+import java.io.Serializable
 
-fun interface Condition<T> {
+fun interface Condition<T> : Serializable {
     fun validate(value: T?): ValidationResult
 
     /**

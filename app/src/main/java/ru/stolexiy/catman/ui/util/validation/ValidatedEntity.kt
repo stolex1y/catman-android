@@ -12,9 +12,13 @@ abstract class ValidatedEntity : Serializable {
     protected fun <T> validatedProperty(initialValue: T, condition: Condition<T?>): ValidatedProperty<T> =
         ValidatedProperty(initialValue, condition)
 
+    @Transient
     private val _isValid: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    @Transient
     val isValidAsFlow: StateFlow<Boolean> = _isValid.asStateFlow()
-    val isValid: Boolean = _isValid.value
+    val isValid: Boolean
+        get() = _isValid.value
 
     init {
     }
@@ -26,10 +30,13 @@ abstract class ValidatedEntity : Serializable {
     inner class ValidatedProperty<T> constructor(
         initialValue: T,
         val condition: Condition<T?> = Conditions.None<T?>()
-    ) {
+    ) : Serializable {
         private val index = propsValidity.size
 
+        @Transient
         private val _state: MutableStateFlow<T> = MutableStateFlow(initialValue)
+
+        @Transient
         val asFlow: StateFlow<T> = _state.asStateFlow()
         val value: T
             get() = _state.value
@@ -37,13 +44,17 @@ abstract class ValidatedEntity : Serializable {
         val isValid: Boolean
             get() = condition.isValid(value)
 
+        @Transient
         private val _error: MutableStateFlow<Int?> = MutableStateFlow(condition.validate(initialValue).errorMessageRes)
+
+        @Transient
         val errorFlow: StateFlow<Int?> = _error.asStateFlow()
         val error: Int?
             get() = _error.value
 
         init {
             propsValidity.add(isValid)
+            updateValidity()
         }
 
         fun set(value: T) {
@@ -64,13 +75,6 @@ abstract class ValidatedEntity : Serializable {
                     _error.value = null
                 }
             }
-
-            /*condition.validate(value).takeIf { it.isNotValid }?.let {
-                _error.value = it.errorMessageRes
-                throw InvalidValueException(it.errorMessageRes)
-            } ?: run {
-                _error.value = null
-            }*/
         }
 
         fun get() = value

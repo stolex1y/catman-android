@@ -11,13 +11,11 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import ru.stolexiy.catman.CatmanApplication
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.Json
-import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.PurposeCrud
 import ru.stolexiy.catman.ui.util.work.WorkUtils
 import timber.log.Timber
 
-class AddPurposeWorker(
+class DeletePurposeWorker(
     appContext: Context,
     workerParams: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParams) {
@@ -31,47 +29,41 @@ class AddPurposeWorker(
     }
 
     companion object {
-        val ADD_PURPOSE_TAG = AddPurposeWorker::class.simpleName ?: "AddPurposeWorker"
-        const val INPUT_PURPOSE = "INPUT_PURPOSE"
-        const val OUTPUT_PURPOSE_ID = "OUTPUT_PURPOSE_ID"
+        val DELETE_PURPOSE_TAG = DeletePurposeWorker::class.simpleName ?: "DeletePurposeWorker"
+        const val INPUT_PURPOSE_ID = "INPUT_PURPOSE_ID"
 
-        fun create(addingPurpose: DomainPurpose): OneTimeWorkRequest {
-            val workerInput = Json.serializer.toJson(addingPurpose).let {
-                workDataOf(INPUT_PURPOSE to it)
-            }
-            return OneTimeWorkRequestBuilder<AddPurposeWorker>()
-                .addTag(ADD_PURPOSE_TAG)
-                .setInputData(workerInput)
+        fun create(deletingPurposeId: Long): OneTimeWorkRequest {
+            return OneTimeWorkRequestBuilder<DeletePurposeWorker>()
+                .setInputData(workDataOf(INPUT_PURPOSE_ID to deletingPurposeId))
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
         }
     }
 
     override suspend fun doWork(): Result {
-        val addingPurposeString = inputData.getString(INPUT_PURPOSE) ?: return Result.success()
-        val addingPurpose = Json.serializer.fromJson(addingPurposeString, DomainPurpose::class.java)
+        val deletingPurposeId: Long = inputData.keyValueMap[INPUT_PURPOSE_ID] as Long? ?: return Result.success()
         return run {
-            Timber.d("adding purpose started")
-            purposeCrud.create(addingPurpose)
+            Timber.d("deleting purpose with id $deletingPurposeId started")
+            purposeCrud.delete(deletingPurposeId)
         }.onFailure {
-            Timber.e(it, "adding purpose cancelled with error")
+            Timber.e(it, "deleting purpose with id $deletingPurposeId cancelled with error")
         }.onSuccess {
-            Timber.d("purpose added successfully")
+            Timber.d("purpose with id $deletingPurposeId deleted successfully")
         }.let {
             if (it.isSuccess)
-                Result.success(workDataOf(OUTPUT_PURPOSE_ID to it.getOrNull()!!.first()))
+                Result.success()
             else
                 Result.retry()
         }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(WorkUtils.ADD_PURPOSE_NOTIFICATION_ID, createNotification())
+        return ForegroundInfo(WorkUtils.DELETE_PURPOSE_NOTIFICATION_ID, createNotification())
     }
 
     private fun createNotification(): Notification {
         return WorkUtils.createNotificationBackgroundWork(
-            applicationContext.getString(R.string.purpose_adding),
+            applicationContext.getString(R.string.purpose_deleting),
             applicationContext
         )
     }

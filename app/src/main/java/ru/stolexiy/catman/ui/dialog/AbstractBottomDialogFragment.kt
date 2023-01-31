@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -15,6 +14,7 @@ import timber.log.Timber
 
 abstract class AbstractBottomDialogFragment(
     private val mLayout: Int,
+    private val onDestroyDialog: () -> Unit = {},
 ) : BottomSheetDialogFragment() {
     protected var binding: ViewDataBinding? = null
 
@@ -66,7 +66,6 @@ abstract class AbstractBottomDialogFragment(
     }
 
     override fun onDismiss(dialog: DialogInterface) {
-        Toast.makeText(requireContext(), "Dismiss dialog...", Toast.LENGTH_SHORT).show()
         super.onDismiss(dialog)
     }
 
@@ -77,6 +76,7 @@ abstract class AbstractBottomDialogFragment(
 
     override fun onDestroy() {
         super.onDestroy()
+        onDestroyDialog()
         Timber.d("destroy dialog")
     }
 }

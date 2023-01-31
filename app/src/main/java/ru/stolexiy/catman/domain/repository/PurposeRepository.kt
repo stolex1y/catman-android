@@ -8,7 +8,7 @@ interface PurposeRepository {
     fun getPurpose(id: Long): Flow<DomainPurpose?>
     fun getAllPurposesByCategoryOrderByPriority(categoryId: Long): Flow<List<DomainPurpose>>
     suspend fun updatePurpose(vararg domainPurposes: DomainPurpose)
-    suspend fun insertPurpose(vararg domainPurposes: DomainPurpose)
+    suspend fun insertPurpose(vararg domainPurposes: DomainPurpose): List<Long>
     suspend fun deletePurpose(vararg domainPurposes: DomainPurpose)
     suspend fun deleteAllPurposes()
 }

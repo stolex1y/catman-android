@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.data.datasource.local.dao.PurposeDao
@@ -20,19 +20,21 @@ class PurposeRepositoryImpl(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : PurposeRepository {
     override fun getAllPurposes(): Flow<List<DomainPurpose>> =
-        localDao.getAll().distinctUntilChanged().map { it.map(PurposeEntity::toDomainPurpose) }
+        localDao.getAll().distinctUntilChanged()
+            .mapLatest { it.map(PurposeEntity::toDomainPurpose) }
             .onEach { Timber.d("get all purposes") }
             .flowOn(dispatcher)
 
     override fun getPurpose(id: Long): Flow<DomainPurpose?> =
-        localDao.get(id).distinctUntilChanged().map { it?.toDomainPurpose() }
+        localDao.get(id).distinctUntilChanged()
+            .mapLatest { it?.toDomainPurpose() }
             .onEach { Timber.d("get purpose: $id") }
             .flowOn(dispatcher)
 
     override fun getAllPurposesByCategoryOrderByPriority(categoryId: Long): Flow<List<DomainPurpose>> =
         localDao.getAllByCategoryOrderByPriority(categoryId)
             .distinctUntilChanged()
-            .map { it.map(PurposeEntity::toDomainPurpose) }
+            .mapLatest { it.map(PurposeEntity::toDomainPurpose) }
             .onEach { Timber.d("get all purposes by category order by priority: $categoryId") }
             .flowOn(dispatcher)
 

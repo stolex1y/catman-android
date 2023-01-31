@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.core
+package ru.stolexiy.catman.domain.util
 
 import java.util.Calendar
 
@@ -9,5 +9,5 @@ object DateUtils {
 
     fun Long.toCalendar(): Calendar = Calendar.getInstance().apply { timeInMillis = this@toCalendar }
 
-    fun Calendar.isNotPast(): Boolean = this.timeInMillis < todayCalendar().timeInMillis
+    fun Calendar.isNotPast(): Boolean = this.timeInMillis >= todayCalendar().timeInMillis
 }

@@ -31,6 +31,15 @@
     <string name="category_settings">настройки категории</string>
     <string name="remove">Удалить</string>
     <string name="internal_error">Произошла внутренняя ошибка приложения</string>
+    <string name="background_work">Фоновая работа</string>
+    <string name="purpose_adding">Добавление цели…</string>
+    <string name="purpose_added">Цель успешно добавлена</string>
+    <string name="execution_failed">Произошла ошибка</string>
+    <string name="purpose_updating">Обновление цели…</string>
+    <string name="purpose_updated">Цель успешно обновлена</string>
+    <string name="purpose_deleting">Удаление цели…</string>
+    <string name="purpose_deleted">Цель успешно удалена</string>
+    <string name="deadline_cant_be_past">Дедлайн не может быть прошедшим</string>
 
     <string name="cream">Кремовый</string>
     <string name="aquamarine">Аквамариновый</string>
