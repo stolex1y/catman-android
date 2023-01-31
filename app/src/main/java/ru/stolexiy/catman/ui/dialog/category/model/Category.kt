@@ -1,6 +1,8 @@
 package ru.stolexiy.catman.ui.dialog.category.model
 
+import android.content.Context
 import ru.stolexiy.catman.domain.model.DomainCategory
+import ru.stolexiy.catman.domain.model.DomainColor
 import ru.stolexiy.catman.ui.util.DefaultConditions
 import ru.stolexiy.catman.ui.util.validation.Conditions
 import ru.stolexiy.catman.ui.util.validation.ValidatedEntity
@@ -15,7 +17,7 @@ class Category(
     var name: ValidatedProperty<String> = validatedProperty(name, DefaultConditions.notEmpty())
     var color: ValidatedProperty<Color?> = validatedProperty(color, DefaultConditions.notNull())
     val id: ValidatedProperty<Long> = validatedProperty(id, Conditions.None())
-    var description: ValidatedProperty<String?> = validatedProperty(description, DefaultConditions.notEmpty())
+    var description: ValidatedProperty<String?> = validatedProperty(description, Conditions.None())
 
     fun toDomainCategory() = DomainCategory(
         name = name.get(),
@@ -25,9 +27,25 @@ class Category(
     )
 
     companion object {
-        fun fromDomainCategory(domainCategory: DomainCategory) = Category(
-            name = domainCategory.name,
-            color = C
-        )
+        fun fromDomainCategory(
+            context: Context,
+            domainCategory: DomainCategory,
+            domainColor: DomainColor? = null
+        ): Category {
+            val rgba = domainCategory.color
+            val color = if (domainColor != null) {
+                Color.fromDomainColor(domainColor)
+            } else if (Colors.defaultColorNames.containsKey(rgba)) {
+                Color(rgba, context.getString(Colors.defaultColorNames[rgba]!!))
+            } else {
+                Color.fromUnknownColor(rgba)
+            }
+            return Category(
+                name = domainCategory.name,
+                color = color,
+                id = domainCategory.id,
+                description = domainCategory.description
+            )
+        }
     }
 }
