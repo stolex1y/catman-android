@@ -3,13 +3,14 @@ package ru.stolexiy.catman.ui.util.validation
 import androidx.annotation.StringRes
 import ru.stolexiy.catman.domain.util.DateUtils
 import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
+import java.io.Serializable
 import java.util.Calendar
 
 /**
  * Template classes for creating conditions ([Condition])
  * */
 object Conditions {
-    class None<T>: Condition<T?> {
+    class None<T>: Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             return ValidationResult.valid()
         }
@@ -21,7 +22,7 @@ object Conditions {
      *
      * @param errorText - Error message when value is null
      * **/
-    class NotNull<T>(@StringRes private val errorStringRes: Int) : Condition<T?> {
+    class NotNull<T>(@StringRes private val errorStringRes: Int) : Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             return if (value != null) {
                 ValidationResult.create(true, null)
@@ -37,7 +38,7 @@ object Conditions {
      * false - The field is empty, null, or contains only spaces
      * **/
     class RequiredField<T : CharSequence>(@StringRes private val errorStringRes: Int) :
-        Condition<T?> {
+        Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             return if (value.isNullOrBlank()) {
                 ValidationResult.create(false, errorStringRes)
@@ -50,7 +51,7 @@ object Conditions {
     class TextMaxLength<T : CharSequence?>(
         val maxLength: Int,
         @StringRes private val errorStringRes: Int
-    ) : Condition<T?> {
+    ) : Condition<T?>, Serializable{
         override fun validate(value: T?): ValidationResult {
             return if ((value?.length ?: 0) <= maxLength) {
                 ValidationResult.valid()
@@ -63,7 +64,7 @@ object Conditions {
     class TextMinLength<T : CharSequence>(
         val minLength: Int,
         @StringRes private val errorStringRes: Int
-    ) : Condition<T?> {
+    ) : Condition<T?>, Serializable {
 
         override fun validate(value: T?): ValidationResult {
             return if ((value?.length ?: 0) >= minLength) {
@@ -75,13 +76,14 @@ object Conditions {
     }
 
     class TextLengthRange<T : CharSequence>(
-        val textLengthRange: IntRange,
+        val textLenMin: Int,
+        val textLenMax: Int,
         @StringRes private val errorStringRes: Int
-    ) : Condition<T?> {
+    ) : Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             val textLength = (value?.length ?: 0)
 
-            return if (textLengthRange.contains(textLength)) {
+            return if (textLength in textLenMin..textLenMax) {
                 ValidationResult.create(true)
             } else {
                 ValidationResult.create(false, errorStringRes)
@@ -92,7 +94,7 @@ object Conditions {
     class TextLength<T : CharSequence>(
         val textLength: Int,
         @StringRes private val errorStringRes: Int
-    ) : Condition<T?> {
+    ) : Condition<T?>, Serializable {
 
         override fun validate(value: T?): ValidationResult {
             return if ((value?.length ?: 0) == textLength) {
@@ -106,7 +108,7 @@ object Conditions {
     class RegEx<T : CharSequence?>(
         private val regEx: Regex,
         @StringRes private val errorStringRes: Int
-    ) : Condition<T?> {
+    ) : Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             val text = value ?: ""
             return if (text.matches(regEx)) {
@@ -118,15 +120,10 @@ object Conditions {
     }
 
     class DateRange(
-        val range: LongRange,
+        val min: Long,
+        val max: Long,
         @StringRes private val errorStringRes: Int
-    ) : Condition<Calendar?> {
-
-        constructor(
-            min: Long = 0,
-            max: Long = Long.MAX_VALUE,
-            errorStringRes: Int
-        ) : this(min..max, errorStringRes)
+    ) : Condition<Calendar?>, Serializable {
 
         constructor(
             min: Calendar = 0L.toCalendar(),
@@ -135,12 +132,12 @@ object Conditions {
         ) : this(min.timeInMillis, max.timeInMillis, errorStringRes)
 
         init {
-            require(range.first >= 0)
-            require(range.last >= range.first)
+            require(min >= 0)
+            require(max >= min)
         }
 
         override fun validate(value: Calendar?): ValidationResult {
-            return ValidationResult.create(value?.timeInMillis in range, errorStringRes)
+            return ValidationResult.create(value?.timeInMillis in min..max, errorStringRes)
         }
 
         companion object {

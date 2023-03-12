@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.core.recyclerview
+package ru.stolexiy.catman.ui.util.recyclerview
 
 interface ListItem {
     val id: Long

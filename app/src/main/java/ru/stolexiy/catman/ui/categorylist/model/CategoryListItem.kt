@@ -1,11 +1,9 @@
 package ru.stolexiy.catman.ui.categorylist.model
 
-import android.graphics.Color
-import android.os.Parcelable
-import ru.stolexiy.catman.core.recyclerview.ListItem
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.ui.mapper.toDmyString
+import ru.stolexiy.catman.ui.util.recyclerview.ListItem
 
 sealed class CategoryListItem : ListItem {
     data class CategoryItem(

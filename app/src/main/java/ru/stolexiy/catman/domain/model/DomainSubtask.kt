@@ -1,6 +1,7 @@
 package ru.stolexiy.catman.domain.model
 
-import java.util.*
+import java.io.Serializable
+import java.util.Calendar
 
 data class DomainSubtask(
     val name: String,
@@ -11,4 +12,4 @@ data class DomainSubtask(
     val progress: Int = 0,
     val priority: Int = 0,
     val id: Long = 0,
-)
+) : Serializable

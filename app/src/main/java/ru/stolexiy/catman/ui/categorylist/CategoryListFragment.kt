@@ -16,6 +16,7 @@ import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.FragmentCategoryListBinding
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.dialog.purpose.add.AddPurposeDialog
+import timber.log.Timber
 
 class CategoryListFragment : Fragment() {
 
@@ -42,6 +43,17 @@ class CategoryListFragment : Fragment() {
         mBinding.viewModel = mViewModel
         mBinding.apply {
             lifecycleOwner = viewLifecycleOwner
+            mAdapter.apply {
+                longPressDragEnabled = true
+                setOnCategoryClickListener { Timber.d("clicked on category ${(it as CategoryListItem.CategoryItem).name}") }
+                setOnPurposeClickListener { Timber.d("clicked on purpose ${(it as CategoryListItem.PurposeItem).name}") }
+                onItemSwipedToEndListener = {
+                    Timber.d("${it.javaClass.simpleName} swiped")
+                }
+                onItemMovedListener = { source, target ->
+                    Timber.d("moved ${source.id} to ${target.id}")
+                }
+            }
             categoryList.adapter = mAdapter
             addPurposeButton.setOnClickListener {
                 showAddPurposeDialog()

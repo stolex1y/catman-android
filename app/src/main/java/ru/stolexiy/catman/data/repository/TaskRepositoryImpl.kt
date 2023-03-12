@@ -14,7 +14,7 @@ class TaskRepositoryImpl(
         throw NotImplementedError()
     }
 
-    override fun getTask(id: Long): Flow<DomainTask> {
+    override fun getTask(id: Long): Flow<DomainTask?> {
         throw NotImplementedError()
     }
 
@@ -41,7 +41,7 @@ class TaskRepositoryImpl(
         throw NotImplementedError()
     }
 
-    override suspend fun insertTask(vararg tasks: DomainTask) {
+    override suspend fun insertTask(vararg tasks: DomainTask): List<Long> {
         throw NotImplementedError()
     }
 

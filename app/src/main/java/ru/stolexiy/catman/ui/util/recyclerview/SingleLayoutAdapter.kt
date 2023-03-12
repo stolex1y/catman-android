@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.core.recyclerview
+package ru.stolexiy.catman.ui.util.recyclerview
 
 class SingleLayoutAdapter<T : ListItem>(private val layoutId: Int) : BaseListAdapter<T>() {
     override fun getLayoutIdForPosition(position: Int): Int {

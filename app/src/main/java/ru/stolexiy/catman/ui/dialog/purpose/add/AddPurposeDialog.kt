@@ -23,6 +23,7 @@ import ru.stolexiy.catman.ui.dialog.custom.DatePicker
 import ru.stolexiy.catman.ui.dialog.purpose.model.Category
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.catman.ui.util.notification.showWorkInfoSnackbar
+import ru.stolexiy.catman.ui.util.state.ActionInfo
 import timber.log.Timber
 
 class AddPurposeDialog(
@@ -48,11 +49,10 @@ class AddPurposeDialog(
             purposeDeadlineLayout.setStartIconOnClickListener { chooseDeadline() }
             purposeDeadline.setOnClickListener { chooseDeadline() }
             purposeCategory.onItemClickListener = onCategoryClickListener()
-//            purposeCategory.onItemSelectedListener = onSelectCategoryListener()
             addPurposeButton.setOnClickListener { addPurpose() }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 launch {
                     mViewModel.state.collect { handleState(it) }
                 }
@@ -91,21 +91,12 @@ class AddPurposeDialog(
             ?.remove<Purpose>(ADDING_PURPOSE)
     }
 
-    private fun handleState(newState: AddPurposeViewModel.State) {
+    private fun handleState(newState: ActionInfo) {
         when (newState) {
-            is AddPurposeViewModel.State.Init -> {
-//                Toast.makeText(requireContext(), "Loading...", Toast.LENGTH_SHORT).show()
-            }
-            is AddPurposeViewModel.State.Loaded -> {
-
-            }
-            is AddPurposeViewModel.State.Error -> {
+            is ActionInfo.Error -> {
                 Toast.makeText(requireContext(), "Error...", Toast.LENGTH_LONG).show()
             }
-
-            is AddPurposeViewModel.State.Adding -> {
-                onAdding(newState)
-            }
+            else -> {}
         }
     }
 
@@ -124,29 +115,42 @@ class AddPurposeDialog(
 
     private fun addPurpose() {
         if (mAddingPurpose.isValid) {
-            mViewModel.addPurpose(mAddingPurpose)
+            mViewModel.addPurpose(mAddingPurpose).run(this::onAdding)
             clearState()
+            dismiss()
         }
     }
 
-    private fun onAdding(state: AddPurposeViewModel.State.Adding) {
-        parentFragment?.viewLifecycleOwner?.lifecycleScope?.launchWhenStarted {
-            requireParentFragment().view?.run {
-                showWorkInfoSnackbar(
-                    view = this,
-                    appContext = requireActivity().applicationContext,
-                    workInfo = state.workState,
-                    runningMsg = R.string.purpose_adding,
-                    successMsg = R.string.purpose_added,
-                    onCancelResult = mViewModel::revertAdding
-                )
+    private fun onAdding(workInfo: Flow<WorkInfo>) {
+        parentFragment?.viewLifecycleOwner?.lifecycleScope?.launch {
+            requireParentFragment().viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                val view = requireParentFragment().view ?: return@repeatOnLifecycle
+                view
+                mViewModel.state.collectLatest {
+                    when (it) {
+                        is AddPurposeViewModel.State.Adding ->
+                        is AddPurposeViewModel.State.Deleting ->
+                        is AddPurposeViewModel.State.Error ->
+                        is AddPurposeViewModel.State.Loaded ->
+                    }
+                }
+                requireParentFragment().view?.run {
+                    showWorkInfoSnackbar(
+                        view = this,
+                        appContext = requireActivity().applicationContext,
+                        workInfo = workInfo,
+                        runningMsg = R.string.purpose_adding,
+                        successMsg = R.string.purpose_added,
+                        onCancelResult = this@AddPurposeDialog::onAddingCancel
+                    )
+                }
             }
         }
-        dismiss()
     }
 
-    private fun onDeleting(deletingWorkInfo: Flow<WorkInfo>) {
-        parentFragment?.viewLifecycleOwner?.lifecycleScope?.launchWhenResumed {
+    private fun onAddingCancel(addingWorkInfo: WorkInfo) {
+        val deletingWorkInfo = mViewModel.revertAdding(addingWorkInfo)
+        parentFragment?.viewLifecycleOwner?.lifecycleScope?.launchWhenStarted {
             requireParentFragment().view?.run {
                 Timber.d("on deleting")
                 showWorkInfoSnackbar(

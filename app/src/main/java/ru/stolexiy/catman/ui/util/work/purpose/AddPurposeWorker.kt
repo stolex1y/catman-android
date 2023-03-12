@@ -61,7 +61,7 @@ class AddPurposeWorker(
             if (it.isSuccess)
                 Result.success(workDataOf(OUTPUT_PURPOSE_ID to it.getOrNull()!!.first()))
             else
-                Result.retry()
+                Result.failure()
         }
     }
 

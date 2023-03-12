@@ -82,6 +82,7 @@ class CategoryListViewModel(
         object Init : State()
         data class Error(val error: String) : State()
         data class Loaded(val data: List<CategoryListItem>) : State()
+        object Loading :
     }
 
 }
