@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="ru.stolexiy.catman.R"/>
+        <import type="ru.stolexiy.catman.ui.util.Converters"/>
+        <variable
+            name="purpose"
+            type="ru.stolexiy.catman.ui.dialog.purpose.model.Purpose" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/edit_purpose_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="20dp"
+                android:background="?attr/colorOnPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/dialog_title"
+                style="?attr/textAppearanceHeadline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/purpose_settings"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/purpose_name_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="25dp"
+                android:hint="@string/purpose"
+                android:minWidth="100dp"
+                app:validateBy="@{purpose.name}"
+                app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialog_title">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/purpose_name"
+                    style="@style/EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Purpose name" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/purpose_category_layout"
+                style="?attr/textInputOutlinedExposedDropdownMenuStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/category"
+                app:bindError="@{purpose.category}"
+                app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
+                app:layout_constraintEnd_toEndOf="@+id/purpose_name_layout"
+                app:layout_constraintStart_toStartOf="@+id/purpose_name_layout"
+                app:layout_constraintTop_toBottomOf="@+id/purpose_name_layout"
+                app:startIconDrawable="@drawable/oval_color"
+                app:startIconIsGone="@{purpose.category.asFlow == null}"
+                app:startIconTintColor="@{purpose.category.asFlow.color}">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/purpose_category"
+                    style="@style/AutoCompleteTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:inputType="none"
+                    android:text="@{purpose.category.asFlow.name}"
+                    app:popupBackground="@{R.drawable.popup_rounded_background}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/purpose_deadline_layout"
+                style="?attr/textInputOutlinedExposedDropdownMenuStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                app:bind="@{purpose.deadline.asFlow}"
+                app:bindConverter='@{Converters.calendarToString("dd.MM.yyyy")}'
+                app:bindError="@{purpose.deadline}"
+                app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
+                app:endIconIsGone="@{true}"
+                app:layout_constraintEnd_toEndOf="@+id/purpose_category_layout"
+                app:layout_constraintStart_toStartOf="@+id/purpose_category_layout"
+                app:layout_constraintTop_toBottomOf="@id/purpose_category_layout"
+                app:startIconDrawable="@drawable/calendar">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/purpose_deadline"
+                    style="@style/AutoCompleteTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:hint="@string/deadline"
+                    android:inputType="none"
+                    android:minWidth="250dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/purpose_description_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/description"
+                app:validateBy="@{purpose.description}"
+                app:boxBackgroundMode="outline"
+                app:layout_constraintEnd_toEndOf="@+id/purpose_deadline_layout"
+                app:layout_constraintStart_toStartOf="@id/purpose_deadline_layout"
+                app:layout_constraintTop_toBottomOf="@+id/purpose_deadline_layout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/purpose_description"
+                    style="@style/EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/legend_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/required_field_legend"
+                android:textAlignment="textStart"
+                app:textColoring="@{R.color.pink}"
+                app:textColoringPart='@{"*"}'
+                app:layout_constraintEnd_toEndOf="@+id/purpose_description_layout"
+                app:layout_constraintStart_toStartOf="@+id/purpose_description_layout"
+                app:layout_constraintTop_toBottomOf="@+id/purpose_description_layout" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_purpose_button"
+                style="@style/OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:contentDescription="@string/remove"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="@string/remove"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/legend_text" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/save_purpose_button"
+                style="@style/ContainedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:contentDescription="@string/save"
+                android:text="@string/save"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:enabled="@{purpose.isValidAsFlow}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/legend_text" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+</layout>

@@ -1,6 +1,6 @@
 package ru.stolexiy.catman.domain.model
 
-import java.util.*
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 data class DomainPurpose(
@@ -11,8 +11,7 @@ data class DomainPurpose(
     val isFinished: Boolean = false,
     val progress: Int = 0,
     val id: Long = 0,
-    val priority: Int = 0,
-    val tasks: List<DomainTask>? = null
+    val priority: Int = 0
 ) {
     val isDeadlineBurning: Boolean
         get() {

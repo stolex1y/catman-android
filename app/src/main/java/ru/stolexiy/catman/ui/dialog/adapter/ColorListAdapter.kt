@@ -1,3 +1,4 @@
+/*
 package ru.stolexiy.catman.ui.dialog.adapter
 
 import android.content.Context
@@ -5,11 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
-import com.google.android.material.imageview.ShapeableImageView
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.setShadowColor
-import ru.stolexiy.catman.ui.dialog.model.Color
+import ru.stolexiy.catman.ui.dialog.category.model.Color
 
 class ColorListAdapter(
     context: Context
@@ -37,4 +35,4 @@ class ColorListAdapter(
         val color: Int,
         val name: String
     )
-}
+}*/

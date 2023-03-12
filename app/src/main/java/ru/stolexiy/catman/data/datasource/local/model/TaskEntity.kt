@@ -5,11 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import ru.stolexiy.catman.domain.model.DomainSubtask
 import ru.stolexiy.catman.domain.model.DomainTask
-import java.time.LocalDateTime
 import java.util.Calendar
-import java.util.Date
 
 @Entity(
     tableName = "tasks",
@@ -22,7 +19,7 @@ import java.util.Date
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("task_purpose_id"), Index("task_purpose_id", "task_priority", unique = true)]
+    indices = [Index("task_purpose_id"), Index("task_purpose_id", "task_priority")]
 )
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_id") val id: Long,
@@ -35,7 +32,24 @@ data class TaskEntity(
     @ColumnInfo(name = "task_progress") val progress: Int,
 //    val regularity: Int?,
 ) {
-    fun toTask(subtasks: List<DomainSubtask>? = null) = DomainTask(id = id, name = name, purposeId = purposeId, deadline = deadline, description = description, priority = priority, isFinished = isFinished, subtasks = subtasks)
+    fun toDomainTask() = DomainTask(
+        id = id,
+        name = name,
+        purposeId = purposeId,
+        deadline = deadline,
+        description = description,
+        priority = priority,
+        isFinished = isFinished,
+    )
 }
 
-fun DomainTask.toTaskEntity() = TaskEntity(id = id, name = name, purposeId = purposeId, deadline = deadline, description = description, priority = priority, isFinished = isFinished, progress = progress)
+fun DomainTask.toTaskEntity() = TaskEntity(
+    id = id,
+    name = name,
+    purposeId = purposeId,
+    deadline = deadline,
+    description = description,
+    priority = priority,
+    isFinished = isFinished,
+    progress = progress
+)

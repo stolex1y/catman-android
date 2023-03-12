@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import ru.stolexiy.catman.domain.model.DomainCategory
-import ru.stolexiy.catman.domain.model.DomainPurpose
 
 
 @Entity(tableName = "categories")
@@ -15,12 +14,15 @@ data class CategoryEntity(
     @ColumnInfo(name = "category_description") val description: String?
 ) {
 
-    fun toCategory(domainPurposes: List<DomainPurpose>? = null) = DomainCategory(id = id, name = name, color = color, description = description, domainPurposes = domainPurposes)
+    fun toDomainCategory() = DomainCategory(
+        id = id,
+        name = name,
+        color = color,
+        description = description,
+    )
 }
 
-fun Array<out DomainCategory>.toCategoryEntities() = map(DomainCategory::toCategoryEntity).toTypedArray()
+fun Array<out DomainCategory>.toCategoryEntities() =
+    map(DomainCategory::toCategoryEntity).toTypedArray()
+
 fun DomainCategory.toCategoryEntity() = CategoryEntity(id, name, color, description)
-
-fun Map<CategoryEntity, List<PurposeEntity>>.toCategoriesWithPurposes(): List<DomainCategory> = map { entry ->
-    entry.key.toCategory(entry.value.map(PurposeEntity::toPurpose))
-}

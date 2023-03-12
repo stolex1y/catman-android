@@ -1,50 +1,88 @@
 package ru.stolexiy.catman.ui.categorylist
 
-import androidx.lifecycle.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import ru.stolexiy.catman.domain.repository.CategoryRepository
-import ru.stolexiy.catman.ui.categorylist.model.CategoryListFragmentState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
+import ru.stolexiy.catman.CatmanApplication
+import ru.stolexiy.catman.R
+import ru.stolexiy.catman.domain.usecase.AllCategoriesWithPurposes
+import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.categorylist.model.toCategoryListItems
-import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
+import ru.stolexiy.catman.ui.util.state.ViewState
 import timber.log.Timber
 
 class CategoryListViewModel(
-    private val categoryRepository: CategoryRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val mApplication: CatmanApplication,
+    private val mAllCategoriesWithPurposes: AllCategoriesWithPurposes,
+    private val mDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
 
-//    private val ADDING_PURPOSE_HANDLE = "ADDING_PURPOSE"
-
-    var state: StateFlow<CategoryListFragmentState>
-
-    /*var addingPurpose: Purpose? = null
-        set(value) {
-            field = value
-            handle[ADDING_PURPOSE_HANDLE] = value
-        }*/
+    private val mState: MutableStateFlow<State> = MutableStateFlow(State.Init)
+    var state: StateFlow<State> = mState.asStateFlow()
 
     init {
-            state = loadCategoriesWithPurposes()
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = CategoryListFragmentState.IsLoading
-                )
-//            addingPurpose = handle[ADDING_PURPOSE_HANDLE]
-            /*viewModelScope.launch(coroutineExceptionHandler + dispatcher) {
-                state.collect {
-                    handle["saved"] = it
-                    Timber.d(handle.get<CategoryListFragmentState>("saved").toString())
-                }
-            }*/
+        initState()
     }
 
-    private fun loadCategoriesWithPurposes() = categoryRepository.getAllCategoriesWithPurposes()
-//        .onEach { delay(5000) }
-        .map { it.toCategoryListItems() }
-        .map { CategoryListFragmentState.LoadedData(it) }
-        .flowOn(dispatcher)
-        .catch { Timber.e(it) }
+    private fun initState() {
+        viewModelScope.launch(mApplication.coroutineExceptionHandler + Dispatchers.Main) {
+            coroutineScope {
+                loadCategoriesWithPurposes().collectLatest {
+                    mState.value = State.Loaded(it)
+                }
+            }
+        }
+    }
+
+    private fun loadCategoriesWithPurposes() = mAllCategoriesWithPurposes()
+        .onStart { Timber.d("start loading categories with purposes") }
+        .onEach(this::handleError)
+        .mapNotNull {
+            Timber.d("map to category list items ${it.getOrNull()?.size}")
+            it.getOrNull()?.toCategoryListItems()
+        }
+        .flowOn(mDispatcher)
+
+    private fun <T> handleError(result: Result<T>) {
+        if (result.isFailure) {
+            mState.value = State.Error(mApplication.getString(R.string.internal_error))
+            throw CancellationException()
+        }
+    }
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+                val application = checkNotNull(extras[APPLICATION_KEY]) as CatmanApplication
+                return CategoryListViewModel(
+                    application,
+                    application.allCategoriesWithPurposes
+                ) as T
+            }
+        }
+    }
+
+    sealed class State : ViewState {
+        object Init : State()
+        data class Error(val error: String) : State()
+        data class Loaded(val data: List<CategoryListItem>) : State()
+        object Loading :
+    }
 
 }

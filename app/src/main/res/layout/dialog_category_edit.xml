@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="ru.stolexiy.catman.R"/>
+        <variable
+            name="category"
+            type="ru.stolexiy.catman.ui.dialog.category.model.Category" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="20dp"
+                android:background="?attr/colorOnPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/dialog_title"
+                style="?attr/textAppearanceHeadline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/category_name_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="25dp"
+                android:hint="@string/category"
+                android:minWidth="100dp"
+                app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialog_title">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/category_name"
+                    style="@style/EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/category_color_layout"
+                style="?attr/textInputOutlinedExposedDropdownMenuStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/color"
+                app:boxBackgroundMode="outline"
+                app:hintAsterisk="@{R.color.pink}"
+                app:layout_constraintEnd_toEndOf="@+id/category_name_layout"
+                app:layout_constraintStart_toStartOf="@+id/category_name_layout"
+                app:layout_constraintTop_toBottomOf="@+id/category_name_layout"
+                app:startIconDrawable="@drawable/oval_color" >
+<!--                app:startIconIsGone="@{category.color == null}"-->
+<!--                app:startIconTint="@{category.color.color}">-->
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/category_color"
+                    style="@style/AutoCompleteTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:inputType="none"
+                    app:popupBackground="@{R.drawable.popup_rounded_background}" />
+                <!--                    app:textRes="@{category.color.nameRes}"-->
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/category_description_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/description"
+                app:boxBackgroundMode="outline"
+                app:layout_constraintEnd_toEndOf="@+id/category_color_layout"
+                app:layout_constraintStart_toStartOf="@id/category_color_layout"
+                app:layout_constraintTop_toBottomOf="@+id/category_color_layout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/category_description"
+                    style="@style/EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/legend_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/required_field_legend"
+                android:textAlignment="textStart"
+                app:textColoring="@{R.color.pink}"
+                app:textColoringPart='@{"*"}'
+                app:layout_constraintEnd_toEndOf="@+id/category_description_layout"
+                app:layout_constraintStart_toStartOf="@+id/category_description_layout"
+                app:layout_constraintTop_toBottomOf="@+id/category_description_layout" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/apply_category_button"
+                style="@style/ContainedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:contentDescription="@string/apply"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/legend_text" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+</layout>

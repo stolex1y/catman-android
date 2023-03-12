@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PomodoroTimerView">
+        <attr name="textSize" format="integer" />
+        <attr name="progressWidth" format="float" />
+        <attr name="progressClockwise" format="boolean" />
+        <attr name="progressBackground" format="reference" />
+    </declare-styleable>
+</resources>
