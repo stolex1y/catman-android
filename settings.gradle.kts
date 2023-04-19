@@ -3,15 +3,20 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven { url 'https://repo1.maven.org/maven2' }
+        maven("https://repo1.maven.org/maven2")
+//        maven { url = URL("https://repo1.maven.org/maven2") }
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io")
     }
 }
+
 rootProject.name = "CATMan"
-include ':app'
+include(":app")
+include(":demo")
