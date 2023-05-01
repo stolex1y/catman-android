@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name" translatable="false">AY Widgets Samples</string>
+    <string name="count_up">Count up</string>
+    <string name="count_down">Count down</string>
+    <string name="circle_progress_view">Circle progress view</string>
+    <string name="clockwise">Clockwise</string>
+    <string name="counterclockwise">Counterclockwise</string>
+    <string name="filling">Filling progress</string>
+    <string name="decreasing">Decreasing progress</string>
+</resources>

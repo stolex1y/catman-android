@@ -1,4 +1,4 @@
-package ru.stolexiy.widgets
+package ru.stolexiy.widgets.common.viewproperty
 
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread

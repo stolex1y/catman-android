@@ -7,7 +7,7 @@ import AppDependency.test
 import modules.WidgetsModuleConfig
 
 plugins {
-    id(Plugin.ANDROID_LIBRARY)
+    id(Plugin.APPLICATION)
     id(Plugin.KOTLIN_ANDROID)
 }
 
@@ -17,11 +17,11 @@ android {
     compileSdk = moduleConfig.compileSdk
 
     defaultConfig {
+        applicationId = moduleConfig.namespace
         minSdk = moduleConfig.minSdk
         version = moduleConfig.versionCode
 
         testInstrumentationRunner = moduleConfig.testInstrumentationRunner
-        consumerProguardFiles(moduleConfig.proguardConsumerRules)
     }
 
     buildTypes {
@@ -33,6 +33,11 @@ android {
             )
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
     compileOptions {
         sourceCompatibility = moduleConfig.sourceJdk
         targetCompatibility = moduleConfig.targetJdk

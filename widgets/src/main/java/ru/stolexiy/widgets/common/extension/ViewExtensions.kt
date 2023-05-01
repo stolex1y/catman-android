@@ -1,4 +1,4 @@
-package ru.stolexiy.widgets
+package ru.stolexiy.widgets.common.extension
 
 import android.view.View
 import androidx.lifecycle.Lifecycle

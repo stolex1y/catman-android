@@ -1,11 +1,13 @@
-package ru.stolexiy.widgets
+package ru.stolexiy.widgets.progressview
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
-import ru.stolexiy.widgets.GraphicsExtensions.getTextBounds
+import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
+import ru.stolexiy.widgets.common.viewproperty.InvalidatingLayoutProperty
+import ru.stolexiy.widgets.common.viewproperty.InvalidatingProperty
 import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.min
