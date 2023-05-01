@@ -1,9 +1,9 @@
 plugins {
-    id("com.android.application")
-    kotlin("android")
-    kotlin("kapt")
-    id("androidx.navigation.safeargs")
-    id("org.jetbrains.kotlin.plugin.serialization")
+    id(Plugin.APPLICATION)
+    id(Plugin.KOTLIN_KAPT)
+    id(Plugin.KOTLIN_ANDROID)
+    id(Plugin.NAV_SAFEARGS)
+    id(Plugin.SERIALIZATION)
 }
 
 android {
@@ -33,19 +33,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
         dataBinding = true
         viewBinding = true
     }
-
-
 }
 
 dependencies {
@@ -55,6 +53,9 @@ dependencies {
     val lifecycleVersion = "2.6.1"
     val workVersion = "2.8.1"
     val daggerVersion = "2.44.2"
+
+
+    implementation(project(mapOf("path" to ":widgets")))
 
     // dagger
     implementation("com.google.dagger:dagger:$daggerVersion")
@@ -77,7 +78,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.activity:activity-ktx:1.7.0")
     implementation("androidx.fragment:fragment-ktx:1.5.6")
-    testImplementation("androidx.fragment:fragment-testing:1.5.6")
+    testImplementation("androidx.fragment:fragment-testing:1.5.7")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

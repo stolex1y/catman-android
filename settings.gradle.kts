@@ -4,7 +4,6 @@ pluginManagement {
         google()
         mavenCentral()
         maven("https://repo1.maven.org/maven2")
-//        maven { url = URL("https://repo1.maven.org/maven2") }
     }
 }
 
@@ -20,3 +19,4 @@ dependencyResolutionManagement {
 rootProject.name = "CATMan"
 include(":app")
 include(":demo")
+include(":widgets")
