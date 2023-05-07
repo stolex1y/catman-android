@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
+import androidx.annotation.VisibleForTesting
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingLayoutProperty
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingProperty
@@ -116,6 +117,9 @@ class ProgressView @JvmOverloads constructor(
     private var circleOuterRadius by Delegates.notNull<Float>()
     private val circleCenter = PointF()
     private val circleRect = RectF()
+
+    @VisibleForTesting
+    internal var filledSector: Float = 0f
 
     // -- text
     var text: String by InvalidatingLayoutProperty("")
@@ -230,10 +234,12 @@ class ProgressView @JvmOverloads constructor(
         }
     }
 
-    private fun drawCircle(canvas: Canvas): Canvas =
-        canvas.apply {
-            drawArc(circleRect, -90f, getFilledSector(), false, progressPaint)
+    private fun drawCircle(canvas: Canvas): Canvas {
+        filledSector = getFilledSector()
+        return canvas.apply {
+            drawArc(circleRect, -90f, filledSector, false, progressPaint)
         }
+    }
 
     private fun drawTextTime(canvas: Canvas): Canvas =
         canvas.apply {

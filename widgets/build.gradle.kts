@@ -22,15 +22,24 @@ android {
         version = moduleConfig.versionCode
 
         testInstrumentationRunner = moduleConfig.testInstrumentationRunner
+
+        testProguardFiles(
+            moduleConfig.testProguardRules
+        )
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                moduleConfig.proguardRules
             )
+        }
+
+        debug {
+            isMinifyEnabled = false
+            isDebuggable = true
         }
     }
 

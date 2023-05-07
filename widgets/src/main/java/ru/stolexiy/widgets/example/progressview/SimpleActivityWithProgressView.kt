@@ -1,6 +1,7 @@
 package ru.stolexiy.widgets.example.progressview
 
 import android.os.Bundle
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import ru.stolexiy.widgets.R
 import ru.stolexiy.widgets.databinding.ProgressViewAcitivtyBinding
@@ -9,7 +10,8 @@ import kotlin.math.roundToInt
 class SimpleActivityWithProgressView : AppCompatActivity() {
 
     companion object {
-        private const val MAX_COUNT = 10
+        @VisibleForTesting
+        const val MAX_COUNT = 10
     }
 
     private lateinit var binding: ProgressViewAcitivtyBinding
@@ -24,7 +26,7 @@ class SimpleActivityWithProgressView : AppCompatActivity() {
             buttonFillingProgress.setOnClickListener {
                 progressView.fillingUp = progressView.fillingUp.not()
                 buttonFillingProgress.text =
-                    if (!progressView.fillingUp)
+                    if (progressView.fillingUp)
                         getString(R.string.filling)
                     else
                         getString(R.string.decreasing)
@@ -33,7 +35,7 @@ class SimpleActivityWithProgressView : AppCompatActivity() {
             buttonClockwise.setOnClickListener {
                 progressView.clockwise = progressView.clockwise.not()
                 buttonClockwise.text =
-                    if (!progressView.clockwise)
+                    if (progressView.clockwise)
                         getString(R.string.clockwise)
                     else
                         getString(R.string.counterclockwise)
