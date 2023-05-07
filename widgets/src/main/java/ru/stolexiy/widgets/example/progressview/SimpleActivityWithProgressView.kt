@@ -7,7 +7,7 @@ import ru.stolexiy.widgets.R
 import ru.stolexiy.widgets.databinding.ProgressViewAcitivtyBinding
 import kotlin.math.roundToInt
 
-class SimpleActivityWithProgressView : AppCompatActivity() {
+internal class SimpleActivityWithProgressView : AppCompatActivity() {
 
     companion object {
         @VisibleForTesting

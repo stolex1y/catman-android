@@ -7,7 +7,7 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.util.TypedValue
 
-object GraphicsExtensions {
+internal object GraphicsExtensions {
     infix fun Int.to(y: Int) = Point(this, y)
     infix fun Float.to(y: Float) = PointF(this, y)
 

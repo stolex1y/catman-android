@@ -8,7 +8,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-object ViewExtensions {
+internal object ViewExtensions {
     fun View.repeatOnLifecycle(
         state: Lifecycle.State,
         block: suspend CoroutineScope.() -> Unit

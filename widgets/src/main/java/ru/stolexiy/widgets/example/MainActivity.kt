@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import ru.stolexiy.widgets.databinding.ActivityMainBinding
 import ru.stolexiy.widgets.example.progressview.SimpleActivityWithProgressView
 
-class MainActivity : AppCompatActivity() {
+internal class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 

@@ -5,7 +5,7 @@ import androidx.annotation.MainThread
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class InvalidatingProperty<T>(
+internal class InvalidatingProperty<T>(
     initialValue: T,
     private val propertyValidator: PropertyValidator<T>? = null
 ) : ReadWriteProperty<InvalidatingProperty.Listener, T> {

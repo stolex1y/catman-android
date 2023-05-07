@@ -1,4 +1,4 @@
-package ru.stolexiy.widgets.progressview
+package ru.stolexiy.widgets.example.progressview
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -14,13 +14,14 @@ import ru.stolexiy.widgets.CustomMatchers.withButtonText
 import ru.stolexiy.widgets.CustomMatchers.withPropertyValue
 import ru.stolexiy.widgets.R
 import ru.stolexiy.widgets.example.progressview.SimpleActivityWithProgressView
+import ru.stolexiy.widgets.progressview.ProgressView
 
 private const val RIGHT_HALF_SECTOR = 180f
 private const val LEFT_HALF_SECTOR = -180f
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-class ProgressViewTest {
+internal class ProgressViewTest {
 
     @get:Rule
     val activityRule = ActivityScenarioRule(SimpleActivityWithProgressView::class.java)
