@@ -43,10 +43,19 @@ object AppDependency {
         add(ConfigurationName.IMPLEMENTATION.configName, constraintLayout)
     }
 
+    val material = "com.google.android.material:material:${DependencyVersion.material}"
+
+    fun DependencyHandler.material() {
+        add(ConfigurationName.IMPLEMENTATION.configName, material)
+    }
+
     //android lifecycle
-    val lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:${DependencyVersion.lifecycle}"
-    val lifecycleLivedataKtx = "androidx.lifecycle:lifecycle-livedata-ktx:${DependencyVersion.lifecycle}"
-    val lifecycleViewmodelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:${DependencyVersion.lifecycle}"
+    val lifecycleRuntimeKtx =
+        "androidx.lifecycle:lifecycle-runtime-ktx:${DependencyVersion.lifecycle}"
+    val lifecycleLivedataKtx =
+        "androidx.lifecycle:lifecycle-livedata-ktx:${DependencyVersion.lifecycle}"
+    val lifecycleViewmodelKtx =
+        "androidx.lifecycle:lifecycle-viewmodel-ktx:${DependencyVersion.lifecycle}"
 
     fun DependencyHandler.lifecycle() {
         add(ConfigurationName.IMPLEMENTATION.configName, lifecycleRuntimeKtx)
@@ -88,7 +97,15 @@ object AppDependency {
     }
 
     //test libs
-    private val junit = "junit:junit:${DependencyVersion.junit}"
+    private val junit4 = "junit:junit:${DependencyVersion.junit4}"
+    private val junit5 = "org.junit.jupiter:junit-jupiter-api:${DependencyVersion.junit5Jupiter}"
+    private val junit5PlatformLauncher =
+        "org.junit.platform:junit-platform-launcher:${DependencyVersion.junit5Platform}"
+    private val junit5PlatformEngine =
+        "org.junit.platform:junit-platform-engine:${DependencyVersion.junit5Platform}"
+    private val junit5PlatformRunner =
+        "org.junit.platform:junit-platform-runner:${DependencyVersion.junit5Platform}"
+
     private val testRunner = "androidx.test:runner:${DependencyVersion.testRunner}"
     private val testRules = "androidx.test:rules:${DependencyVersion.testRules}"
     private val extJUnit = "androidx.test.ext:junit:${DependencyVersion.extJunit}"
@@ -103,8 +120,54 @@ object AppDependency {
         add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, testRunner)
     }
 
-    fun DependencyHandler.test() {
-        add(ConfigurationName.TEST_IMPLEMENTATION.configName, junit)
+    fun DependencyHandler.junit4() {
+        add(ConfigurationName.TEST_IMPLEMENTATION.configName, junit4)
+    }
+
+    fun DependencyHandler.junit5() {
+        add(ConfigurationName.TEST_IMPLEMENTATION.configName, junit5)
+        add(ConfigurationName.TEST_IMPLEMENTATION.configName, junit5PlatformLauncher)
+        add(ConfigurationName.TEST_IMPLEMENTATION.configName, junit5PlatformEngine)
+        add(ConfigurationName.TEST_IMPLEMENTATION.configName, junit5PlatformRunner)
+    }
+
+    //kotlin coroutines
+    private val coroutinesAndroid =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-android:${DependencyVersion.coroutinesAndroid}"
+    private val coroutinesTest =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-test:${DependencyVersion.coroutinesTest}"
+
+    fun DependencyHandler.coroutines() {
+        add(ConfigurationName.IMPLEMENTATION.configName, coroutinesAndroid)
+        add(ConfigurationName.TEST_IMPLEMENTATION.configName, coroutinesTest)
+    }
+
+    //timber
+    private val timberAndroid = "com.jakewharton.timber:timber:${DependencyVersion.timberAndroid}"
+    private val timberJdk = "com.jakewharton.timber:timber-jdk:${DependencyVersion.timberJdk}"
+
+    fun DependencyHandler.timberAndroid() {
+        add(ConfigurationName.IMPLEMENTATION.configName, timberAndroid)
+    }
+
+    fun DependencyHandler.timberJdk() {
+        add(ConfigurationName.IMPLEMENTATION.configName, timberJdk)
+    }
+
+    //androidx annotation
+    private val androidAnnotation =
+        "androidx.annotation:annotation:${DependencyVersion.androidAnnotation}"
+
+    fun DependencyHandler.androidAnnotation() {
+        add(ConfigurationName.IMPLEMENTATION.configName, androidAnnotation)
+    }
+
+    //jvm annotation
+    private val jvmAnnotation =
+        "androidx.annotation:annotation-jvm:${DependencyVersion.jvmAnnotation}"
+
+    fun DependencyHandler.jvmAnnotation() {
+        add(ConfigurationName.IMPLEMENTATION.configName, jvmAnnotation)
     }
 
     enum class ConfigurationName(val configName: String) {
@@ -114,31 +177,7 @@ object AppDependency {
         TEST_IMPLEMENTATION("testImplementation"),
         ANNOTATION_PROCESSOR("annotationProcessor"),
         KSP("ksp"),
-    }
-
-    //util functions for adding the different type dependencies from build.gradle file
-    fun DependencyHandler.kapt(list: List<String>) {
-        list.forEach { dependency ->
-            add("kapt", dependency)
-        }
-    }
-
-    fun DependencyHandler.implementation(list: List<String>) {
-        list.forEach { dependency ->
-            add("implementation", dependency)
-        }
-    }
-
-    fun DependencyHandler.androidTestImplementation(list: List<String>) {
-        list.forEach { dependency ->
-            add("androidTestImplementation", dependency)
-        }
-    }
-
-    fun DependencyHandler.testImplementation(list: List<String>) {
-        list.forEach { dependency ->
-            add("testImplementation", dependency)
-        }
+        RUNTIME_ONLY("runtimeOnly")
     }
 }
 

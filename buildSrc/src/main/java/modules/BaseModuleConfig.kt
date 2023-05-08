@@ -19,5 +19,4 @@ abstract class BaseModuleConfig {
 
     open val sourceJdk = JavaVersion.VERSION_17
     open val targetJdk = JavaVersion.VERSION_17
-    open val jvmTarget = "17"
 }
