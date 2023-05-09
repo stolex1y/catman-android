@@ -20,9 +20,11 @@ import kotlinx.coroutines.sync.withLock
 import ru.stolexiy.common.TimeConstants.MIN_TO_MS
 import ru.stolexiy.common.TimeConstants.MIN_TO_SEC
 import ru.stolexiy.common.TimeConstants.SEC_TO_MS
+import java.util.logging.Logger
 import kotlin.math.max
 import kotlin.math.min
 
+@AnyThread
 open class Timer(
     coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     initTime: Time = Time(0),
@@ -46,7 +48,9 @@ open class Timer(
     @Volatile
     var initTime: Time = initTime
         set(value) {
+            require(state == State.STOPPED) { "Timer must be stopped to set init time" }
             field = Time(max(value.inMs, maxInitTime.inMs))
+            updateCurTime(value)
         }
 
     var curTime = Time(initTime)
@@ -187,11 +191,13 @@ open class Timer(
         val inMs: Long
         val min: Long
         val sec: Long
+        val ms: Long
 
         init {
             inMs = ms
             min = ms / MIN_TO_MS
             sec = ms % MIN_TO_MS / SEC_TO_MS
+            this.ms = ms % SEC_TO_MS
         }
 
         constructor(min: Long, sec: Long) : this(minAndSecToMs(min, sec))
@@ -223,12 +229,16 @@ open class Timer(
         PAUSED
     }
 
-    @AnyThread
     interface TimerListener {
+        @AnyThread
         fun onStart(timer: Timer) {}
+        @AnyThread
         fun onStop(timer: Timer) {}
+        @AnyThread
         fun onPause(timer: Timer) {}
+        @AnyThread
         fun onFinish(timer: Timer) {}
+        @AnyThread
         fun onUpdateTime(timer: Timer) {}
     }
 }

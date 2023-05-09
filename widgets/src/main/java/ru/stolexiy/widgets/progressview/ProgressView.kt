@@ -23,7 +23,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.properties.Delegates
 
-class ProgressView @JvmOverloads constructor(
+open class ProgressView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -60,7 +60,7 @@ class ProgressView @JvmOverloads constructor(
     /**
      * Text of progress typeface.
      */
-    var textTypeface: Typeface by InvalidatingLayoutProperty(Typeface.DEFAULT)
+    var textTypeface: Typeface by InvalidatingLayoutProperty(Typeface.MONOSPACE)
 
     private val textPaint = Paint().apply {
         this.isAntiAlias = true
@@ -149,7 +149,7 @@ class ProgressView @JvmOverloads constructor(
         super.onDraw(canvas)
 
         canvas.run(::drawCircle)
-            .run(::drawTextTime)
+            .run(::drawText)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -248,7 +248,7 @@ class ProgressView @JvmOverloads constructor(
         }
     }
 
-    private fun drawTextTime(canvas: Canvas): Canvas =
+    private fun drawText(canvas: Canvas): Canvas =
         canvas.apply {
             drawText(
                 text,

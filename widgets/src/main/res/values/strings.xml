@@ -7,4 +7,8 @@
     <string name="counterclockwise">Counterclockwise</string>
     <string name="filling">Filling progress</string>
     <string name="decreasing">Decreasing progress</string>
+    <string name="start">Start</string>
+    <string name="reset">Reset</string>
+    <string name="timer_view">Timer view</string>
+    <string name="pause">Pause</string>
 </resources>

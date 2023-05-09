@@ -1,9 +1,14 @@
 import AppDependency.activityKtx
+import AppDependency.androidAnnotation
 import AppDependency.androidTest
+import AppDependency.coroutines
 import AppDependency.fragment
+import AppDependency.jvmAnnotation
 import AppDependency.kotlinStdLib
 import AppDependency.lifecycle
-import AppDependency.test
+import AppDependency.material
+import AppDependency.junit4
+import AppDependency.timberAndroid
 import modules.WidgetsModuleConfig
 
 plugins {
@@ -52,27 +57,24 @@ android {
         targetCompatibility = moduleConfig.targetJdk
     }
     kotlinOptions {
-        jvmTarget = moduleConfig.jvmTarget
+        jvmTarget = moduleConfig.targetJdk.majorVersion
     }
 }
 
 dependencies {
+    implementation(project(mapOf("path" to ":common")))
+
     kotlinStdLib()
     activityKtx()
     fragment()
     lifecycle()
-
-    //material
-    implementation("com.google.android.material:material:1.8.0")
-
-    //coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-
-    //timber
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    coroutines()
+    timberAndroid()
+    material()
+    androidAnnotation()
+    jvmAnnotation()
 
     //testing
-    test()
+    junit4()
     androidTest()
 }

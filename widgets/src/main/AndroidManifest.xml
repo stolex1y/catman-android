@@ -23,6 +23,10 @@
         <activity
             android:name=".example.progressview.SimpleActivityWithProgressView"
             android:exported="false" />
+
+        <activity
+            android:name=".example.timerview.SimpleActivityWithTimerView"
+            android:exported="false" />
     </application>
 
 </manifest>
