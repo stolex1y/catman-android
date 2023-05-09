@@ -1,27 +1,30 @@
 package ru.stolexiy.common
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Before
 import org.junit.Test
-import ru.stolexiy.common.CustomAsserts.assertEquals
+import ru.stolexiy.common.TimerTestUtil.pauseAndVerify
+import ru.stolexiy.common.TimerTestUtil.resetAndVerify
+import ru.stolexiy.common.TimerTestUtil.startAndVerify
+import ru.stolexiy.common.TimerTestUtil.stopAndVerify
 import ru.stolexiy.common.TimerTestUtil.verifyState
+import ru.stolexiy.common.TimerTestUtil.verifyTimeToFinish
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class TimerTest {
     companion object {
         private const val INIT_TIME_MS = 2 * 5 * TimeConstants.SEC_TO_MS
         private const val UPDATE_TIME_MS = 1 * TimeConstants.SEC_TO_MS
-        private const val DELAY_SMALL = 10L
     }
 
     private val testScope = TestScope()
-    private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
+    private val testDispatcher = UnconfinedTestDispatcher(testScope.testScheduler)
 
     private val underTest = Timer(
         testDispatcher,
@@ -31,61 +34,58 @@ internal class TimerTest {
         listener = LogTimerListener
     }
 
+    @Before
+    fun verifyStopped() {
+        underTest.verifyState(Timer.State.STOPPED)
+    }
+
     @Test
-    fun `timer is finished after INIT_TIME_MS time`() = testScope.runTest {
-        underTest.apply {
-            verifyState(Timer.State.STOPPED)
-            start()
-            advanceTimeBy(DELAY_SMALL)
-            verifyState(Timer.State.RUNNING)
-            advanceUntilIdle()
-            verifyState(Timer.State.STOPPED)
-            assertEquals(currentTime, INIT_TIME_MS)
-        }
+    fun `timer is finished after init time`() = testScope.runTest {
+        startAndVerify(underTest)
+        verifyTimeToFinish(underTest, INIT_TIME_MS)
     }
 
     @Test
     fun `timer is not running after pause`() = testScope.runTest {
-        underTest.apply {
-            verifyState(Timer.State.STOPPED)
-            start()
-            advanceTimeBy(DELAY_SMALL)
-            verifyState(Timer.State.RUNNING)
-            pause()
-            advanceTimeBy(DELAY_SMALL)
-            verifyState(Timer.State.PAUSED)
-            val timeAfterPause = curTime.inMs
-            advanceTimeBy(INIT_TIME_MS)
-            assertEquals(timeAfterPause, curTime.inMs)
-        }
+        startAndVerify(underTest)
+        pauseAndVerify(underTest)
+
+        val timeAfterPause = underTest.curTime.inMs
+        advanceTimeBy(INIT_TIME_MS)
+        assertEquals(timeAfterPause, underTest.curTime.inMs)
     }
 
     @Test
     fun `timer stop after call stop()`() = testScope.runTest {
-        underTest.apply {
-            start()
-            advanceTimeBy(DELAY_SMALL)
-            stop()
-            advanceTimeBy(DELAY_SMALL)
-            verifyState(Timer.State.STOPPED)
-            val timeAfterPause = curTime.inMs
-            advanceTimeBy(INIT_TIME_MS)
-            assertEquals(timeAfterPause, curTime.inMs)
-        }
+        startAndVerify(underTest)
+        stopAndVerify(underTest)
+
+        val timeAfterStop = underTest.curTime.inMs
+        advanceTimeBy(INIT_TIME_MS)
+        assertEquals(timeAfterStop, underTest.curTime.inMs)
     }
 
     @Test
     fun `reset timer after start`() = testScope.runTest {
-        underTest.apply {
-            start()
-            advanceTimeBy(DELAY_SMALL)
-            advanceTimeBy(INIT_TIME_MS / 2)
-            assertEquals(INIT_TIME_MS / 2, curTime.inMs, DELAY_SMALL)
-            reset()
-            advanceTimeBy(DELAY_SMALL)
-            verifyState(Timer.State.STOPPED)
-            assertEquals(INIT_TIME_MS, curTime.inMs)
-        }
+        startAndVerify(underTest)
+        advanceTimeBy(INIT_TIME_MS / 2)
+        assertNotEquals(INIT_TIME_MS, underTest.curTime.inMs)
+
+        resetAndVerify(underTest)
+        assertEquals(INIT_TIME_MS, underTest.curTime.inMs)
+    }
+
+    @Test
+    fun `resume timer after pause`() = testScope.runTest {
+        startAndVerify(underTest)
+
+        val untilPause = INIT_TIME_MS / 2
+        advanceTimeBy(untilPause)
+        pauseAndVerify(underTest)
+
+        startAndVerify(underTest)
+
+        verifyTimeToFinish(underTest, INIT_TIME_MS - untilPause)
     }
 
     private object LogTimerListener : Timer.TimerListener {
