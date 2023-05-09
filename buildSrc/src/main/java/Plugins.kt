@@ -2,7 +2,7 @@ import org.gradle.kotlin.dsl.PluginDependenciesSpecScope
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.version
 
-object Plugin {
+object Plugins {
     const val APPLICATION = "com.android.application"
     const val ANDROID_LIBRARY = "com.android.library"
     const val KOTLIN_ANDROID = "kotlin-android"
@@ -14,33 +14,39 @@ object Plugin {
     const val KSP = "com.google.devtools.ksp"
     const val JAVA_LIBRARY = "java-library"
     const val JAVA = "org.gradle.java"
+    const val HILT = "com.google.dagger.hilt.android"
 }
 
-object PluginVersion {
+object PluginVersions {
     const val KSP = "1.8.21-1.0.11"
     const val APPLICATION = "8.2.0-alpha01"
     const val ANDROID_LIBRARY = "8.2.0-alpha01"
     const val KOTLIN_ANDROID = "1.8.0"
     const val SERIALIZATION = "1.4.0"
     const val KOTLIN_JVM = "1.8.0"
+    const val HILT = "2.44"
 }
 
 fun PluginDependenciesSpecScope.ksp() {
-    id(Plugin.KSP) version PluginVersion.KSP apply false
+    id(Plugins.KSP) version PluginVersions.KSP apply false
 }
 
 fun PluginDependenciesSpecScope.androidApp() {
-    id(Plugin.APPLICATION) version PluginVersion.APPLICATION apply false
+    id(Plugins.APPLICATION) version PluginVersions.APPLICATION apply false
 }
 
 fun PluginDependenciesSpecScope.androidLib() {
-    id(Plugin.ANDROID_LIBRARY) version PluginVersion.ANDROID_LIBRARY apply false
+    id(Plugins.ANDROID_LIBRARY) version PluginVersions.ANDROID_LIBRARY apply false
 }
 
 fun PluginDependenciesSpecScope.serialization() {
-    id(Plugin.SERIALIZATION) version PluginVersion.SERIALIZATION apply false
+    id(Plugins.SERIALIZATION) version PluginVersions.SERIALIZATION apply false
 }
 
 fun PluginDependenciesSpecScope.kotlinJvm() {
-    id(Plugin.KOTLIN_JVM) version PluginVersion.KOTLIN_JVM apply false
+    id(Plugins.KOTLIN_JVM) version PluginVersions.KOTLIN_JVM apply false
+}
+
+fun PluginDependenciesSpecScope.hilt() {
+    id(Plugins.HILT) version PluginVersions.HILT apply false
 }

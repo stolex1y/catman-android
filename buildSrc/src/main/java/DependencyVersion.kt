@@ -23,6 +23,7 @@ object DependencyVersion {
     val coroutinesAndroid = "1.7.0"
     val androidAnnotation = "1.6.0"
     val jvmAnnotation = "1.6.0"
+    val hilt = "2.44"
 
     //test
     val junit4 = "4.13.2"

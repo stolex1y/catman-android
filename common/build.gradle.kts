@@ -1,13 +1,13 @@
-import AppDependency.coroutines
-import AppDependency.junit4
-import AppDependency.jvmAnnotation
-import AppDependency.kotlinStdLib
+import AppDependencies.coroutines
+import AppDependencies.junit4
+import AppDependencies.jvmAnnotation
+import AppDependencies.kotlinStdLib
 import modules.CommonModuleConfig
 
 plugins {
-    id(Plugin.JAVA_LIBRARY)
-    id(Plugin.KOTLIN_JVM)
-    id(Plugin.JAVA)
+    id(Plugins.JAVA_LIBRARY)
+    id(Plugins.KOTLIN_JVM)
+    id(Plugins.JAVA)
 }
 
 val moduleConfig = CommonModuleConfig

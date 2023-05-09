@@ -1,6 +1,6 @@
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
-object AppDependency {
+object AppDependencies {
     //std lib
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib:${DependencyVersion.kotlin}"
 
@@ -70,6 +70,14 @@ object AppDependency {
     fun DependencyHandler.dagger() {
         add(ConfigurationName.KAPT.configName, daggerCompiler)
         add(ConfigurationName.IMPLEMENTATION.configName, dagger)
+    }
+
+    val hilt = "com.google.dagger:hilt-android:${DependencyVersion.hilt}"
+    val hiltCompiler = "com.google.dagger:hilt-compiler:${DependencyVersion.hilt}"
+
+    fun DependencyHandler.hilt() {
+        add(ConfigurationName.KAPT.configName, hiltCompiler)
+        add(ConfigurationName.IMPLEMENTATION.configName, hilt)
     }
 
     //room

@@ -19,6 +19,7 @@ plugins {
     serialization()
     ksp()
     kotlinJvm()
+    hilt()
 }
 
 tasks.register("clean", Delete::class) {

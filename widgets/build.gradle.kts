@@ -1,19 +1,19 @@
-import AppDependency.activityKtx
-import AppDependency.androidAnnotation
-import AppDependency.androidTest
-import AppDependency.coroutines
-import AppDependency.fragment
-import AppDependency.jvmAnnotation
-import AppDependency.kotlinStdLib
-import AppDependency.lifecycle
-import AppDependency.material
-import AppDependency.junit4
-import AppDependency.timberAndroid
+import AppDependencies.activityKtx
+import AppDependencies.androidAnnotation
+import AppDependencies.androidTest
+import AppDependencies.coroutines
+import AppDependencies.fragment
+import AppDependencies.jvmAnnotation
+import AppDependencies.kotlinStdLib
+import AppDependencies.lifecycle
+import AppDependencies.material
+import AppDependencies.junit4
+import AppDependencies.timberAndroid
 import modules.WidgetsModuleConfig
 
 plugins {
-    id(Plugin.APPLICATION)
-    id(Plugin.KOTLIN_ANDROID)
+    id(Plugins.APPLICATION)
+    id(Plugins.KOTLIN_ANDROID)
 }
 
 android {
