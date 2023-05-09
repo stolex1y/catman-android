@@ -1,23 +1,43 @@
+import AppDependency.activityKtx
+import AppDependency.androidAnnotation
+import AppDependency.androidConstraintLayout
+import AppDependency.androidCoreKtx
+import AppDependency.androidTest
+import AppDependency.appcompat
+import AppDependency.coroutines
+import AppDependency.dagger
+import AppDependency.fragment
+import AppDependency.jvmAnnotation
+import AppDependency.kotlinStdLib
+import AppDependency.lifecycle
+import AppDependency.material
+import AppDependency.room
+import AppDependency.junit4
+import AppDependency.timberAndroid
+import modules.DemoModuleConfig
+
 plugins {
     id(Plugin.APPLICATION)
     id(Plugin.KOTLIN_KAPT)
-    id(Plugin.KOTLIN_ANDROID)
+    id(Plugin.KSP)
+    id(Plugin.GMS)
     id(Plugin.NAV_SAFEARGS)
-    id(Plugin.SERIALIZATION)
+    id(Plugin.KOTLIN_ANDROID)
 }
 
 android {
-    namespace = "ru.stolexiy"
-    compileSdk = 33
+    val moduleConfig = DemoModuleConfig
+    namespace = moduleConfig.namespace
+    compileSdk = moduleConfig.compileSdk
 
     defaultConfig {
-        applicationId = "ru.stolexiy"
-        minSdk = 24
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        applicationId = moduleConfig.namespace
+        minSdk = moduleConfig.minSdk
+        targetSdk = moduleConfig.targetSdk
+        versionCode = moduleConfig.versionCode
+        versionName = moduleConfig.versionName
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = moduleConfig.testInstrumentationRunner
     }
 
     buildTypes {
@@ -32,65 +52,45 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
     buildFeatures {
         dataBinding = true
         viewBinding = true
     }
+
+    compileOptions {
+        sourceCompatibility = moduleConfig.targetJdk
+        targetCompatibility = moduleConfig.targetJdk
+    }
+
+    kotlinOptions {
+        jvmTarget = moduleConfig.targetJdk.majorVersion
+    }
 }
 
 dependencies {
-
-    val navVersion = "2.5.3"
-    val roomVersion = "2.5.1"
-    val lifecycleVersion = "2.6.1"
-    val workVersion = "2.8.1"
-    val daggerVersion = "2.44.2"
-
-
+    implementation(project(mapOf("path" to ":common")))
     implementation(project(mapOf("path" to ":widgets")))
 
-    // dagger
-    implementation("com.google.dagger:dagger:$daggerVersion")
-    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
+    kotlinStdLib()
+    dagger()
+    androidCoreKtx()
+    appcompat()
+    androidConstraintLayout()
+    lifecycle()
+    room()
+    activityKtx()
+    fragment()
+    androidTest()
+    junit4()
+    material()
+    coroutines()
+    timberAndroid()
+    androidAnnotation()
+    jvmAnnotation()
 
-    // androidx room
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
-    testImplementation("androidx.room:room-testing:$roomVersion")
-
-    //lifecycle
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
-
-    //androidx
-    implementation("androidx.core:core-ktx:1.10.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.activity:activity-ktx:1.7.0")
-    implementation("androidx.fragment:fragment-ktx:1.5.6")
-    testImplementation("androidx.fragment:fragment-testing:1.5.7")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-
-    //material
-    implementation("com.google.android.material:material:1.8.0")
-
-    //coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    val navVersion = "2.5.3"
+    val workVersion = "2.8.1"
 
     //navigation
     implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
@@ -102,7 +102,6 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:$workVersion")
     androidTestImplementation("androidx.work:work-testing:$workVersion")
 
-    testImplementation("junit:junit:4.13.2")
-
     implementation("com.google.code.gson:gson:2.10.1")
+
 }

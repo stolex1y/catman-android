@@ -1,16 +1,21 @@
 import AppDependency.activityKtx
+import AppDependency.androidAnnotation
 import AppDependency.androidConstraintLayout
 import AppDependency.androidCoreKtx
 import AppDependency.androidTest
 import AppDependency.appcompat
+import AppDependency.coroutines
 import modules.AppModuleConfig
 import AppDependency.dagger
 import AppDependency.firebase
 import AppDependency.fragment
+import AppDependency.jvmAnnotation
 import AppDependency.kotlinStdLib
 import AppDependency.lifecycle
+import AppDependency.material
 import AppDependency.room
-import AppDependency.test
+import AppDependency.junit4
+import AppDependency.timberAndroid
 
 plugins {
     id(Plugin.APPLICATION)
@@ -60,7 +65,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = moduleConfig.jvmTarget
+        jvmTarget = moduleConfig.targetJdk.majorVersion
     }
 }
 
@@ -76,17 +81,12 @@ dependencies {
     activityKtx()
     fragment()
     androidTest()
-    test()
-
-
-    //material
-    implementation("com.google.android.material:material:1.8.0")
-
-    //coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    junit4()
+    material()
+    coroutines()
+    timberAndroid()
+    androidAnnotation()
+    jvmAnnotation()
 
     val navVersion = "2.5.3"
     val workVersion = "2.8.1"

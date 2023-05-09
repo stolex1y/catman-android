@@ -20,3 +20,4 @@ rootProject.name = "CATMan"
 include(":app")
 include(":demo")
 include(":widgets")
+include(":common")
