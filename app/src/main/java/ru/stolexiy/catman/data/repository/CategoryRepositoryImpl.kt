@@ -1,23 +1,29 @@
 package ru.stolexiy.catman.data.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.data.datasource.local.dao.CategoryDao
 import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
 import ru.stolexiy.catman.data.datasource.local.model.toCategoryEntities
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.repository.CategoryRepository
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
+import javax.inject.Singleton
 
-class CategoryRepositoryImpl(
+@OptIn(ExperimentalCoroutinesApi::class)
+@Singleton
+class CategoryRepositoryImpl @Inject constructor(
     private val localDao: CategoryDao,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @Named(CoroutineModule.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) : CategoryRepository {
     override fun getAllCategories(): Flow<List<DomainCategory>> =
         localDao.getAll().distinctUntilChanged()
@@ -27,7 +33,7 @@ class CategoryRepositoryImpl(
 
     override fun getCategory(id: Long): Flow<DomainCategory?> =
         localDao.get(id).distinctUntilChanged()
-            .mapLatest {  it?.toDomainCategory() }
+            .mapLatest { it?.toDomainCategory() }
             .onEach { Timber.d("get category") }
             .flowOn(dispatcher)
 
@@ -62,4 +68,3 @@ class CategoryRepositoryImpl(
             localDao.isCategoryExist(id)
         }
 }
-

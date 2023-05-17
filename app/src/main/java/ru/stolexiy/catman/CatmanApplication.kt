@@ -2,53 +2,52 @@ package ru.stolexiy.catman
 
 import android.app.Application
 import android.os.Build
-import kotlinx.coroutines.CoroutineExceptionHandler
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
+import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.stolexiy.catman.data.datasource.local.LocalDatabase
-import ru.stolexiy.catman.data.repository.CategoriesWithPurposesRepositoryImpl
-import ru.stolexiy.catman.data.repository.CategoryRepositoryImpl
-import ru.stolexiy.catman.data.repository.PurposeRepositoryImpl
+import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.repository.CategoriesWithPurposesRepository
-import ru.stolexiy.catman.domain.repository.CategoryRepository
-import ru.stolexiy.catman.domain.repository.PurposeRepository
 import ru.stolexiy.catman.domain.usecase.AllCategoriesWithPurposes
 import ru.stolexiy.catman.domain.usecase.CategoryCrud
 import ru.stolexiy.catman.domain.usecase.PurposeCrud
 import ru.stolexiy.catman.ui.util.notification.NotificationChannels
 import timber.log.Timber
 import java.util.GregorianCalendar
+import javax.inject.Inject
+import javax.inject.Named
 
-class CatmanApplication: Application() {
-    lateinit var localDatabase: LocalDatabase
+@HiltAndroidApp
+class CatmanApplication : Application(), Configuration.Provider {
 
-    lateinit var categoryRepository: CategoryRepository
-    lateinit var purposeRepository: PurposeRepository
-    lateinit var categoriesWithPurposesRepository: CategoriesWithPurposesRepository
+    @Named(CoroutineModule.APPLICATION_SCOPE)
+    @Inject
+    lateinit var applicationScope: CoroutineScope
+
+    @Inject
     lateinit var categoryCrud: CategoryCrud
+
+    @Inject
     lateinit var purposeCrud: PurposeCrud
+
+    @Inject
     lateinit var allCategoriesWithPurposes: AllCategoriesWithPurposes
 
-    val coroutineExceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        Timber.e(exception.stackTraceToString())
-    }
-    val applicationScope = CoroutineScope(SupervisorJob() + coroutineExceptionHandler + Dispatchers.Main)
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
-        localDatabase = LocalDatabase.getInstance(this)
-        categoryRepository = CategoryRepositoryImpl(localDatabase.categoryDao())
-        purposeRepository = PurposeRepositoryImpl(localDatabase.purposeDao())
-        categoriesWithPurposesRepository = CategoriesWithPurposesRepositoryImpl(localDatabase.categoriesWithPurposesDao())
-        categoryCrud = CategoryCrud(categoryRepository)
-        purposeCrud = PurposeCrud(purposeRepository, categoryRepository)
-        allCategoriesWithPurposes = AllCategoriesWithPurposes(categoriesWithPurposesRepository)
 
         if (BuildConfig.DEBUG)
             Timber.plant(Timber.DebugTree())
@@ -70,7 +69,7 @@ class CatmanApplication: Application() {
     }
 
     private suspend fun fillDatabase() {
-        var categories = categoryRepository.getAllCategories().first()
+        var categories = categoryCrud.getAll().first().getOrThrow()
         if (categories.isEmpty()) {
             val category1 = DomainCategory("Образование", 0x7FFFD4)
             val category2 = DomainCategory("Работа", 0x66CC66)
@@ -95,7 +94,7 @@ class CatmanApplication: Application() {
         allCategoriesWithPurposes().first().getOrNull()?.let {
             Timber.d("init db $it")
         }
-        localDatabase.categoryDao().getAllWithPurposes().first().let {
+        allCategoriesWithPurposes.invoke().first().getOrThrow().let {
             Timber.d("all categories with purposes $it")
         }
     }

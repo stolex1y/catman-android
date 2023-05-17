@@ -1,12 +1,9 @@
 package ru.stolexiy.catman.ui.dialog
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -16,7 +13,6 @@ abstract class AbstractBottomDialogFragment(
     private val mLayout: Int,
     private val onDestroyDialog: () -> Unit = {},
 ) : BottomSheetDialogFragment() {
-    protected var binding: ViewDataBinding? = null
 
     private val mCallback = object : BottomSheetBehavior.BottomSheetCallback() {
         override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -39,7 +35,6 @@ abstract class AbstractBottomDialogFragment(
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(mLayout, container, false)
-        binding = DataBindingUtil.bind(view)
         (dialog as BottomSheetDialog).behavior.apply {
             saveFlags = BottomSheetBehavior.SAVE_ALL
             addBottomSheetCallback(mCallback)
@@ -59,19 +54,6 @@ abstract class AbstractBottomDialogFragment(
     }
 
     protected fun onSlide(bottomSheet: View, slideOffset: Float) {
-    }
-
-    override fun onCancel(dialog: DialogInterface) {
-        super.onCancel(dialog)
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
     }
 
     override fun onDestroy() {

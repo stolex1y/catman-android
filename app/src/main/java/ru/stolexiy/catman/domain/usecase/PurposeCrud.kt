@@ -1,12 +1,12 @@
 package ru.stolexiy.catman.domain.usecase
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.CategoryRepository
 import ru.stolexiy.catman.domain.repository.PurposeRepository
@@ -14,11 +14,13 @@ import ru.stolexiy.catman.domain.util.DateUtils.isNotPast
 import ru.stolexiy.catman.domain.util.cancellationTransparency
 import ru.stolexiy.catman.domain.util.toResult
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
-class PurposeCrud(
+class PurposeCrud @Inject constructor(
     private val purposeRepository: PurposeRepository,
     private val categoryRepository: CategoryRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    @Named(CoroutineModule.DEFAULT_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) {
     fun getAll(): Flow<Result<List<DomainPurpose>>> =
         purposeRepository.getAllPurposes().toResult()
@@ -31,7 +33,8 @@ class PurposeCrud(
                 Timber.d("create purpose '${purpose.name}'")
                 require(purpose.deadline.isNotPast()) { "The deadline can't be past" }
                 require(categoryRepository.isCategoryExist(purpose.categoryId)) { "Parent category must be exist" }
-                purposeRepository.getAllPurposesByCategoryOrderByPriority(purpose.categoryId).first()
+                purposeRepository.getAllPurposesByCategoryOrderByPriority(purpose.categoryId)
+                    .first()
                     .let { purposesByCategory ->
                         val nextPriority = purposesByCategory.lastOrNull()?.priority?.plus(1) ?: 1
                         purpose.copy(

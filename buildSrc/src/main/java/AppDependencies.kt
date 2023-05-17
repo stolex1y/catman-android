@@ -2,59 +2,64 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 
 object AppDependencies {
     //std lib
-    val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib:${DependencyVersion.kotlin}"
+    private const val kotlinStdLib =
+        "org.jetbrains.kotlin:kotlin-stdlib:${DependencyVersion.kotlin}"
 
     fun DependencyHandler.kotlinStdLib() {
         add(ConfigurationName.IMPLEMENTATION.configName, kotlinStdLib)
     }
 
     //android core
-    val coreKtx = "androidx.core:core-ktx:${DependencyVersion.coreKtx}"
+    private const val coreKtx = "androidx.core:core-ktx:${DependencyVersion.coreKtx}"
 
     fun DependencyHandler.androidCoreKtx() {
         add(ConfigurationName.IMPLEMENTATION.configName, coreKtx)
     }
 
     //android ui
-    val appcompat = "androidx.appcompat:appcompat:${DependencyVersion.appCompat}"
+    private const val appcompat = "androidx.appcompat:appcompat:${DependencyVersion.appCompat}"
 
     fun DependencyHandler.appcompat() {
         add(ConfigurationName.IMPLEMENTATION.configName, appcompat)
     }
 
-    val activityKtx = "androidx.activity:activity-ktx:${DependencyVersion.activityKtx}"
+    private const val activityKtx =
+        "androidx.activity:activity-ktx:${DependencyVersion.activityKtx}"
 
     fun DependencyHandler.activityKtx() {
         add(ConfigurationName.IMPLEMENTATION.configName, activityKtx)
     }
 
-    val fragmentKtx = "androidx.fragment:fragment-ktx:${DependencyVersion.fragmentKtx}"
-    val fragmentTesting = "androidx.fragment:fragment-testing:${DependencyVersion.fragmentTesting}"
+    private const val fragmentKtx =
+        "androidx.fragment:fragment-ktx:${DependencyVersion.fragmentKtx}"
+    private const val fragmentTesting =
+        "androidx.fragment:fragment-testing:${DependencyVersion.fragmentTesting}"
 
     fun DependencyHandler.fragment() {
         add(ConfigurationName.IMPLEMENTATION.configName, fragmentKtx)
         add(ConfigurationName.TEST_IMPLEMENTATION.configName, fragmentTesting)
     }
 
-    val constraintLayout =
+    private const val constraintLayout =
         "androidx.constraintlayout:constraintlayout:${DependencyVersion.constraintLayout}"
 
     fun DependencyHandler.androidConstraintLayout() {
         add(ConfigurationName.IMPLEMENTATION.configName, constraintLayout)
     }
 
-    val material = "com.google.android.material:material:${DependencyVersion.material}"
+    private const val material =
+        "com.google.android.material:material:${DependencyVersion.material}"
 
     fun DependencyHandler.material() {
         add(ConfigurationName.IMPLEMENTATION.configName, material)
     }
 
     //android lifecycle
-    val lifecycleRuntimeKtx =
+    private const val lifecycleRuntimeKtx =
         "androidx.lifecycle:lifecycle-runtime-ktx:${DependencyVersion.lifecycle}"
-    val lifecycleLivedataKtx =
+    private const val lifecycleLivedataKtx =
         "androidx.lifecycle:lifecycle-livedata-ktx:${DependencyVersion.lifecycle}"
-    val lifecycleViewmodelKtx =
+    private const val lifecycleViewmodelKtx =
         "androidx.lifecycle:lifecycle-viewmodel-ktx:${DependencyVersion.lifecycle}"
 
     fun DependencyHandler.lifecycle() {
@@ -64,27 +69,43 @@ object AppDependencies {
     }
 
     //dagger
-    val dagger = "com.google.dagger:dagger:${DependencyVersion.dagger}"
-    val daggerCompiler = "com.google.dagger:dagger-compiler:${DependencyVersion.dagger}"
+    private const val dagger = "com.google.dagger:dagger:${DependencyVersion.dagger}"
+    private const val daggerCompiler =
+        "com.google.dagger:dagger-compiler:${DependencyVersion.dagger}"
 
     fun DependencyHandler.dagger() {
         add(ConfigurationName.KAPT.configName, daggerCompiler)
         add(ConfigurationName.IMPLEMENTATION.configName, dagger)
     }
 
-    val hilt = "com.google.dagger:hilt-android:${DependencyVersion.hilt}"
-    val hiltCompiler = "com.google.dagger:hilt-compiler:${DependencyVersion.hilt}"
+    private const val hilt = "com.google.dagger:hilt-android:${DependencyVersion.hilt}"
+    private const val hiltCompiler = "com.google.dagger:hilt-compiler:${DependencyVersion.hilt}"
+    private const val hiltWorkManager =
+        "androidx.hilt:hilt-work:${DependencyVersion.hiltWorkManager}"
+    private const val hiltAndroidCompiler =
+        "androidx.hilt:hilt-compiler:${DependencyVersion.hiltAndroidCompiler}"
+    private const val hiltNavigation =
+        "androidx.hilt:hilt-navigation-fragment:${DependencyVersion.hiltNavigation}"
 
     fun DependencyHandler.hilt() {
         add(ConfigurationName.KAPT.configName, hiltCompiler)
         add(ConfigurationName.IMPLEMENTATION.configName, hilt)
     }
 
+    fun DependencyHandler.hiltWorkManager() {
+        add(ConfigurationName.KAPT.configName, hiltAndroidCompiler)
+        add(ConfigurationName.IMPLEMENTATION.configName, hiltWorkManager)
+    }
+
+    fun DependencyHandler.hiltNavigation() {
+        add(ConfigurationName.IMPLEMENTATION.configName, hiltNavigation)
+    }
+
     //room
-    val roomRuntime = "androidx.room:room-runtime:${DependencyVersion.room}"
-    val roomKtx = "androidx.room:room-ktx:${DependencyVersion.room}"
-    val roomCompiler = "androidx.room:room-compiler:${DependencyVersion.room}"
-    val roomTesting = "androidx.room:room-testing:${DependencyVersion.room}"
+    private const val roomRuntime = "androidx.room:room-runtime:${DependencyVersion.room}"
+    private const val roomKtx = "androidx.room:room-ktx:${DependencyVersion.room}"
+    private const val roomCompiler = "androidx.room:room-compiler:${DependencyVersion.room}"
+    private const val roomTesting = "androidx.room:room-testing:${DependencyVersion.room}"
 
     fun DependencyHandler.room() {
         add(ConfigurationName.IMPLEMENTATION.configName, roomRuntime)
@@ -95,8 +116,9 @@ object AppDependencies {
     }
 
     //firebase
-    val firebaseBom = "com.google.firebase:firebase-bom:${DependencyVersion.firebaseBom}"
-    val firebaseAnalyticsKtx =
+    private const val firebaseBom =
+        "com.google.firebase:firebase-bom:${DependencyVersion.firebaseBom}"
+    private const val firebaseAnalyticsKtx =
         "com.google.firebase:firebase-analytics-ktx:${DependencyVersion.firebaseAnalyticsKtx}"
 
     fun DependencyHandler.firebase() {
@@ -105,20 +127,22 @@ object AppDependencies {
     }
 
     //test libs
-    private val junit4 = "junit:junit:${DependencyVersion.junit4}"
-    private val junit5 = "org.junit.jupiter:junit-jupiter-api:${DependencyVersion.junit5Jupiter}"
-    private val junit5PlatformLauncher =
+    private const val junit4 = "junit:junit:${DependencyVersion.junit4}"
+    private const val junit5 =
+        "org.junit.jupiter:junit-jupiter-api:${DependencyVersion.junit5Jupiter}"
+    private const val junit5PlatformLauncher =
         "org.junit.platform:junit-platform-launcher:${DependencyVersion.junit5Platform}"
-    private val junit5PlatformEngine =
+    private const val junit5PlatformEngine =
         "org.junit.platform:junit-platform-engine:${DependencyVersion.junit5Platform}"
-    private val junit5PlatformRunner =
+    private const val junit5PlatformRunner =
         "org.junit.platform:junit-platform-runner:${DependencyVersion.junit5Platform}"
 
-    private val testRunner = "androidx.test:runner:${DependencyVersion.testRunner}"
-    private val testRules = "androidx.test:rules:${DependencyVersion.testRules}"
-    private val extJUnit = "androidx.test.ext:junit:${DependencyVersion.extJunit}"
-    private val extJUnitKtx = "androidx.test.ext:junit-ktx:${DependencyVersion.extJunit}"
-    private val espressoCore = "androidx.test.espresso:espresso-core:${DependencyVersion.espresso}"
+    private const val testRunner = "androidx.test:runner:${DependencyVersion.testRunner}"
+    private const val testRules = "androidx.test:rules:${DependencyVersion.testRules}"
+    private const val extJUnit = "androidx.test.ext:junit:${DependencyVersion.extJunit}"
+    private const val extJUnitKtx = "androidx.test.ext:junit-ktx:${DependencyVersion.extJunit}"
+    private const val espressoCore =
+        "androidx.test.espresso:espresso-core:${DependencyVersion.espresso}"
 
     fun DependencyHandler.androidTest() {
         add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, extJUnit)
@@ -140,9 +164,9 @@ object AppDependencies {
     }
 
     //kotlin coroutines
-    private val coroutinesAndroid =
+    private const val coroutinesAndroid =
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:${DependencyVersion.coroutinesAndroid}"
-    private val coroutinesTest =
+    private const val coroutinesTest =
         "org.jetbrains.kotlinx:kotlinx-coroutines-test:${DependencyVersion.coroutinesTest}"
 
     fun DependencyHandler.coroutines() {
@@ -151,8 +175,9 @@ object AppDependencies {
     }
 
     //timber
-    private val timberAndroid = "com.jakewharton.timber:timber:${DependencyVersion.timberAndroid}"
-    private val timberJdk = "com.jakewharton.timber:timber-jdk:${DependencyVersion.timberJdk}"
+    private const val timberAndroid =
+        "com.jakewharton.timber:timber:${DependencyVersion.timberAndroid}"
+    private const val timberJdk = "com.jakewharton.timber:timber-jdk:${DependencyVersion.timberJdk}"
 
     fun DependencyHandler.timberAndroid() {
         add(ConfigurationName.IMPLEMENTATION.configName, timberAndroid)
@@ -163,7 +188,7 @@ object AppDependencies {
     }
 
     //androidx annotation
-    private val androidAnnotation =
+    private const val androidAnnotation =
         "androidx.annotation:annotation:${DependencyVersion.androidAnnotation}"
 
     fun DependencyHandler.androidAnnotation() {
@@ -171,7 +196,7 @@ object AppDependencies {
     }
 
     //jvm annotation
-    private val jvmAnnotation =
+    private const val jvmAnnotation =
         "androidx.annotation:annotation-jvm:${DependencyVersion.jvmAnnotation}"
 
     fun DependencyHandler.jvmAnnotation() {

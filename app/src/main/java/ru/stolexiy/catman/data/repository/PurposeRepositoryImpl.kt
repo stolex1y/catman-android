@@ -1,23 +1,29 @@
 package ru.stolexiy.catman.data.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.data.datasource.local.dao.PurposeDao
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 import ru.stolexiy.catman.data.datasource.local.model.toPurposeEntities
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.PurposeRepository
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
+import javax.inject.Singleton
 
-class PurposeRepositoryImpl(
+@OptIn(ExperimentalCoroutinesApi::class)
+@Singleton
+class PurposeRepositoryImpl @Inject constructor(
     private val localDao: PurposeDao,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @Named(CoroutineModule.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) : PurposeRepository {
     override fun getAllPurposes(): Flow<List<DomainPurpose>> =
         localDao.getAll().distinctUntilChanged()

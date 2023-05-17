@@ -19,8 +19,8 @@ object Plugins {
 
 object PluginVersions {
     const val KSP = "1.8.21-1.0.11"
-    const val APPLICATION = "8.2.0-alpha01"
-    const val ANDROID_LIBRARY = "8.2.0-alpha01"
+    const val APPLICATION = "8.0.1"
+    const val ANDROID_LIBRARY = "8.0.1"
     const val KOTLIN_ANDROID = "1.8.0"
     const val SERIALIZATION = "1.4.0"
     const val KOTLIN_JVM = "1.8.0"

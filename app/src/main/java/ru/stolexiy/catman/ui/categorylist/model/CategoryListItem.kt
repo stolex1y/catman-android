@@ -26,8 +26,15 @@ sealed class CategoryListItem : ListItem {
 
 fun DomainCategory.toCategoryItem() = CategoryListItem.CategoryItem(id, name, color)
 fun DomainPurpose.toPurposeItem(): CategoryListItem.PurposeItem {
-    return CategoryListItem.PurposeItem(id, name, deadline.toDmyString(), isDeadlineBurning, progress)
+    return CategoryListItem.PurposeItem(
+        id,
+        name,
+        deadline.toDmyString(),
+        isDeadlineBurning,
+        progress
+    )
 }
+
 fun Map<DomainCategory, List<DomainPurpose>>.toCategoryListItems(): List<CategoryListItem> {
     val result = mutableListOf<CategoryListItem>()
     this.forEach { mapEntry ->

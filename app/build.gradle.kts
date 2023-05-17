@@ -10,6 +10,8 @@ import AppDependencies.dagger
 import AppDependencies.firebase
 import AppDependencies.fragment
 import AppDependencies.hilt
+import AppDependencies.hiltNavigation
+import AppDependencies.hiltWorkManager
 import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
@@ -90,6 +92,8 @@ dependencies {
     androidAnnotation()
     jvmAnnotation()
     hilt()
+    hiltNavigation()
+    hiltWorkManager()
 
     val navVersion = "2.5.3"
     val workVersion = "2.8.1"

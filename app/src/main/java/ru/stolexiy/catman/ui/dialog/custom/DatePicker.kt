@@ -57,7 +57,8 @@ class DatePicker(
 
             private val VALIDATOR = "VALIDATOR"
             override fun createFromParcel(source: Parcel): DateValidator? {
-                return source.readBundle(CREATOR::class.java.classLoader)?.getSerializable(VALIDATOR)?.let {
+                return source.readBundle(CREATOR::class.java.classLoader)
+                    ?.getSerializable(VALIDATOR)?.let {
                     DateValidator(it as Validator)
                 }
             }

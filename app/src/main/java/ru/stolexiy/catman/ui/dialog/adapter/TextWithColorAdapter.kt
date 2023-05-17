@@ -16,7 +16,11 @@ class TextWithColorAdapter<T>(
     items: List<T>,
     context: Context,
     converter: (T) -> Item
-) : ArrayAdapter<TextWithColorAdapter.Item>(context, R.layout.list_item_with_color, items.map(converter)) {
+) : ArrayAdapter<TextWithColorAdapter.Item>(
+    context,
+    R.layout.list_item_with_color,
+    items.map(converter)
+) {
 
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

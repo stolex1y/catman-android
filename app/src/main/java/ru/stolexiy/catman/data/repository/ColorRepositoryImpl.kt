@@ -1,28 +1,33 @@
 package ru.stolexiy.catman.data.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.data.datasource.local.dao.ColorDao
 import ru.stolexiy.catman.data.datasource.local.model.ColorEntity
 import ru.stolexiy.catman.data.datasource.local.model.toColorEntities
 import ru.stolexiy.catman.domain.model.DomainColor
 import ru.stolexiy.catman.domain.repository.ColorRepository
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
+import javax.inject.Singleton
 
-class ColorRepositoryImpl(
+@OptIn(ExperimentalCoroutinesApi::class)
+@Singleton
+class ColorRepositoryImpl @Inject constructor(
     private val localDao: ColorDao,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @Named(CoroutineModule.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) : ColorRepository {
-
     override fun getColor(color: Int): Flow<DomainColor?> =
         localDao.get(color).distinctUntilChanged()
-            .mapLatest {  it?.toDomainColor() }
+            .mapLatest { it?.toDomainColor() }
             .onEach { Timber.d("get color") }
             .flowOn(dispatcher)
 

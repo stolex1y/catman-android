@@ -1,17 +1,19 @@
 package ru.stolexiy.catman.domain.usecase
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.repository.CategoryRepository
 import ru.stolexiy.catman.domain.util.cancellationTransparency
 import ru.stolexiy.catman.domain.util.toResult
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
-class CategoryCrud(
+class CategoryCrud @Inject constructor(
     private val categoryRepository: CategoryRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    @Named(CoroutineModule.DEFAULT_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) {
     fun getAll() = categoryRepository.getAllCategories().toResult()
 

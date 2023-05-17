@@ -5,12 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.work.WorkInfo
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -20,31 +20,43 @@ import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
 import ru.stolexiy.catman.ui.dialog.AbstractBottomDialogFragment
 import ru.stolexiy.catman.ui.dialog.adapter.TextWithColorAdapter
 import ru.stolexiy.catman.ui.dialog.custom.DatePicker
+import ru.stolexiy.catman.ui.dialog.purpose.add.di.AddPurposeDialogEntryPoint
 import ru.stolexiy.catman.ui.dialog.purpose.model.Category
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
+import ru.stolexiy.catman.ui.util.binding.BindingDelegate
 import ru.stolexiy.catman.ui.util.notification.showWorkInfoSnackbar
 import ru.stolexiy.catman.ui.util.state.ActionInfo
+import ru.stolexiy.catman.ui.util.viewmodel.CustomAbstractSavedStateViewModelFactory.Companion.assistedViewModels
 import timber.log.Timber
 
 class AddPurposeDialog(
     onDestroyDialog: () -> Unit = {}
 ) : AbstractBottomDialogFragment(R.layout.dialog_purpose_add, onDestroyDialog) {
 
-    private lateinit var mAddingPurpose: Purpose
+    private lateinit var addingPurpose: Purpose
+    private lateinit var assistedViewModelFactory: AddPurposeViewModel.Factory
 
-    private val mViewModel: AddPurposeViewModel by viewModels { AddPurposeViewModel.Factory }
-    private val mBinding: DialogPurposeAddBinding
-        get() = binding!! as DialogPurposeAddBinding
+    private val viewModel: AddPurposeViewModel by assistedViewModels<AddPurposeViewModel> {
+        assistedViewModelFactory.create(it)
+    }
 
-    private val mDeadlineDialog: DatePicker by lazy {
+    private val binding: DialogPurposeAddBinding by BindingDelegate(
+        view,
+        viewLifecycleOwner.lifecycle
+    )
+
+    private val deadlineDialog: DatePicker by lazy {
         initChooseDeadlineDialog()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val dependencies =
+            EntryPointAccessors.fromFragment(this, AddPurposeDialogEntryPoint::class.java)
+        assistedViewModelFactory = dependencies.assistedViewModelFactory()
         restoreState()
-        mBinding.apply {
-            purpose = mAddingPurpose
+        binding.apply {
+            purpose = addingPurpose
             lifecycleOwner = viewLifecycleOwner
             purposeDeadlineLayout.setStartIconOnClickListener { chooseDeadline() }
             purposeDeadline.setOnClickListener { chooseDeadline() }
@@ -54,10 +66,10 @@ class AddPurposeDialog(
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 launch {
-                    mViewModel.state.collect { handleState(it) }
+                    viewModel.state.collect { handleState(it) }
                 }
                 launch {
-                    mViewModel.categories.collectLatest { onUpdateCategories(it) }
+                    viewModel.categories.collectLatest { onUpdateCategories(it) }
                 }
             }
         }
@@ -74,7 +86,7 @@ class AddPurposeDialog(
     }
 
     private fun restoreState() {
-        mAddingPurpose = findNavController().currentBackStackEntry
+        addingPurpose = findNavController().currentBackStackEntry
             ?.savedStateHandle
             ?.get<Purpose>(ADDING_PURPOSE)
             ?: Purpose()
@@ -82,7 +94,7 @@ class AddPurposeDialog(
 
     private fun saveState() {
         findNavController().currentBackStackEntry?.savedStateHandle?.let {
-            it[ADDING_PURPOSE] = mAddingPurpose
+            it[ADDING_PURPOSE] = addingPurpose
         }
     }
 
@@ -96,26 +108,27 @@ class AddPurposeDialog(
             is ActionInfo.Error -> {
                 Toast.makeText(requireContext(), "Error...", Toast.LENGTH_LONG).show()
             }
+
             else -> {}
         }
     }
 
     private fun onUpdateCategories(categories: List<Category>) {
-        mBinding.purposeCategory.setAdapter(
+        binding.purposeCategory.setAdapter(
             TextWithColorAdapter(categories, requireContext()) {
                 TextWithColorAdapter.Item(it.id, it.color, it.name)
             }
         )
         if (categories.isNotEmpty()) {
-            val selected = mAddingPurpose.category.get() ?: categories.first()
+            val selected = addingPurpose.category.get() ?: categories.first()
             val selectedIdx = categories.indexOf(selected).takeIf { it >= 0 } ?: 0
-            mBinding.purposeCategory.listSelection = selectedIdx
+            binding.purposeCategory.listSelection = selectedIdx
         }
     }
 
     private fun addPurpose() {
-        if (mAddingPurpose.isValid) {
-            mViewModel.addPurpose(mAddingPurpose).run(this::onAdding)
+        if (addingPurpose.isValid) {
+            viewModel.addPurpose(addingPurpose).run(this::onAdding)
             clearState()
             dismiss()
         }
@@ -126,7 +139,7 @@ class AddPurposeDialog(
             requireParentFragment().viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 val view = requireParentFragment().view ?: return@repeatOnLifecycle
                 view
-                mViewModel.state.collectLatest {
+                viewModel.state.collectLatest {
                     when (it) {
                         is AddPurposeViewModel.State.Adding ->
                         is AddPurposeViewModel.State.Deleting ->
@@ -149,7 +162,7 @@ class AddPurposeDialog(
     }
 
     private fun onAddingCancel(addingWorkInfo: WorkInfo) {
-        val deletingWorkInfo = mViewModel.revertAdding(addingWorkInfo)
+        val deletingWorkInfo = viewModel.revertAdding(addingWorkInfo)
         parentFragment?.viewLifecycleOwner?.lifecycleScope?.launchWhenStarted {
             requireParentFragment().view?.run {
                 Timber.d("on deleting")
@@ -167,28 +180,29 @@ class AddPurposeDialog(
     private fun initChooseDeadlineDialog(): DatePicker {
         val datePicker = DatePicker(
             R.string.deadline,
-            selection = mAddingPurpose.deadline.get()?.timeInMillis ?: System.currentTimeMillis(),
-            condition = mAddingPurpose.deadline.condition
+            selection = addingPurpose.deadline.get()?.timeInMillis ?: System.currentTimeMillis(),
+            condition = addingPurpose.deadline.condition
         )
         datePicker.dialog.addOnPositiveButtonClickListener {
-            mAddingPurpose.deadline.set(it.toCalendar())
+            addingPurpose.deadline.set(it.toCalendar())
         }
         return datePicker
     }
 
     private fun chooseDeadline() {
-        if (mDeadlineDialog.dialog.isResumed)
+        if (deadlineDialog.dialog.isResumed)
             return
         Timber.d("choose deadline")
-        mDeadlineDialog.dialog.show(childFragmentManager, "CHOOSE_DEADLINE")
+        deadlineDialog.dialog.show(childFragmentManager, "CHOOSE_DEADLINE")
     }
 
-    private fun onCategoryClickListener() = AdapterView.OnItemClickListener { parent, _, position, _ ->
-        val selection =
-            (parent!!.getItemAtPosition(position) as TextWithColorAdapter.Item).toCategory()
-        mAddingPurpose.category.set(selection)
-        mBinding.purposeCategory.setText(selection.name)
-    }
+    private fun onCategoryClickListener() =
+        AdapterView.OnItemClickListener { parent, _, position, _ ->
+            val selection =
+                (parent!!.getItemAtPosition(position) as TextWithColorAdapter.Item).toCategory()
+            addingPurpose.category.set(selection)
+            binding.purposeCategory.setText(selection.name)
+        }
 
     private companion object {
         const val ADDING_PURPOSE = "ADDING_PURPOSE"

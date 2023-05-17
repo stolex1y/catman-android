@@ -32,7 +32,8 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = binding.drawerLayout
         toolbar = binding.toolbar
         setContentView(binding.root)
-        navController = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
+        navController =
+            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
         setSupportActionBar(toolbar)
         setupNavGraph()
         setupNavigation()
@@ -71,13 +72,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!currentDestinationIsTop())
-                        navController.navigateUp(drawerLayout)
-                    else
-                        finish()
-                }
+            override fun handleOnBackPressed() {
+                if (!currentDestinationIsTop())
+                    navController.navigateUp(drawerLayout)
+                else
+                    finish()
             }
+        }
         )
 
     }

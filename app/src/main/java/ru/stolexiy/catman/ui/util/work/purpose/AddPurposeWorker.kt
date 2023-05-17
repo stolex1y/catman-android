@@ -2,14 +2,17 @@ package ru.stolexiy.catman.ui.util.work.purpose
 
 import android.app.Notification
 import android.content.Context
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import ru.stolexiy.catman.CatmanApplication
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.core.Json
 import ru.stolexiy.catman.domain.model.DomainPurpose
@@ -17,18 +20,12 @@ import ru.stolexiy.catman.domain.usecase.PurposeCrud
 import ru.stolexiy.catman.ui.util.work.WorkUtils
 import timber.log.Timber
 
-class AddPurposeWorker(
-    appContext: Context,
-    workerParams: WorkerParameters,
-) : CoroutineWorker(appContext, workerParams) {
-
+@HiltWorker
+class AddPurposeWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParams: WorkerParameters,
     private val purposeCrud: PurposeCrud
-
-    init {
-        (applicationContext as CatmanApplication).let {
-            purposeCrud = it.purposeCrud
-        }
-    }
+) : CoroutineWorker(appContext, workerParams) {
 
     companion object {
         val ADD_PURPOSE_TAG = AddPurposeWorker::class.simpleName ?: "AddPurposeWorker"
@@ -45,6 +42,9 @@ class AddPurposeWorker(
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
         }
+
+        fun parseOutputPurposeId(output: Data): Long? =
+            output.keyValueMap[OUTPUT_PURPOSE_ID] as Long?
     }
 
     override suspend fun doWork(): Result {

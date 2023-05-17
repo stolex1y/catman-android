@@ -2,6 +2,7 @@ package ru.stolexiy.catman.ui.util.work.purpose
 
 import android.app.Notification
 import android.content.Context
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
@@ -9,31 +10,27 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import ru.stolexiy.catman.CatmanApplication
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.domain.usecase.PurposeCrud
 import ru.stolexiy.catman.ui.util.work.WorkUtils
 import timber.log.Timber
 
-class DeletePurposeWorker(
-    appContext: Context,
-    workerParams: WorkerParameters,
-) : CoroutineWorker(appContext, workerParams) {
-
+@HiltWorker
+class DeletePurposeWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParams: WorkerParameters,
     private val purposeCrud: PurposeCrud
-
-    init {
-        (applicationContext as CatmanApplication).let {
-            purposeCrud = it.purposeCrud
-        }
-    }
+) : CoroutineWorker(appContext, workerParams) {
 
     companion object {
         val DELETE_PURPOSE_TAG = DeletePurposeWorker::class.simpleName ?: "DeletePurposeWorker"
         const val INPUT_PURPOSE_ID = "INPUT_PURPOSE_ID"
 
-        fun create(deletingPurposeId: Long): OneTimeWorkRequest {
+        fun createWorkRequest(deletingPurposeId: Long): OneTimeWorkRequest {
             return OneTimeWorkRequestBuilder<DeletePurposeWorker>()
+                .addTag(DELETE_PURPOSE_TAG)
                 .setInputData(workDataOf(INPUT_PURPOSE_ID to deletingPurposeId))
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
@@ -41,7 +38,8 @@ class DeletePurposeWorker(
     }
 
     override suspend fun doWork(): Result {
-        val deletingPurposeId: Long = inputData.keyValueMap[INPUT_PURPOSE_ID] as Long? ?: return Result.success()
+        val deletingPurposeId: Long =
+            inputData.keyValueMap[INPUT_PURPOSE_ID] as Long? ?: return Result.success()
         return run {
             Timber.d("deleting purpose with id $deletingPurposeId started")
             purposeCrud.delete(deletingPurposeId)

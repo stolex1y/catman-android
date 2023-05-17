@@ -3,10 +3,11 @@ package ru.stolexiy.catman.ui.categorylist
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.util.recyclerview.BaseListAdapter
+import javax.inject.Inject
 import kotlin.reflect.KClass
 
-class CategoryListAdapter :
-        BaseListAdapter<CategoryListItem>() {
+class CategoryListAdapter @Inject constructor() :
+    BaseListAdapter<CategoryListItem>() {
 
     override val mItemHierarchy: Map<Int, Int> = mapOf(
         getItemType(CategoryListItem.CategoryItem::class) to 1,
