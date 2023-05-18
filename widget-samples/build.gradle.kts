@@ -1,3 +1,4 @@
+
 import AppDependencies.activityKtx
 import AppDependencies.androidAnnotation
 import AppDependencies.androidTest
@@ -10,19 +11,20 @@ import AppDependencies.lifecycle
 import AppDependencies.material
 import AppDependencies.moduleImplementation
 import AppDependencies.timberAndroid
-import modules.WidgetsModuleConfig
+import modules.WidgetSamplesModuleConfig
 
 plugins {
-    id(Plugins.ANDROID_LIBRARY)
+    id(Plugins.APPLICATION)
     id(Plugins.KOTLIN_ANDROID)
 }
 
 android {
-    val moduleConfig = WidgetsModuleConfig
+    val moduleConfig = WidgetSamplesModuleConfig
     namespace = moduleConfig.namespace
     compileSdk = moduleConfig.compileSdk
 
     defaultConfig {
+        applicationId = moduleConfig.namespace
         minSdk = moduleConfig.minSdk
         version = moduleConfig.versionCode
 
@@ -44,11 +46,13 @@ android {
 
         debug {
             isMinifyEnabled = false
+            isDebuggable = true
         }
     }
 
     buildFeatures {
         viewBinding = true
+//        dataBinding = true
     }
 
     compileOptions {
@@ -60,7 +64,9 @@ android {
     }
 }
 
+
 dependencies {
+    moduleImplementation("widgets")
     moduleImplementation("common")
 
     kotlinStdLib()

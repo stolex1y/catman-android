@@ -203,6 +203,43 @@ object AppDependencies {
         add(ConfigurationName.IMPLEMENTATION.configName, jvmAnnotation)
     }
 
+    //navigation
+    private const val navigationUiKtx =
+        "androidx.navigation:navigation-ui-ktx:${DependencyVersion.navigation}"
+    private const val navigationFragmentKtx =
+        "androidx.navigation:navigation-fragment-ktx:${DependencyVersion.navigation}"
+    private const val navigationTesting =
+        "androidx.navigation:navigation-testing:${DependencyVersion.navigation}"
+
+    fun DependencyHandler.navigation() {
+        add(ConfigurationName.IMPLEMENTATION.configName, navigationUiKtx)
+        add(ConfigurationName.IMPLEMENTATION.configName, navigationFragmentKtx)
+        add(ConfigurationName.API.configName, navigationFragmentKtx)
+        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, navigationTesting)
+    }
+
+    //work manager
+    private const val workManager =
+        "androidx.work:work-runtime-ktx:${DependencyVersion.workManager}"
+    private const val workManagerTesting =
+        "androidx.work:work-testing:${DependencyVersion.workManager}"
+
+    fun DependencyHandler.workManager() {
+        add(ConfigurationName.IMPLEMENTATION.configName, workManager)
+        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, workManagerTesting)
+    }
+
+    //json
+    private const val gson = "com.google.code.gson:gson:${DependencyVersion.gson}"
+
+    fun DependencyHandler.gson() {
+        add(ConfigurationName.IMPLEMENTATION.configName, gson)
+    }
+
+    fun DependencyHandler.moduleImplementation(module: String) {
+        add(ConfigurationName.IMPLEMENTATION.configName, project(mapOf("path" to ":$module")))
+    }
+
     enum class ConfigurationName(val configName: String) {
         KAPT("kapt"),
         IMPLEMENTATION("implementation"),
@@ -210,7 +247,8 @@ object AppDependencies {
         TEST_IMPLEMENTATION("testImplementation"),
         ANNOTATION_PROCESSOR("annotationProcessor"),
         KSP("ksp"),
-        RUNTIME_ONLY("runtimeOnly")
+        RUNTIME_ONLY("runtimeOnly"),
+        API("api")
     }
 }
 

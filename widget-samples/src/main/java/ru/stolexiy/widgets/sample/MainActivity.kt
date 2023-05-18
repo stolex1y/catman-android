@@ -1,12 +1,12 @@
-package ru.stolexiy.widgets.example
+package ru.stolexiy.widgets.sample
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import ru.stolexiy.widgets.databinding.ActivityMainBinding
-import ru.stolexiy.widgets.example.progressview.SimpleActivityWithProgressView
-import ru.stolexiy.widgets.example.timerview.SimpleActivityWithTimerView
+import ru.stolexiy.widgets.sample.databinding.ActivityMainBinding
+import ru.stolexiy.widgets.sample.progressview.SimpleActivityWithProgressView
+import ru.stolexiy.widgets.sample.timerview.SimpleActivityWithTimerView
 import kotlin.reflect.KClass
 
 internal class MainActivity : AppCompatActivity() {

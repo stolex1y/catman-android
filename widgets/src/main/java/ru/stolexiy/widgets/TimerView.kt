@@ -1,20 +1,17 @@
-package ru.stolexiy.widgets.timerview
+package ru.stolexiy.widgets
 
 import android.content.Context
 import android.util.AttributeSet
+import android.widget.LinearLayout
 import androidx.annotation.MainThread
 import ru.stolexiy.common.TimeConstants.MIN_TO_MS
-import ru.stolexiy.common.TimeConstants.SEC_TO_MS
 import ru.stolexiy.common.Timer
-import ru.stolexiy.widgets.progressview.ProgressView
-import kotlin.math.ceil
 
 class TimerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ProgressView(context, attrs, defStyleAttr) {
-
+) : LinearLayout(context, attrs, defStyleAttr) {
     companion object {
         private const val TIME_FORMAT: String = "%02d:%02d"
 
@@ -29,6 +26,8 @@ class TimerView @JvmOverloads constructor(
         }
     }
 
+    private val progressView = ProgressView(context, attrs, defStyleAttr)
+
     private val timerListener = TimerListener()
 
     private val timer = Timer(
@@ -40,12 +39,14 @@ class TimerView @JvmOverloads constructor(
 
     var initTime: Timer.Time by timer::initTime
     var updateTime: Timer.Time by timer::updateTime
+    var clockwise: Boolean by progressView::clockwise
 
     init {
-        fillingUp = false
-        clockwise = true
+        progressView.fillingUp = false
+        progressView.clockwise = true
         updateText()
         updateProgress()
+        this.addView(progressView)
     }
 
     fun timerStart() {
@@ -68,14 +69,14 @@ class TimerView @JvmOverloads constructor(
 
     @MainThread
     private fun updateText() {
-        text = formatTime(timer.curTime)
+        progressView.text = formatTime(timer.curTime)
     }
 
     @MainThread
     fun updateProgress() {
         val initTimeMs = initTime.inMs
         val curTimeMs = timer.curTime.inMs
-        progress = (initTimeMs - curTimeMs) / initTimeMs.toFloat()
+        progressView.progress = (initTimeMs - curTimeMs) / initTimeMs.toFloat()
     }
 
     private inner class TimerListener : Timer.TimerListener {

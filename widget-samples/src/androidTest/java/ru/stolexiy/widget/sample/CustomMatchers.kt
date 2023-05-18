@@ -1,4 +1,4 @@
-package ru.stolexiy.widgets
+package ru.stolexiy.widget.sample
 
 import android.view.View
 import android.widget.Button

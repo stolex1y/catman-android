@@ -1,4 +1,4 @@
-object DependencyVersion {
+internal object DependencyVersion {
     //app level
     const val gradle = "4.0.1"
     const val kotlin = "1.8.21"
@@ -27,6 +27,7 @@ object DependencyVersion {
     const val hiltWorkManager = "1.0.0"
     const val hiltAndroidCompiler = "1.0.0"
     const val hiltNavigation = "1.0.0"
+    const val gson = "2.10.1"
 
     //test
     const val junit4 = "4.13.2"

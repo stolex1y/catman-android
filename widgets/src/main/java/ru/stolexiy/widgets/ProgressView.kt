@@ -1,4 +1,4 @@
-package ru.stolexiy.widgets.progressview
+package ru.stolexiy.widgets
 
 import android.content.Context
 import android.graphics.Canvas
@@ -126,7 +126,8 @@ open class ProgressView @JvmOverloads constructor(
     private val circleRect = RectF()
 
     @VisibleForTesting
-    internal var filledSector: Float = 0f
+    var filledSector: Float = 0f
+        private set
 
     // -- text
     var text: String by InvalidatingLayoutProperty("")
@@ -242,7 +243,7 @@ open class ProgressView @JvmOverloads constructor(
     }
 
     private fun drawCircle(canvas: Canvas): Canvas {
-        filledSector = getFilledSector()
+        updateFilledSector()
         return canvas.apply {
             drawArc(circleRect, -90f, filledSector, false, progressPaint)
         }
@@ -264,15 +265,13 @@ open class ProgressView @JvmOverloads constructor(
         return minW.toInt() to minW.toInt()
     }
 
-    private fun getFilledSector(): Float {
-        val filledSector = if (fillingUp)
+    private fun updateFilledSector() {
+        filledSector = if (fillingUp)
             progress * 360f
         else
             -(1 - progress) * 360f
 
-        return if (clockwise)
-            filledSector
-        else
-            -filledSector
+        if (!clockwise)
+            filledSector *= -1
     }
 }

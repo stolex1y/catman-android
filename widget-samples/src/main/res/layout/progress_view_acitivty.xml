@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/deep_blue">
 
-    <ru.stolexiy.widgets.progressview.ProgressView
+    <ru.stolexiy.widgets.ProgressView
         android:id="@+id/progressView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
