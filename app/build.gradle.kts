@@ -5,20 +5,24 @@ import AppDependencies.androidCoreKtx
 import AppDependencies.androidTest
 import AppDependencies.appcompat
 import AppDependencies.coroutines
-import modules.AppModuleConfig
 import AppDependencies.dagger
 import AppDependencies.firebase
 import AppDependencies.fragment
+import AppDependencies.gson
 import AppDependencies.hilt
 import AppDependencies.hiltNavigation
 import AppDependencies.hiltWorkManager
+import AppDependencies.junit4
 import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
 import AppDependencies.material
+import AppDependencies.moduleImplementation
+import AppDependencies.navigation
 import AppDependencies.room
-import AppDependencies.junit4
 import AppDependencies.timberAndroid
+import AppDependencies.workManager
+import modules.AppModuleConfig
 
 plugins {
     id(Plugins.APPLICATION)
@@ -74,6 +78,9 @@ android {
 }
 
 dependencies {
+    moduleImplementation("widgets")
+    moduleImplementation("common")
+
     kotlinStdLib()
     dagger()
     androidCoreKtx()
@@ -94,19 +101,7 @@ dependencies {
     hilt()
     hiltNavigation()
     hiltWorkManager()
-
-    val navVersion = "2.5.3"
-    val workVersion = "2.8.1"
-    //navigation
-    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
-    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
-    api("androidx.navigation:navigation-fragment-ktx:$navVersion")
-    androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
-
-    //workManager
-    implementation("androidx.work:work-runtime-ktx:$workVersion")
-    androidTestImplementation("androidx.work:work-testing:$workVersion")
-
-    implementation("com.google.code.gson:gson:2.10.1")
-
+    navigation()
+    workManager()
+    gson()
 }
