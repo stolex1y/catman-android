@@ -7,20 +7,26 @@ import AppDependencies.appcompat
 import AppDependencies.coroutines
 import AppDependencies.dagger
 import AppDependencies.fragment
+import AppDependencies.gson
+import AppDependencies.hilt
+import AppDependencies.hiltNavigation
+import AppDependencies.hiltWorkManager
+import AppDependencies.junit4
 import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
 import AppDependencies.material
+import AppDependencies.moduleImplementation
+import AppDependencies.navigation
 import AppDependencies.room
-import AppDependencies.junit4
 import AppDependencies.timberAndroid
+import AppDependencies.workManager
 import modules.DemoModuleConfig
 
 plugins {
     id(Plugins.APPLICATION)
     id(Plugins.KOTLIN_KAPT)
     id(Plugins.KSP)
-    id(Plugins.GMS)
     id(Plugins.NAV_SAFEARGS)
     id(Plugins.KOTLIN_ANDROID)
 }
@@ -69,8 +75,8 @@ android {
 }
 
 dependencies {
-    implementation(project(mapOf("path" to ":common")))
-    implementation(project(mapOf("path" to ":widgets")))
+    moduleImplementation("widgets")
+    moduleImplementation("common")
 
     kotlinStdLib()
     dagger()
@@ -88,20 +94,10 @@ dependencies {
     timberAndroid()
     androidAnnotation()
     jvmAnnotation()
-
-    val navVersion = "2.5.3"
-    val workVersion = "2.8.1"
-
-    //navigation
-    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
-    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
-    api("androidx.navigation:navigation-fragment-ktx:$navVersion")
-    androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
-
-    //workManager
-    implementation("androidx.work:work-runtime-ktx:$workVersion")
-    androidTestImplementation("androidx.work:work-testing:$workVersion")
-
-    implementation("com.google.code.gson:gson:2.10.1")
-
+    hilt()
+    hiltNavigation()
+    hiltWorkManager()
+    navigation()
+    workManager()
+    gson()
 }
