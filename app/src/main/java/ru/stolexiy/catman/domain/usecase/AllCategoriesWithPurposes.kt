@@ -4,11 +4,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import ru.stolexiy.catman.core.FlowExtensions.mapToResult
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.CategoriesWithPurposesRepository
-import ru.stolexiy.catman.domain.util.toResult
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -21,6 +21,6 @@ class AllCategoriesWithPurposes @Inject constructor(
             .map { map ->
                 map.mapValues { it.value.sortedBy(DomainPurpose::priority) }
             }.flowOn(dispatcher)
-            .toResult()
+            .mapToResult()
     }
 }

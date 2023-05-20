@@ -6,13 +6,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ru.stolexiy.catman.core.FlowExtensions.mapToResult
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.CategoryRepository
 import ru.stolexiy.catman.domain.repository.PurposeRepository
 import ru.stolexiy.catman.domain.util.DateUtils.isNotPast
-import ru.stolexiy.catman.domain.util.cancellationTransparency
-import ru.stolexiy.catman.domain.util.toResult
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -23,9 +22,9 @@ class PurposeCrud @Inject constructor(
     @Named(CoroutineModule.DEFAULT_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) {
     fun getAll(): Flow<Result<List<DomainPurpose>>> =
-        purposeRepository.getAllPurposes().toResult()
+        purposeRepository.getAllPurposes().mapToResult()
 
-    fun get(id: Long) = purposeRepository.getPurpose(id).toResult()
+    fun get(id: Long) = purposeRepository.getPurpose(id).mapToResult()
 
     suspend fun create(purpose: DomainPurpose): Result<List<Long>> =
         runCatching {
@@ -44,7 +43,7 @@ class PurposeCrud @Inject constructor(
                         ).run { purposeRepository.insertPurpose(this) }
                     }
             }
-        }.cancellationTransparency()
+        }
 
     suspend fun delete(vararg ids: Long): Result<Unit> =
         kotlin.runCatching {
@@ -58,7 +57,7 @@ class PurposeCrud @Inject constructor(
                     }
                 }.joinAll()
             }
-        }.cancellationTransparency()
+        }
 
     suspend fun clear(): Result<Unit> =
         kotlin.runCatching {
@@ -66,7 +65,7 @@ class PurposeCrud @Inject constructor(
                 Timber.d("clear purposes")
                 purposeRepository.deleteAllPurposes()
             }
-        }.cancellationTransparency()
+        }
 
     suspend fun update(vararg purposes: DomainPurpose): Result<Unit> =
         kotlin.runCatching {
@@ -80,5 +79,5 @@ class PurposeCrud @Inject constructor(
                 }
                 purposeRepository.updatePurpose(*purposes)
             }
-        }.cancellationTransparency()
+        }
 }

@@ -2,14 +2,13 @@ package ru.stolexiy.catman.domain.usecase
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import ru.stolexiy.catman.core.FlowExtensions.mapToResult
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainTask
 import ru.stolexiy.catman.domain.model.PageRequest
 import ru.stolexiy.catman.domain.model.PageResponse
 import ru.stolexiy.catman.domain.model.Sort
 import ru.stolexiy.catman.domain.repository.TaskRepository
-import ru.stolexiy.catman.domain.util.cancellationTransparency
-import ru.stolexiy.catman.domain.util.toResult
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -25,7 +24,7 @@ class TaskCrud @Inject constructor(
         pageRequest: PageRequest<DomainTask>
     ): Flow<Result<PageResponse<DomainTask>>> {
         Timber.d("get all tasks by purpose id $purposeId")
-        return taskRepository.getAllTasksByPurpose(purposeId, pageRequest).toResult()
+        return taskRepository.getAllTasksByPurpose(purposeId, pageRequest).mapToResult()
     }
 
     fun getAllByPurpose(
@@ -39,23 +38,23 @@ class TaskCrud @Inject constructor(
         kotlin.runCatching {
             Timber.d("create task '${task.name}'")
             taskRepository.insertTask(task)
-        }.cancellationTransparency()
+        }
 
     suspend fun update(vararg tasks: DomainTask): Result<Unit> =
         kotlin.runCatching {
             Timber.d("update tasks: ${tasks.map { it.id }.joinToString(", ")}")
             taskRepository.updateTask(*tasks)
-        }.cancellationTransparency()
+        }
 
     suspend fun delete(vararg tasks: DomainTask): Result<Unit> =
         kotlin.runCatching {
             Timber.d("delete tasks: ${tasks.map { it.id }.joinToString(", ")}")
             taskRepository.deleteTask(*tasks)
-        }.cancellationTransparency()
+        }
 
     suspend fun clear(): Result<Unit> =
         kotlin.runCatching {
             Timber.d("clear tasks")
             taskRepository.deleteAllTasks()
-        }.cancellationTransparency()
+        }
 }

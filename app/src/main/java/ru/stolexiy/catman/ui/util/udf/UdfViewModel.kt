@@ -1,8 +1,10 @@
+/*
 package ru.stolexiy.catman.ui.util.udf
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,42 +18,60 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-private const val EVENTS_LIMIT = 128
+private const val EVENTS_LIMIT = 16
 
-abstract class UdfViewModel<A : Action<S>, S : State>(
+abstract class UdfViewModel<E : Event<A, S>, A : Action<S>, S : State>(
     protected val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    protected abstract val mInitialState: S
-    protected open val mEvents: Channel<E> = Channel(EVENTS_LIMIT)
+    private val events: Channel<E> = Channel(EVENTS_LIMIT)
 
-    private val mState: MutableStateFlow<S> by lazy { MutableStateFlow(mInitialState) }
-    val state: StateFlow<S> by lazy { mState.asStateFlow() }
+    private var lastAction: A? = null
+    private var currentAction: A? = null
 
-    private var mCurrentAction: A? = null
+    protected abstract val initialState: S
+    private val _state: MutableStateFlow<S> by lazy { MutableStateFlow(initialState) }
+    val state: StateFlow<S> by lazy { _state.asStateFlow() }
 
     init {
         startEventsProcessing()
     }
 
     fun dispatch(event: E) {
-        viewModelScope.launch { mEvents.send(event) }
+        viewModelScope.launch { events.send(event) }
     }
 
     fun cancelCurrentAction() {
-        viewModelScope.launch { mCurrentAction?.cancel() }
+        viewModelScope.launch { currentAction?.cancel() }
+    }
+
+    protected fun revertLastAction() {
+        viewModelScope.launch { lastAction?.revert() }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun startEventsProcessing() {
         viewModelScope.launch {
-            mEvents.consumeAsFlow()
+            events.consumeAsFlow()
                 .map { it.toAction() }
-                .onEach { mCurrentAction = it }
+                .onEach { newAction ->
+                    launch { updateCurrentAction(newAction) }.join()
+                }
                 .flatMapConcat { it.invoke() }
                 .distinctUntilChanged()
                 .collectLatest {
-                    mState.value = it
+                    _state.value = it
                 }
         }
     }
+
+    private suspend fun updateCurrentAction(newAction: A) {
+        currentAction?.state?.collectLatest { actionStatus ->
+            if (actionStatus.isFinished) {
+                lastAction = currentAction
+                currentAction = newAction
+                throw CancellationException()
+            }
+        }
+    }
 }
+*/

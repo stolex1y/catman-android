@@ -9,7 +9,10 @@ import java.io.Serializable
 abstract class ValidatedEntity : Serializable {
     private val propsValidity: MutableList<Boolean> = mutableListOf()
 
-    protected fun <T> validatedProperty(initialValue: T, condition: Condition<T?>): ValidatedProperty<T> =
+    protected fun <T> validatedProperty(
+        initialValue: T,
+        condition: Condition<T?>
+    ): ValidatedProperty<T> =
         ValidatedProperty(initialValue, condition)
 
     @Transient
@@ -20,14 +23,11 @@ abstract class ValidatedEntity : Serializable {
     val isValid: Boolean
         get() = _isValid.value
 
-    init {
-    }
-
     private fun updateValidity() {
         _isValid.value = propsValidity.all { it }
     }
 
-    inner class ValidatedProperty<T> constructor(
+    inner class ValidatedProperty<T>(
         initialValue: T,
         val condition: Condition<T?> = Conditions.None<T?>()
     ) : Serializable {
@@ -45,7 +45,8 @@ abstract class ValidatedEntity : Serializable {
             get() = condition.isValid(value)
 
         @Transient
-        private val _error: MutableStateFlow<Int?> = MutableStateFlow(condition.validate(initialValue).errorMessageRes)
+        private val _error: MutableStateFlow<Int?> =
+            MutableStateFlow(condition.validate(initialValue).errorMessageRes)
 
         @Transient
         val errorFlow: StateFlow<Int?> = _error.asStateFlow()
@@ -96,6 +97,7 @@ abstract class ValidatedEntity : Serializable {
                         return this.value == other.value
                     }
                 }
+
                 this.value == null -> return false
                 other::class == this.value!!::class -> return this.value == other
             }
