@@ -15,27 +15,30 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 interface LocalDatasourceModule {
-    @Provides
-    @Singleton
-    fun localDatabase(@ApplicationContext context: Context): LocalDatabase {
-        return LocalDatabase.getInstance(context)
-    }
 
-    @Provides
-    @Singleton
-    fun localCategoryDao(localDatabase: LocalDatabase): CategoryDao {
-        return localDatabase.categoryDao()
-    }
+    companion object {
+        @Provides
+        @Singleton
+        fun localDatabase(@ApplicationContext context: Context): LocalDatabase {
+            return LocalDatabase.getInstance(context)
+        }
 
-    @Provides
-    @Singleton
-    fun localPurposeDao(localDatabase: LocalDatabase): PurposeDao {
-        return localDatabase.purposeDao()
-    }
+        @Provides
+        @Singleton
+        fun localCategoryDao(localDatabase: LocalDatabase): CategoryDao {
+            return localDatabase.categoryDao()
+        }
 
-    @Provides
-    @Singleton
-    fun localCategoriesWithPurposesDao(localDatabase: LocalDatabase): CategoriesWithPurposesDao {
-        return localDatabase.categoriesWithPurposesDao()
+        @Provides
+        @Singleton
+        fun localPurposeDao(localDatabase: LocalDatabase): PurposeDao {
+            return localDatabase.purposeDao()
+        }
+
+        @Provides
+        @Singleton
+        fun localCategoriesWithPurposesDao(localDatabase: LocalDatabase): CategoriesWithPurposesDao {
+            return localDatabase.categoriesWithPurposesDao()
+        }
     }
 }

@@ -1,10 +1,8 @@
 package ru.stolexiy.catman.ui.util.work.purpose
 
-import android.app.Notification
 import android.content.Context
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
@@ -14,55 +12,42 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.domain.usecase.PurposeCrud
+import ru.stolexiy.catman.ui.util.work.AbstractWorker
 import ru.stolexiy.catman.ui.util.work.WorkUtils
-import timber.log.Timber
 
 @HiltWorker
 class DeletePurposeWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val purposeCrud: PurposeCrud
-) : CoroutineWorker(appContext, workerParams) {
+) : AbstractWorker<Long, Unit>(appContext, workerParams) {
+
+    override val notificationId: Int = WorkUtils.DELETE_PURPOSE_NOTIFICATION_ID
+    override val notificationMsg: String = applicationContext.getString(R.string.purpose_deleting)
+    override val workName: String = DELETE_PURPOSE_TAG
 
     companion object {
-        val DELETE_PURPOSE_TAG = DeletePurposeWorker::class.simpleName ?: "DeletePurposeWorker"
-        const val INPUT_PURPOSE_ID = "INPUT_PURPOSE_ID"
+        private const val DELETE_PURPOSE_TAG = "Purpose deleting"
+        private const val INPUT_PURPOSE_ID = "INPUT_PURPOSE_ID"
 
         fun createWorkRequest(deletingPurposeId: Long): OneTimeWorkRequest {
             return OneTimeWorkRequestBuilder<DeletePurposeWorker>()
                 .addTag(DELETE_PURPOSE_TAG)
-                .setInputData(workDataOf(INPUT_PURPOSE_ID to deletingPurposeId))
+                .setInputData(deletingPurposeId.serialize())
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
         }
-    }
 
-    override suspend fun doWork(): Result {
-        val deletingPurposeId: Long =
-            inputData.keyValueMap[INPUT_PURPOSE_ID] as Long? ?: return Result.success()
-        return run {
-            Timber.d("deleting purpose with id $deletingPurposeId started")
-            purposeCrud.delete(deletingPurposeId)
-        }.onFailure {
-            Timber.e(it, "deleting purpose with id $deletingPurposeId cancelled with error")
-        }.onSuccess {
-            Timber.d("purpose with id $deletingPurposeId deleted successfully")
-        }.let {
-            if (it.isSuccess)
-                Result.success()
-            else
-                Result.retry()
+        private fun Long.serialize(): Data {
+            return workDataOf(INPUT_PURPOSE_ID to this)
         }
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(WorkUtils.DELETE_PURPOSE_NOTIFICATION_ID, createNotification())
+    override fun Data.deserialize(): Long {
+        return this.keyValueMap[INPUT_PURPOSE_ID] as Long
     }
 
-    private fun createNotification(): Notification {
-        return WorkUtils.createNotificationBackgroundWork(
-            applicationContext.getString(R.string.purpose_deleting),
-            applicationContext
-        )
+    override suspend fun calculate(inputArg: Long): kotlin.Result<Unit> {
+        return purposeCrud.delete(inputArg)
     }
 }

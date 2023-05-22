@@ -87,19 +87,21 @@ abstract class ValidatedEntity : Serializable {
         override fun equals(other: Any?): Boolean {
             if (other == null)
                 return false
-            when {
-                other is ValidatedProperty<*> -> {
-                    if ((other.value == null) xor (this.value == null))
-                        return false
-                    else if ((other.value == null) and (this.value == null))
-                        return true
-                    else if (other.value!!::class == this.value!!::class) {
-                        return this.value == other.value
-                    }
-                }
 
-                this.value == null -> return false
-                other::class == this.value!!::class -> return this.value == other
+            if (other is ValidatedProperty<*>) {
+                return if ((other.value == null) xor (this.value == null))
+                    false
+                else if ((other.value == null) and (this.value == null))
+                    true
+                else if (other.value!!::class == this.value!!::class)
+                    this.value!! == other.value!!
+                else
+                    false
+            } else {
+                if (this.value == null)
+                    return false
+                else if (other::class == this.value!!::class)
+                    return this.value == other
             }
             return false
         }

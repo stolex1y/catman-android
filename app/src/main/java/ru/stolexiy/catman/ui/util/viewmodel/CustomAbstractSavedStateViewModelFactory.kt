@@ -6,6 +6,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 
 @Suppress("UNCHECKED_CAST")
@@ -23,8 +24,9 @@ class CustomAbstractSavedStateViewModelFactory<out T : ViewModel>(
 
     companion object {
         inline fun <reified T : ViewModel> Fragment.assistedViewModels(
+            noinline ownerProducer: () -> ViewModelStoreOwner = { this },
             noinline viewModelProducer: (SavedStateHandle) -> T
-        ) = viewModels<T> {
+        ) = viewModels<T>(ownerProducer) {
             CustomAbstractSavedStateViewModelFactory(this, viewModelProducer, this.arguments)
         }
     }

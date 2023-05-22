@@ -5,13 +5,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.work.WorkInfo
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.flow.Flow
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.R
@@ -21,11 +17,11 @@ import ru.stolexiy.catman.ui.dialog.AbstractBottomDialogFragment
 import ru.stolexiy.catman.ui.dialog.adapter.TextWithColorAdapter
 import ru.stolexiy.catman.ui.dialog.custom.DatePicker
 import ru.stolexiy.catman.ui.dialog.purpose.add.di.AddPurposeDialogEntryPoint
-import ru.stolexiy.catman.ui.dialog.purpose.model.Category
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
-import ru.stolexiy.catman.ui.util.binding.BindingDelegate
-import ru.stolexiy.catman.ui.util.notification.showWorkInfoSnackbar
-import ru.stolexiy.catman.ui.util.state.ActionInfo
+import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
+import ru.stolexiy.catman.ui.util.di.entryPointAccessors
+import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
+import ru.stolexiy.catman.ui.util.fragment.requireParentView
 import ru.stolexiy.catman.ui.util.viewmodel.CustomAbstractSavedStateViewModelFactory.Companion.assistedViewModels
 import timber.log.Timber
 
@@ -34,16 +30,14 @@ class AddPurposeDialog(
 ) : AbstractBottomDialogFragment(R.layout.dialog_purpose_add, onDestroyDialog) {
 
     private lateinit var addingPurpose: Purpose
-    private lateinit var assistedViewModelFactory: AddPurposeViewModel.Factory
+
+    private val entryPointProvider: AddPurposeDialogEntryPoint by entryPointAccessors()
 
     private val viewModel: AddPurposeViewModel by assistedViewModels<AddPurposeViewModel> {
-        assistedViewModelFactory.create(it)
+        entryPointProvider.assistedViewModelFactory().create(it)
     }
 
-    private val binding: DialogPurposeAddBinding by BindingDelegate(
-        view,
-        viewLifecycleOwner.lifecycle
-    )
+    private val binding: DialogPurposeAddBinding by bindingDelegate()
 
     private val deadlineDialog: DatePicker by lazy {
         initChooseDeadlineDialog()
@@ -51,9 +45,6 @@ class AddPurposeDialog(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val dependencies =
-            EntryPointAccessors.fromFragment(this, AddPurposeDialogEntryPoint::class.java)
-        assistedViewModelFactory = dependencies.assistedViewModelFactory()
         restoreState()
         binding.apply {
             purpose = addingPurpose
@@ -61,17 +52,18 @@ class AddPurposeDialog(
             purposeDeadlineLayout.setStartIconOnClickListener { chooseDeadline() }
             purposeDeadline.setOnClickListener { chooseDeadline() }
             purposeCategory.onItemClickListener = onCategoryClickListener()
+//            purposeCategory.onItemSelectedListener = onSelectCategoryListener()
             addPurposeButton.setOnClickListener { addPurpose() }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                launch {
-                    viewModel.state.collect { handleState(it) }
-                }
-                launch {
-                    viewModel.categories.collectLatest { onUpdateCategories(it) }
-                }
-            }
+        repeatOnViewLifecycle {
+            viewModel.state.collect { onNewState(it) }
+        }
+        repeatOnViewLifecycle {
+            viewModel.data.collectLatest { onNewData(it) }
+        }
+        requireParentFragment().viewLifecycleOwner.lifecycleScope.launch {
+            val parentView = requireParentView()
+            viewModel.state.collect { updateSnackbarWithNewState(parentView, it) }
         }
     }
 
@@ -103,17 +95,30 @@ class AddPurposeDialog(
             ?.remove<Purpose>(ADDING_PURPOSE)
     }
 
-    private fun handleState(newState: ActionInfo) {
+    private fun onNewState(newState: AddPurposeViewModel.State) {
         when (newState) {
-            is ActionInfo.Error -> {
-                Toast.makeText(requireContext(), "Error...", Toast.LENGTH_LONG).show()
+            AddPurposeViewModel.State.Init -> {
+                Toast.makeText(requireContext(), "Loading...", Toast.LENGTH_SHORT).show()
+            }
+
+            AddPurposeViewModel.State.Loaded -> {
+                Toast.makeText(requireContext(), "Loaded...", Toast.LENGTH_SHORT).show()
+            }
+
+            is AddPurposeViewModel.State.Error -> {
+                Toast.makeText(
+                    requireContext(),
+                    "Error... ${getString(newState.error)}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
             else -> {}
         }
     }
 
-    private fun onUpdateCategories(categories: List<Category>) {
+    private fun onNewData(data: AddPurposeViewModel.Data) {
+        val categories = data.categories
         binding.purposeCategory.setAdapter(
             TextWithColorAdapter(categories, requireContext()) {
                 TextWithColorAdapter.Item(it.id, it.color, it.name)
@@ -126,55 +131,56 @@ class AddPurposeDialog(
         }
     }
 
-    private fun addPurpose() {
-        if (addingPurpose.isValid) {
-            viewModel.addPurpose(addingPurpose).run(this::onAdding)
-            clearState()
-            dismiss()
-        }
-    }
-
-    private fun onAdding(workInfo: Flow<WorkInfo>) {
-        parentFragment?.viewLifecycleOwner?.lifecycleScope?.launch {
-            requireParentFragment().viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                val view = requireParentFragment().view ?: return@repeatOnLifecycle
-                view
-                viewModel.state.collectLatest {
-                    when (it) {
-                        is AddPurposeViewModel.State.Adding ->
-                        is AddPurposeViewModel.State.Deleting ->
-                        is AddPurposeViewModel.State.Error ->
-                        is AddPurposeViewModel.State.Loaded ->
+    private fun updateSnackbarWithNewState(
+        parentView: View,
+        newState: AddPurposeViewModel.State
+    ) {
+        when (newState) {
+            AddPurposeViewModel.State.Adding -> {
+                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+                    setText(R.string.purpose_adding)
+                    setAction(R.string.cancel) {
+                        viewModel.dispatchEvent(AddPurposeEvent.Cancel)
                     }
-                }
-                requireParentFragment().view?.run {
-                    showWorkInfoSnackbar(
-                        view = this,
-                        appContext = requireActivity().applicationContext,
-                        workInfo = workInfo,
-                        runningMsg = R.string.purpose_adding,
-                        successMsg = R.string.purpose_added,
-                        onCancelResult = this@AddPurposeDialog::onAddingCancel
-                    )
+                    duration = Snackbar.LENGTH_INDEFINITE
                 }
             }
+
+            AddPurposeViewModel.State.Added -> {
+                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+                    setText(R.string.purpose_added)
+                    setAction(R.string.cancel) {
+                        viewModel.dispatchEvent(AddPurposeEvent.DeleteAdded)
+                    }
+                    duration = Snackbar.LENGTH_SHORT
+                }
+            }
+
+            AddPurposeViewModel.State.Deleting -> {
+                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+                    setText(R.string.purpose_deleting)
+                    setAction(R.string.cancel) {
+                        viewModel.dispatchEvent(AddPurposeEvent.Cancel)
+                    }
+                    duration = Snackbar.LENGTH_INDEFINITE
+                }
+            }
+
+            AddPurposeViewModel.State.Deleted -> {
+                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+                    setText(R.string.purpose_deleted)
+                    duration = Snackbar.LENGTH_SHORT
+                }
+            }
+
+            else -> {}
         }
     }
 
-    private fun onAddingCancel(addingWorkInfo: WorkInfo) {
-        val deletingWorkInfo = viewModel.revertAdding(addingWorkInfo)
-        parentFragment?.viewLifecycleOwner?.lifecycleScope?.launchWhenStarted {
-            requireParentFragment().view?.run {
-                Timber.d("on deleting")
-                showWorkInfoSnackbar(
-                    view = this,
-                    appContext = requireActivity().applicationContext,
-                    workInfo = deletingWorkInfo,
-                    runningMsg = R.string.purpose_deleting,
-                    successMsg = R.string.purpose_deleted
-                )
-            }
-        }
+    private fun addPurpose() {
+        viewModel.dispatchEvent(AddPurposeEvent.Add(addingPurpose))
+        clearState()
+        dismissNow()
     }
 
     private fun initChooseDeadlineDialog(): DatePicker {

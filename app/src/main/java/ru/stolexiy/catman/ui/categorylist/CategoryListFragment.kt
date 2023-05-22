@@ -16,18 +16,15 @@ import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.FragmentCategoryListBinding
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.dialog.purpose.add.AddPurposeDialog
-import ru.stolexiy.catman.ui.util.binding.BindingDelegate
+import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CategoryListFragment : Fragment() {
+internal class CategoryListFragment : Fragment() {
 
     private val viewModel: CategoryListViewModel by viewModels()
-    private val binding: FragmentCategoryListBinding by BindingDelegate(
-        view,
-        viewLifecycleOwner.lifecycle
-    )
+    private val binding: FragmentCategoryListBinding by bindingDelegate()
 
     @Inject
     lateinit var listAdapter: CategoryListAdapter

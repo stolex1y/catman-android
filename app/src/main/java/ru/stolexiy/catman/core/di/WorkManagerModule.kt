@@ -13,9 +13,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 interface WorkManagerModule {
 
-    @Singleton
-    @Provides
-    fun workManager(@ApplicationContext context: Context): WorkManager {
-        return WorkManager.getInstance(context)
+    companion object {
+        @Singleton
+        @Provides
+        fun workManager(@ApplicationContext context: Context): WorkManager {
+            return WorkManager.getInstance(context)
+        }
     }
 }

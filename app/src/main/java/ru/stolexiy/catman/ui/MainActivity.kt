@@ -13,9 +13,11 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.ActivityMainBinding
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -73,13 +75,10 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!currentDestinationIsTop())
-                    navController.navigateUp(drawerLayout)
-                else
-                    finish()
+                if (!currentDestinationIsTop()) navController.navigateUp(drawerLayout)
+                else finish()
             }
-        }
-        )
+        })
 
     }
 
