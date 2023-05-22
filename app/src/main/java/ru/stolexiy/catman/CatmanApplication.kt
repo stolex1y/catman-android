@@ -1,29 +1,27 @@
 package ru.stolexiy.catman
 
-import android.app.Application
+import android.app.NotificationManager
 import android.os.Build
-import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.AllCategoriesWithPurposes
 import ru.stolexiy.catman.domain.usecase.CategoryCrud
 import ru.stolexiy.catman.domain.usecase.PurposeCrud
-import ru.stolexiy.catman.ui.util.notification.NotificationChannels
+import ru.stolexiy.catman.ui.util.notification.NotificationChannels.initChannels
 import timber.log.Timber
 import java.util.GregorianCalendar
+import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.jvm.optionals.getOrNull
 
 @HiltAndroidApp
-class CatmanApplication : Application(), Configuration.Provider {
+class CatmanApplication : BaseApplication() {
 
     @Named(CoroutineModule.APPLICATION_SCOPE)
     @Inject
@@ -39,12 +37,7 @@ class CatmanApplication : Application(), Configuration.Provider {
     lateinit var allCategoriesWithPurposes: AllCategoriesWithPurposes
 
     @Inject
-    lateinit var workerFactory: HiltWorkerFactory
-
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+    lateinit var notificationManager: Optional<NotificationManager>
 
     override fun onCreate() {
         super.onCreate()
@@ -52,15 +45,12 @@ class CatmanApplication : Application(), Configuration.Provider {
         if (BuildConfig.DEBUG)
             Timber.plant(Timber.DebugTree())
 
-        applicationScope.launch {
-            withContext(Dispatchers.Default) {
-//                categoryCrud.clear()
-                fillDatabase()
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.getOrNull()?.initChannels(this)
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannels.initChannels(this)
+        applicationScope.launch {
+            fillDatabase()
         }
     }
 

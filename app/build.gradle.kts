@@ -11,12 +11,14 @@ import AppDependencies.fragment
 import AppDependencies.gson
 import AppDependencies.hilt
 import AppDependencies.hiltNavigation
+import AppDependencies.hiltTest
 import AppDependencies.hiltWorkManager
 import AppDependencies.junit4
 import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
 import AppDependencies.material
+import AppDependencies.moduleAndroidTestImplementation
 import AppDependencies.moduleImplementation
 import AppDependencies.navigation
 import AppDependencies.room
@@ -80,6 +82,7 @@ android {
 dependencies {
     moduleImplementation("widgets")
     moduleImplementation("common")
+    moduleAndroidTestImplementation("common-test")
 
     kotlinStdLib()
     dagger()
@@ -101,6 +104,7 @@ dependencies {
     hilt()
     hiltNavigation()
     hiltWorkManager()
+    hiltTest()
     navigation()
     workManager()
     gson()
