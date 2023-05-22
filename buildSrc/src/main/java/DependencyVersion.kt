@@ -39,4 +39,5 @@ internal object DependencyVersion {
     const val extJunitKtx = "1.1.5"
     const val espresso = "3.5.1"
     const val fragmentTesting = "1.5.6"
+    const val conditionWatcher = "0.2"
 }

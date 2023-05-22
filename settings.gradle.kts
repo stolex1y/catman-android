@@ -10,6 +10,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        jcenter()
         google()
         mavenCentral()
         maven("https://jitpack.io")
@@ -22,3 +23,4 @@ include(":demo")
 include(":widgets")
 include(":common")
 include(":widget-samples")
+include(":common-test")

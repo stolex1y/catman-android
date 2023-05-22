@@ -37,7 +37,7 @@ object AppDependencies {
 
     fun DependencyHandler.fragment() {
         add(ConfigurationName.IMPLEMENTATION.configName, fragmentKtx)
-        add(ConfigurationName.TEST_IMPLEMENTATION.configName, fragmentTesting)
+//        add(ConfigurationName.DEBUG_IMPLEMENTATION.configName, fragmentTesting)
     }
 
     private const val constraintLayout =
@@ -80,25 +80,34 @@ object AppDependencies {
 
     private const val hilt = "com.google.dagger:hilt-android:${DependencyVersion.hilt}"
     private const val hiltCompiler = "com.google.dagger:hilt-compiler:${DependencyVersion.hilt}"
-    private const val hiltWorkManager =
-        "androidx.hilt:hilt-work:${DependencyVersion.hiltWorkManager}"
     private const val hiltAndroidCompiler =
         "androidx.hilt:hilt-compiler:${DependencyVersion.hiltAndroidCompiler}"
+    private const val hiltWorkManager =
+        "androidx.hilt:hilt-work:${DependencyVersion.hiltWorkManager}"
     private const val hiltNavigation =
         "androidx.hilt:hilt-navigation-fragment:${DependencyVersion.hiltNavigation}"
+    private const val hiltAndroidTest =
+        "com.google.dagger:hilt-android-testing:${DependencyVersion.hilt}"
 
     fun DependencyHandler.hilt() {
         add(ConfigurationName.KAPT.configName, hiltCompiler)
+        add(ConfigurationName.KAPT.configName, hiltAndroidCompiler)
         add(ConfigurationName.IMPLEMENTATION.configName, hilt)
     }
 
     fun DependencyHandler.hiltWorkManager() {
-        add(ConfigurationName.KAPT.configName, hiltAndroidCompiler)
         add(ConfigurationName.IMPLEMENTATION.configName, hiltWorkManager)
     }
 
     fun DependencyHandler.hiltNavigation() {
         add(ConfigurationName.IMPLEMENTATION.configName, hiltNavigation)
+    }
+
+    fun DependencyHandler.hiltTest() {
+        add(ConfigurationName.KAPT_TEST.configName, hiltCompiler)
+        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, hiltAndroidTest)
+        add(ConfigurationName.KAPT_ANDROID_TEST.configName, hiltAndroidTest)
+
     }
 
     //room
@@ -143,17 +152,24 @@ object AppDependencies {
     private const val extJUnitKtx = "androidx.test.ext:junit-ktx:${DependencyVersion.extJunit}"
     private const val espressoCore =
         "androidx.test.espresso:espresso-core:${DependencyVersion.espresso}"
+    private const val conditionWatcher =
+        "com.azimolabs.conditionwatcher:conditionwatcher:${DependencyVersion.conditionWatcher}"
 
-    fun DependencyHandler.androidTest() {
-        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, extJUnit)
-        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, extJUnitKtx)
-        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, espressoCore)
-        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, testRules)
-        add(ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName, testRunner)
+    fun DependencyHandler.androidTest(
+        configuration: ConfigurationName = ConfigurationName.ANDROID_TEST_IMPLEMENTATION
+    ) {
+        add(configuration.configName, extJUnit)
+        add(configuration.configName, extJUnitKtx)
+        add(configuration.configName, espressoCore)
+        add(configuration.configName, testRules)
+        add(configuration.configName, testRunner)
+        add(configuration.configName, conditionWatcher)
     }
 
-    fun DependencyHandler.junit4() {
-        add(ConfigurationName.TEST_IMPLEMENTATION.configName, junit4)
+    fun DependencyHandler.junit4(
+        configuration: ConfigurationName = ConfigurationName.TEST_IMPLEMENTATION
+    ) {
+        add(configuration.configName, junit4)
     }
 
     fun DependencyHandler.junit5() {
@@ -240,6 +256,17 @@ object AppDependencies {
         add(ConfigurationName.IMPLEMENTATION.configName, project(mapOf("path" to ":$module")))
     }
 
+    fun DependencyHandler.moduleTestImplementation(module: String) {
+        add(ConfigurationName.TEST_IMPLEMENTATION.configName, project(mapOf("path" to ":$module")))
+    }
+
+    fun DependencyHandler.moduleAndroidTestImplementation(module: String) {
+        add(
+            ConfigurationName.ANDROID_TEST_IMPLEMENTATION.configName,
+            project(mapOf("path" to ":$module"))
+        )
+    }
+
     enum class ConfigurationName(val configName: String) {
         KAPT("kapt"),
         IMPLEMENTATION("implementation"),
@@ -248,7 +275,11 @@ object AppDependencies {
         ANNOTATION_PROCESSOR("annotationProcessor"),
         KSP("ksp"),
         RUNTIME_ONLY("runtimeOnly"),
-        API("api")
+        API("api"),
+        DEBUG_IMPLEMENTATION("debugImplementation"),
+        KAPT_TEST("kaptTest"),
+        KAPT_ANDROID_TEST("kaptAndroidTest"),
+        TEST_ANNOTATION_PROCESSOR("testAnnotationProcessor")
     }
 }
 

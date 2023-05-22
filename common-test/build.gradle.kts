@@ -1,4 +1,3 @@
-
 import AppDependencies.activityKtx
 import AppDependencies.androidAnnotation
 import AppDependencies.androidTest
@@ -9,23 +8,21 @@ import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
 import AppDependencies.material
-import AppDependencies.moduleAndroidTestImplementation
-import AppDependencies.moduleImplementation
 import AppDependencies.timberAndroid
-import modules.WidgetSamplesModuleConfig
+import AppDependencies.workManager
+import modules.CommonTestModuleConfig
 
 plugins {
-    id(Plugins.APPLICATION)
+    id(Plugins.ANDROID_LIBRARY)
     id(Plugins.KOTLIN_ANDROID)
 }
 
 android {
-    val moduleConfig = WidgetSamplesModuleConfig
+    val moduleConfig = CommonTestModuleConfig
     namespace = moduleConfig.namespace
     compileSdk = moduleConfig.compileSdk
 
     defaultConfig {
-        applicationId = moduleConfig.namespace
         minSdk = moduleConfig.minSdk
         version = moduleConfig.versionCode
 
@@ -47,13 +44,11 @@ android {
 
         debug {
             isMinifyEnabled = false
-            isDebuggable = true
         }
     }
 
     buildFeatures {
         viewBinding = true
-//        dataBinding = true
     }
 
     compileOptions {
@@ -65,12 +60,7 @@ android {
     }
 }
 
-
 dependencies {
-    moduleImplementation("widgets")
-    moduleImplementation("common")
-    moduleAndroidTestImplementation("common-test")
-
     kotlinStdLib()
     activityKtx()
     fragment()
@@ -80,8 +70,8 @@ dependencies {
     material()
     androidAnnotation()
     jvmAnnotation()
+    workManager()
 
-    //testing
-    junit4()
-    androidTest()
+    junit4(AppDependencies.ConfigurationName.IMPLEMENTATION)
+    androidTest(AppDependencies.ConfigurationName.IMPLEMENTATION)
 }
