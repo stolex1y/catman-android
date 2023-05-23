@@ -1,16 +1,19 @@
 import AppDependencies.coroutines
+import AppDependencies.dagger
 import AppDependencies.junit4
 import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
-import modules.CommonModuleConfig
+import AppDependencies.moduleImplementation
+import modules.DomainModuleConfig
 
 plugins {
     id(Plugins.JAVA_LIBRARY)
     id(Plugins.KOTLIN_JVM)
     id(Plugins.JAVA)
+    id(Plugins.KOTLIN_KAPT)
 }
 
-val moduleConfig = CommonModuleConfig
+val moduleConfig = DomainModuleConfig
 group = moduleConfig.namespace
 version = moduleConfig.versionCode
 
@@ -30,7 +33,10 @@ tasks.named<Test>("test") {
 }
 
 dependencies {
+    moduleImplementation("common")
+
     kotlinStdLib()
+    dagger()
     coroutines()
     jvmAnnotation()
     junit4()

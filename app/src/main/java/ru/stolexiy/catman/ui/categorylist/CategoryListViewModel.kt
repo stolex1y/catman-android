@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.usecase.category.CategoryWithPurposeGettingUseCase
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.categorylist.model.toCategoryListItems
+import ru.stolexiy.common.di.CoroutineDispatcherNames
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -27,7 +27,7 @@ import javax.inject.Named
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(
     private val getCategoryWithPurpose: CategoryWithPurposeGettingUseCase,
-    @Named(CoroutineModule.DEFAULT_DISPATCHER) private val defaultDispatcher: CoroutineDispatcher,
+    @Named(CoroutineDispatcherNames.DEFAULT_DISPATCHER) private val defaultDispatcher: CoroutineDispatcher,
     private val exceptionHandler: CoroutineExceptionHandler
 ) : ViewModel() {
 

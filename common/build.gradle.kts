@@ -1,4 +1,6 @@
 import AppDependencies.coroutines
+import AppDependencies.dagger
+import AppDependencies.gson
 import AppDependencies.junit4
 import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
@@ -8,6 +10,7 @@ plugins {
     id(Plugins.JAVA_LIBRARY)
     id(Plugins.KOTLIN_JVM)
     id(Plugins.JAVA)
+    id(Plugins.KOTLIN_KAPT)
 }
 
 val moduleConfig = CommonModuleConfig
@@ -32,6 +35,8 @@ tasks.named<Test>("test") {
 dependencies {
     kotlinStdLib()
     coroutines()
+    dagger()
     jvmAnnotation()
+    gson()
     junit4()
 }

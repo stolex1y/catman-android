@@ -2,7 +2,7 @@ package ru.stolexiy.catman.domain.model
 
 import java.io.Serializable
 
-class PageResponse<T> (val pageRequest: PageRequest<T>, _data: List<T>, val hasNext: Boolean)
+class PageResponse<T> (val pageRequest: ru.stolexiy.catman.domain.model.PageRequest<T>, _data: List<T>, val hasNext: Boolean)
     : Serializable {
     val page: Int
         get() = pageRequest.page

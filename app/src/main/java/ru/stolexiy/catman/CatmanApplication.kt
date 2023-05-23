@@ -8,7 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.core.di.CoroutineModule
-import ru.stolexiy.catman.core.model.DefaultColor
+import ru.stolexiy.catman.core.model.DefaultColors
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.category.CategoryAddingUseCase
@@ -91,8 +91,8 @@ class CatmanApplication : BaseApplication() {
             throw it
         }.getOrThrow()
         if (categories.isEmpty()) {
-            val category1 = DomainCategory("Образование",  DefaultColor.AMARANTH_PINK.rgba)
-            val category2 = DomainCategory("Работа", DefaultColor.AQUAMARINE.rgba)
+            val category1 = DomainCategory("Образование",  DefaultColors.AMARANTH_PINK.rgba)
+            val category2 = DomainCategory("Работа", DefaultColors.AQUAMARINE.rgba)
             addCategory(category1).onFailure { throw it }
             addCategory(category2).onFailure { throw it }
             categories = getCategory.all().first().getOrNull() ?: return

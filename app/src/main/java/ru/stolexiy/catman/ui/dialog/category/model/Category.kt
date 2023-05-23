@@ -1,6 +1,7 @@
 package ru.stolexiy.catman.ui.dialog.category.model
 
 import android.content.Context
+import ru.stolexiy.catman.core.model.DefaultColors
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainColor
 import ru.stolexiy.catman.ui.util.DefaultConditions
@@ -35,8 +36,11 @@ class Category(
             val rgba = domainCategory.color
             val color = if (domainColor != null) {
                 Color.fromDomainColor(context, domainColor)
-            } else if (Colors.defaultColorNames.containsKey(rgba)) {
-                Color(rgba, context.getString(Colors.defaultColorNames[rgba]!!))
+            } else if (DefaultColors.values().map { it.rgba }.contains(rgba)) {
+                Color(
+                    rgba,
+                    context.getString(DefaultColors.values().find { it.rgba == rgba }!!.nameRes)
+                )
             } else {
                 Color.fromUnknownColor(rgba)
             }

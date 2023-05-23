@@ -1,6 +1,5 @@
 package ru.stolexiy.catman.ui.dialog.purpose.add
 
-import android.graphics.Color
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -26,7 +25,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.model.DefaultColor
+import ru.stolexiy.catman.core.model.DefaultColors
 import ru.stolexiy.catman.domain.usecase.category.CategoryAddingUseCase
 import ru.stolexiy.catman.domain.usecase.category.CategoryDeletingUseCase
 import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
@@ -76,7 +75,7 @@ class AddPurposeDialogTest {
 
     private var testCategory = Category(
         0,
-        DefaultColor.AMARANTH_PINK.rgba,
+        DefaultColors.AMARANTH_PINK.rgba,
         UUID.randomUUID().toString()
     )
 

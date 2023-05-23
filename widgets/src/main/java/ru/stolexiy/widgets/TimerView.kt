@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
 import androidx.annotation.MainThread
+import kotlinx.coroutines.Dispatchers
 import ru.stolexiy.common.TimeConstants.MIN_TO_MS
 import ru.stolexiy.common.Timer
 
@@ -31,10 +32,11 @@ class TimerView @JvmOverloads constructor(
     private val timerListener = TimerListener()
 
     private val timer = Timer(
-        initTime = Timer.Time(DEFAULT_INIT_TIME),
-        updateTime = Timer.Time(DEFAULT_UPDATE_TIME)
+        Dispatchers.IO //TODO set this field from caller
     ).apply {
         listener = timerListener
+        initTime = Timer.Time(DEFAULT_INIT_TIME)
+        updateTime = Timer.Time(DEFAULT_UPDATE_TIME)
     }
 
     var initTime: Timer.Time by timer::initTime

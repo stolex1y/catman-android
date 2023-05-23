@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.core
+package ru.stolexiy.common
 
 import java.util.Optional
 

@@ -1,5 +1,5 @@
 
-package ru.stolexiy.catman.core
+package ru.stolexiy.common
 
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer

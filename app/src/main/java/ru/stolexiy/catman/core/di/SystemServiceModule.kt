@@ -7,7 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ru.stolexiy.catman.core.OptionalExtensions.toOptional
+import ru.stolexiy.common.OptionalExtensions.toOptional
 import java.util.Optional
 
 @Module

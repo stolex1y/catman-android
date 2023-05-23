@@ -11,11 +11,11 @@ import androidx.work.workDataOf
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.Json
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeUpdatingUseCase
 import ru.stolexiy.catman.ui.util.work.AbstractWorker
 import ru.stolexiy.catman.ui.util.work.WorkUtils
+import ru.stolexiy.common.Json
 
 @HiltWorker
 class UpdatePurposeWorker @AssistedInject constructor(

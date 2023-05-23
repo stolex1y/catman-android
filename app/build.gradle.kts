@@ -83,6 +83,7 @@ dependencies {
     moduleImplementation("widgets")
     moduleImplementation("common")
     moduleAndroidTestImplementation("common-test")
+    moduleImplementation("domain")
 
     kotlinStdLib()
     dagger()

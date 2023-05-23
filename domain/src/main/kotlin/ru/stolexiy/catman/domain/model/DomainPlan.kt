@@ -5,5 +5,5 @@ import java.util.Calendar
 
 data class DomainPlan(
     val date: Calendar,
-    val tasks: List<DomainTask> = listOf()
+    val tasks: List<ru.stolexiy.catman.domain.model.DomainTask> = listOf()
 ) : Serializable

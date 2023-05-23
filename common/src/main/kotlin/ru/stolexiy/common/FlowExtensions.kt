@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.core
+package ru.stolexiy.common
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

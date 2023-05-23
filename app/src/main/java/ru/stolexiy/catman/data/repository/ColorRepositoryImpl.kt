@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.data.datasource.local.dao.ColorDao
 import ru.stolexiy.catman.data.datasource.local.model.ColorEntity
 import ru.stolexiy.catman.data.datasource.local.model.toColorEntities
 import ru.stolexiy.catman.data.datasource.local.model.toColorEntity
 import ru.stolexiy.catman.domain.model.DomainColor
 import ru.stolexiy.catman.domain.repository.ColorRepository
+import ru.stolexiy.common.di.CoroutineDispatcherNames
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -25,7 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class ColorRepositoryImpl @Inject constructor(
     private val localDao: ColorDao,
-    @Named(CoroutineModule.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
+    @Named(CoroutineDispatcherNames.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) : ColorRepository {
     override fun get(color: Int): Flow<DomainColor?> =
         localDao.get(color).distinctUntilChanged()

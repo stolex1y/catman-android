@@ -11,17 +11,17 @@ import androidx.work.workDataOf
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.Json
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeAddingUseCase
 import ru.stolexiy.catman.ui.util.work.AbstractWorker
 import ru.stolexiy.catman.ui.util.work.WorkUtils.ADD_PURPOSE_NOTIFICATION_ID
+import ru.stolexiy.common.Json
 
 @HiltWorker
 class AddPurposeWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val addPurpose: PurposeAddingUseCase
+    private val addPurpose: PurposeAddingUseCase,
 ) : AbstractWorker<DomainPurpose, Long>(appContext, workerParams) {
 
     override val workName: String = ADD_PURPOSE_TAG

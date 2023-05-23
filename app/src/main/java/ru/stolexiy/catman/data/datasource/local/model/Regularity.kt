@@ -1,6 +1,6 @@
 package ru.stolexiy.catman.data.datasource.local.model
 
-import ru.stolexiy.catman.domain.util.DayOfTheWeek
+import ru.stolexiy.catman.domain.model.DayOfTheWeek
 
 sealed class Regularity {
     class Period(val period: Int)

@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.data.datasource.local.dao.CategoryDao
 import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
 import ru.stolexiy.catman.data.datasource.local.model.toCategoryEntities
 import ru.stolexiy.catman.data.datasource.local.model.toCategoryEntity
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.repository.category.CategoryRepository
+import ru.stolexiy.common.di.CoroutineDispatcherNames
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -25,7 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class CategoryRepositoryImpl @Inject constructor(
     private val localDao: CategoryDao,
-    @Named(CoroutineModule.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
+    @Named(CoroutineDispatcherNames.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) : CategoryRepository {
     override fun getAll(): Flow<List<DomainCategory>> =
         localDao.getAll().distinctUntilChanged()

@@ -1,11 +1,10 @@
 package ru.stolexiy.catman.data.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainTask
 import ru.stolexiy.catman.domain.repository.TaskRepository
+import ru.stolexiy.common.di.CoroutineDispatcherNames
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -13,7 +12,7 @@ import javax.inject.Singleton
 @Singleton
 class TaskRepositoryImpl @Inject constructor(
 //    localDao: TaskDao,
-    @Named(CoroutineModule.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
+    @Named(CoroutineDispatcherNames.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) : TaskRepository {
     override fun getAll(): Flow<List<DomainTask>> {
         throw NotImplementedError()

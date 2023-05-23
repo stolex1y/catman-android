@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.domain.util
+package ru.stolexiy.catman.domain.model
 
 enum class DayOfTheWeek {
     SUNDAY,

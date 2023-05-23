@@ -7,7 +7,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -20,18 +19,17 @@ import kotlinx.coroutines.sync.withLock
 import ru.stolexiy.common.TimeConstants.MIN_TO_MS
 import ru.stolexiy.common.TimeConstants.MIN_TO_SEC
 import ru.stolexiy.common.TimeConstants.SEC_TO_MS
-import java.util.logging.Logger
+import ru.stolexiy.common.di.CoroutineDispatcherNames
+import javax.inject.Inject
+import javax.inject.Named
 import kotlin.math.max
 import kotlin.math.min
 
-@AnyThread
-open class Timer(
-    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    initTime: Time = Time(0),
-    updateTime: Time = Time(1 * SEC_TO_MS),
+open class Timer @Inject constructor(
+    @Named(CoroutineDispatcherNames.IO_DISPATCHER) coroutineDispatcher: CoroutineDispatcher
 ) {
     companion object {
-        private const val TAG = "AY: Timer"
+        private const val TAG = "[AY] Timer"
 
         @JvmStatic
         private val DEFAULT_TIME_MAX = Time((999L * MIN_TO_SEC + 59L) * SEC_TO_MS)
@@ -41,12 +39,15 @@ open class Timer(
 
     @Volatile
     var maxInitTime: Time = DEFAULT_TIME_MAX
+        @AnyThread set
 
     @Volatile
     var listener: TimerListener? = null
+        @AnyThread set
 
     @Volatile
-    var initTime: Time = initTime
+    var initTime: Time = Time(0)
+        @AnyThread
         set(value) {
             require(state == State.STOPPED) { "Timer must be stopped to set init time" }
             field = Time(max(value.inMs, maxInitTime.inMs))
@@ -60,8 +61,8 @@ open class Timer(
     val curTimeFlow: StateFlow<Time> = _curTimeFlow.asStateFlow()
 
     @Volatile
-    var updateTime = Time(updateTime)
-        set(value) {
+    var updateTime = Time(0, 1)
+        @AnyThread set(value) {
             require(value > 0)
             field = value
         }
@@ -77,11 +78,13 @@ open class Timer(
 
     @VisibleForTesting
     internal var errors: Throwable? = null
+        private set
 
     @VisibleForTesting
     @GuardedBy("mutex")
     private var timerJob: Job? = null
 
+    @AnyThread
     fun start() {
         coroutineScope.launch {
             mutex.withLock {
@@ -98,6 +101,7 @@ open class Timer(
         }
     }
 
+    @AnyThread
     fun pause() {
         coroutineScope.launch {
             mutex.withLock {
@@ -109,6 +113,7 @@ open class Timer(
         }
     }
 
+    @AnyThread
     fun stop() {
         coroutineScope.launch {
             mutex.withLock {
@@ -120,6 +125,7 @@ open class Timer(
         }
     }
 
+    @AnyThread
     fun reset() {
         coroutineScope.launch {
             mutex.withLock {
@@ -129,18 +135,21 @@ open class Timer(
         }
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     protected fun onPause() {
         state = State.PAUSED
         listener?.onPause(this)
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     protected fun onStart() {
         state = State.RUNNING
         listener?.onStart(this)
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     protected fun onStop() {
         updateCurTime(initTime.inMs)
@@ -148,12 +157,14 @@ open class Timer(
         listener?.onStop(this)
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     protected fun onFinish() {
         state = State.STOPPED
         listener?.onFinish(this)
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     private suspend fun cancelTimerJob() {
         timerJob = timerJob?.let {
@@ -162,6 +173,7 @@ open class Timer(
         }
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     private fun timerRun(): Job {
         return coroutineScope.launch {
@@ -175,6 +187,7 @@ open class Timer(
         }
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     private fun updateCurTime(ms: Long) {
         curTime = Time(ms)
@@ -182,6 +195,7 @@ open class Timer(
         listener?.onUpdateTime(this)
     }
 
+    @AnyThread
     @GuardedBy("mutex")
     private fun updateCurTime(time: Time) {
         updateCurTime(time.inMs)
@@ -231,14 +245,23 @@ open class Timer(
 
     interface TimerListener {
         @AnyThread
-        fun onStart(timer: Timer) {}
+        fun onStart(timer: Timer) {
+        }
+
         @AnyThread
-        fun onStop(timer: Timer) {}
+        fun onStop(timer: Timer) {
+        }
+
         @AnyThread
-        fun onPause(timer: Timer) {}
+        fun onPause(timer: Timer) {
+        }
+
         @AnyThread
-        fun onFinish(timer: Timer) {}
+        fun onFinish(timer: Timer) {
+        }
+
         @AnyThread
-        fun onUpdateTime(timer: Timer) {}
+        fun onUpdateTime(timer: Timer) {
+        }
     }
 }

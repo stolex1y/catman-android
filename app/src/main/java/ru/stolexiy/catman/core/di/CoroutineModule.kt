@@ -9,6 +9,9 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import ru.stolexiy.common.di.CoroutineDispatcherNames.DEFAULT_DISPATCHER
+import ru.stolexiy.common.di.CoroutineDispatcherNames.IO_DISPATCHER
+import ru.stolexiy.common.di.CoroutineDispatcherNames.MAIN_DISPATCHER
 import timber.log.Timber
 import javax.inject.Named
 import javax.inject.Singleton
@@ -19,9 +22,6 @@ interface CoroutineModule {
 
     companion object {
         const val APPLICATION_SCOPE = "Application scope"
-        const val IO_DISPATCHER = "IO"
-        const val DEFAULT_DISPATCHER = "Default"
-        const val MAIN_DISPATCHER = "Main"
 
         @Named(IO_DISPATCHER)
         @Provides

@@ -1,9 +1,9 @@
 package ru.stolexiy.catman.domain.usecase.purpose
 
 import kotlinx.coroutines.flow.Flow
-import ru.stolexiy.catman.core.FlowExtensions.mapToResult
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.purpose.PurposeRepository
+import ru.stolexiy.common.FlowExtensions.mapToResult
 import javax.inject.Inject
 
 class PurposeGettingUseCase @Inject constructor(

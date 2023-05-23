@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.data.datasource.local.dao.PurposeDao
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 import ru.stolexiy.catman.data.datasource.local.model.toPurposeEntities
 import ru.stolexiy.catman.data.datasource.local.model.toPurposeEntity
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.purpose.PurposeRepository
+import ru.stolexiy.common.di.CoroutineDispatcherNames
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -25,7 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class PurposeRepositoryImpl @Inject constructor(
     private val localDao: PurposeDao,
-    @Named(CoroutineModule.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
+    @Named(CoroutineDispatcherNames.IO_DISPATCHER) private val dispatcher: CoroutineDispatcher
 ) : PurposeRepository {
     override fun getAll(): Flow<List<DomainPurpose>> =
         localDao.getAll().distinctUntilChanged()
