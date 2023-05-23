@@ -1,5 +1,5 @@
 object ClasspathDependency {
-    private const val androidGradle = "8.2.0-alpha01"
+    private const val androidGradle = "8.2.0-alpha03"
     private const val kotlin = "1.8.20-RC2"
     private const val gms = "4.3.15"
     private const val serialization = "1.8.10"

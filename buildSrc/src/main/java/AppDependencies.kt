@@ -119,7 +119,6 @@ object AppDependencies {
     fun DependencyHandler.room() {
         add(ConfigurationName.IMPLEMENTATION.configName, roomRuntime)
         add(ConfigurationName.IMPLEMENTATION.configName, roomKtx)
-        add(ConfigurationName.ANNOTATION_PROCESSOR.configName, roomCompiler)
         add(ConfigurationName.KSP.configName, roomCompiler)
         add(ConfigurationName.TEST_IMPLEMENTATION.configName, roomTesting)
     }
@@ -272,14 +271,12 @@ object AppDependencies {
         IMPLEMENTATION("implementation"),
         ANDROID_TEST_IMPLEMENTATION("androidTestImplementation"),
         TEST_IMPLEMENTATION("testImplementation"),
-        ANNOTATION_PROCESSOR("annotationProcessor"),
         KSP("ksp"),
         RUNTIME_ONLY("runtimeOnly"),
         API("api"),
         DEBUG_IMPLEMENTATION("debugImplementation"),
         KAPT_TEST("kaptTest"),
         KAPT_ANDROID_TEST("kaptAndroidTest"),
-        TEST_ANNOTATION_PROCESSOR("testAnnotationProcessor")
     }
 }
 
