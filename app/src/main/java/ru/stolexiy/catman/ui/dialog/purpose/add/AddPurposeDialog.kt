@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.DialogPurposeAddBinding
-import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
+import ru.stolexiy.common.DateUtils.toCalendar
 import ru.stolexiy.catman.ui.dialog.AbstractBottomDialogFragment
 import ru.stolexiy.catman.ui.dialog.adapter.TextWithColorAdapter
 import ru.stolexiy.catman.ui.dialog.custom.DatePicker

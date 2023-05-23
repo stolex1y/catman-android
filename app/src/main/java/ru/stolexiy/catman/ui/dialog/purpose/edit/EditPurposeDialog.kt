@@ -1,31 +1,12 @@
 package ru.stolexiy.catman.ui.dialog.purpose.edit
 
-import android.os.Bundle
-import android.view.View
-import android.widget.AdapterView
-import android.widget.Toast
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.databinding.DialogPurposeEditBinding
-import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
 import ru.stolexiy.catman.ui.dialog.AbstractBottomDialogFragment
-import ru.stolexiy.catman.ui.dialog.adapter.TextWithColorAdapter
-import ru.stolexiy.catman.ui.dialog.custom.DatePicker
-import ru.stolexiy.catman.ui.dialog.purpose.model.Category
-import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
-import ru.stolexiy.catman.ui.util.DefaultConditions
-import timber.log.Timber
 
 class EditPurposeDialog(purposeId: Long) :
     AbstractBottomDialogFragment(R.layout.dialog_purpose_edit) {
 
-    private val mViewModel: EditPurposeViewModel by viewModels { EditPurposeViewModel.createFactory(purposeId) }
+    /*private val mViewModel: EditPurposeViewModel by viewModels { EditPurposeViewModel.createFactory(purposeId) }
     private var mUpdatingPurpose: Purpose? = null
 
     private val mBinding: DialogPurposeEditBinding
@@ -168,7 +149,7 @@ class EditPurposeDialog(purposeId: Long) :
 
     private companion object {
         const val UPDATING_PURPOSE = "UPDATING_PURPOSE"
-    }
+    }*/
 
 
 }

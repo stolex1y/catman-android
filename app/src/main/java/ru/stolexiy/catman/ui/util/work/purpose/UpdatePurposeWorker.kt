@@ -13,7 +13,7 @@ import dagger.assisted.AssistedInject
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.core.Json
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.usecase.PurposeCrud
+import ru.stolexiy.catman.domain.usecase.purpose.PurposeUpdatingUseCase
 import ru.stolexiy.catman.ui.util.work.AbstractWorker
 import ru.stolexiy.catman.ui.util.work.WorkUtils
 
@@ -21,7 +21,7 @@ import ru.stolexiy.catman.ui.util.work.WorkUtils
 class UpdatePurposeWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val purposeCrud: PurposeCrud
+    private val updatePurpose: PurposeUpdatingUseCase
 ) : AbstractWorker<DomainPurpose, Unit>(appContext, workerParams) {
 
     override val notificationId: Int = WorkUtils.UPDATE_PURPOSE_NOTIFICATION_ID
@@ -50,6 +50,6 @@ class UpdatePurposeWorker @AssistedInject constructor(
     }
 
     override suspend fun calculate(inputArg: DomainPurpose): kotlin.Result<Unit> {
-        return purposeCrud.update(inputArg)
+        return updatePurpose(inputArg)
     }
 }

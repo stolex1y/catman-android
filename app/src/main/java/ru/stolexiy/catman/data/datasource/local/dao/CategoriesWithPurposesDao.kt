@@ -22,5 +22,4 @@ abstract class CategoriesWithPurposesDao {
     )
     abstract suspend fun getAllWithPurposesOnce(): Map<CategoryEntity, List<PurposeEntity>>
 
-
 }

@@ -4,11 +4,11 @@ import kotlinx.coroutines.flow.Flow
 import ru.stolexiy.catman.domain.model.DomainSubtask
 
 interface SubtaskRepository {
-    fun getAllSubtasks(): Flow<List<DomainSubtask>>
-    fun getSubtask(id: Long): Flow<DomainSubtask?>
-    fun getAllSubtasksByTask(taskId: Long): Flow<List<DomainSubtask>>
-    suspend fun updateSubtask(vararg subtasks: DomainSubtask)
-    suspend fun deleteSubtask(vararg subtasks: DomainSubtask)
-    suspend fun insertSubtask(vararg subtasks: DomainSubtask): List<Long>
-    suspend fun deleteAllSubtasks()
+    fun getAll(): Flow<List<DomainSubtask>>
+    fun get(id: Long): Flow<DomainSubtask?>
+    fun getAllByTask(taskId: Long): Flow<List<DomainSubtask>>
+    suspend fun update(vararg subtasks: DomainSubtask): Unit
+    suspend fun delete(vararg subtasks: DomainSubtask): Unit
+    suspend fun insert(vararg subtasks: DomainSubtask): List<Long>
+    suspend fun deleteAll(): Unit
 }

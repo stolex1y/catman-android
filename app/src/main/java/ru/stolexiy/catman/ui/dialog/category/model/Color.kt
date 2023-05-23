@@ -1,5 +1,6 @@
 package ru.stolexiy.catman.ui.dialog.category.model
 
+import android.content.Context
 import ru.stolexiy.catman.domain.model.DomainColor
 
 data class Color(
@@ -8,9 +9,9 @@ data class Color(
 ) {
 
     companion object {
-        fun fromDomainColor(domainColor: DomainColor) = Color(
+        fun fromDomainColor(context: Context, domainColor: DomainColor) = Color(
             color = domainColor.color,
-            name = domainColor.name
+            name = context.getString(domainColor.name)
         )
 
         fun fromUnknownColor(color: Int) = Color(

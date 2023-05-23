@@ -1,7 +1,7 @@
-package ru.stolexiy.catman.data.datasource.local
+package ru.stolexiy.catman.data.datasource.local.db
 
 import androidx.room.TypeConverter
-import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
+import ru.stolexiy.common.DateUtils.toCalendar
 import java.util.Calendar
 
 object Converters {

@@ -1,8 +1,8 @@
 package ru.stolexiy.catman.ui.util.validation
 
 import androidx.annotation.StringRes
-import ru.stolexiy.catman.domain.util.DateUtils
-import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
+import ru.stolexiy.common.DateUtils
+import ru.stolexiy.common.DateUtils.toCalendar
 import java.io.Serializable
 import java.util.Calendar
 

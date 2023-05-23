@@ -51,7 +51,8 @@ interface CoroutineModule {
         @Provides
         @Singleton
         fun coroutineExceptionHandler() = CoroutineExceptionHandler { _, exception ->
-            Timber.e(exception.stackTraceToString())
+            println(exception.stackTraceToString())
+            Timber.e(exception, "uncaught exception")
         }
     }
 }

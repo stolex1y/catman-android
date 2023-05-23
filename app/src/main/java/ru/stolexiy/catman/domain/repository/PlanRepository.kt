@@ -5,11 +5,11 @@ import ru.stolexiy.catman.domain.model.DomainPlan
 import java.util.Calendar
 
 interface PlanRepository {
-    fun getTodayPlan(id: Long): Flow<DomainPlan?>
-    fun getAllPlans(): Flow<List<DomainPlan>>
-    fun getAllPlansByDate(calendar: Calendar): Flow<List<DomainPlan>>
-    suspend fun updatePlan(vararg plans: DomainPlan)
-    suspend fun deletePlan(vararg plan: DomainPlan)
-    suspend fun insertPlan(vararg plan: DomainPlan): List<Long>
-    suspend fun deleteAllPlans()
+    fun getToday(id: Long): Flow<DomainPlan?>
+    fun getAll(): Flow<List<DomainPlan>>
+    fun getAllByDate(calendar: Calendar): Flow<List<DomainPlan>>
+    suspend fun update(vararg plans: DomainPlan): Unit
+    suspend fun delete(vararg plan: DomainPlan): Unit
+    suspend fun insert(vararg plan: DomainPlan): List<Long>
+    suspend fun deleteAll(): Unit
 }

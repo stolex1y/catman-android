@@ -4,5 +4,5 @@ import java.io.Serializable
 
 data class DomainColor(
     val color: Int,
-    val name: String
+    val name: Int
 ) : Serializable

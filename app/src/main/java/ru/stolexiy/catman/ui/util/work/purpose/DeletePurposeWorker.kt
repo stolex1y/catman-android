@@ -11,7 +11,7 @@ import androidx.work.workDataOf
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.domain.usecase.PurposeCrud
+import ru.stolexiy.catman.domain.usecase.purpose.PurposeDeletingUseCase
 import ru.stolexiy.catman.ui.util.work.AbstractWorker
 import ru.stolexiy.catman.ui.util.work.WorkUtils
 
@@ -19,7 +19,7 @@ import ru.stolexiy.catman.ui.util.work.WorkUtils
 class DeletePurposeWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val purposeCrud: PurposeCrud
+    private val deletePurpose: PurposeDeletingUseCase
 ) : AbstractWorker<Long, Unit>(appContext, workerParams) {
 
     override val notificationId: Int = WorkUtils.DELETE_PURPOSE_NOTIFICATION_ID
@@ -48,6 +48,6 @@ class DeletePurposeWorker @AssistedInject constructor(
     }
 
     override suspend fun calculate(inputArg: Long): kotlin.Result<Unit> {
-        return purposeCrud.delete(inputArg)
+        return deletePurpose.byId(inputArg)
     }
 }

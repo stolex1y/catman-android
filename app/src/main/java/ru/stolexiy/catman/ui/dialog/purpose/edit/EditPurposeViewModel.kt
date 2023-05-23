@@ -1,49 +1,18 @@
 package ru.stolexiy.catman.ui.dialog.purpose.edit
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.Operation.State.FAILURE
-import androidx.work.Operation.State.SUCCESS
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import androidx.work.workDataOf
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import ru.stolexiy.catman.CatmanApplication
-import ru.stolexiy.catman.R
-import ru.stolexiy.catman.domain.model.DomainCategory
-import ru.stolexiy.catman.domain.usecase.CategoryCrud
-import ru.stolexiy.catman.domain.usecase.PurposeCrud
-import ru.stolexiy.catman.ui.dialog.purpose.model.Category
-import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
-import ru.stolexiy.catman.ui.dialog.purpose.model.toCategory
-import ru.stolexiy.catman.ui.util.work.purpose.DeletePurposeWorker
-import ru.stolexiy.catman.ui.util.work.purpose.UpdatePurposeWorker
+import ru.stolexiy.catman.domain.repository.category.CategoryRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeRepository
 
 class EditPurposeViewModel(
     private val editingPurposeId: Long,
-    private val purposeCrud: PurposeCrud,
-    private val categoryCrud: CategoryCrud,
+    private val purposeRepository: PurposeRepository,
+    private val categoryRepository: CategoryRepository,
     private val application: CatmanApplication
 ) : ViewModel() {
 
-    private val mState: MutableStateFlow<State> = MutableStateFlow(State.Init)
+    /*private val mState: MutableStateFlow<State> = MutableStateFlow(State.Init)
     val state: StateFlow<State> = mState.asStateFlow()
 
     private lateinit var mUpdatingPurpose: Purpose
@@ -58,7 +27,7 @@ class EditPurposeViewModel(
         if (!purpose.isValid)
             throw IllegalStateException()
         mState.value = State.Loading
-        val worker = UpdatePurposeWorker.create(purpose.toDomainPurpose())
+        val worker = UpdatePurposeWorker.createWorkRequest(purpose.toDomainPurpose())
         val workStateFlow = OneTimeWorkRequestBuilder<UpdatePurposeWorker>()
             .setInputData(workDataOf(UpdatePurposeWorker.INPUT_PURPOSE to updatingPurpose))
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -149,5 +118,5 @@ class EditPurposeViewModel(
         class Error(val error: String) : State()
         data class Loaded(val updatingPurpose: Purpose) : State()
         object Deleted : State()
-    }
+    }*/
 }

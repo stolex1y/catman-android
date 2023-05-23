@@ -7,7 +7,7 @@ import androidx.annotation.StringRes
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
+import ru.stolexiy.common.DateUtils.toCalendar
 import ru.stolexiy.catman.ui.util.validation.Condition
 import ru.stolexiy.catman.ui.util.validation.Condition.Companion.isValid
 import java.io.Serializable

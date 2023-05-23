@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.core.di.CoroutineModule
-import ru.stolexiy.catman.domain.usecase.AllCategoriesWithPurposes
+import ru.stolexiy.catman.domain.usecase.category.CategoryWithPurposeGettingUseCase
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.categorylist.model.toCategoryListItems
 import timber.log.Timber
@@ -26,7 +26,7 @@ import javax.inject.Named
 
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(
-    private val allCategoriesWithPurposes: AllCategoriesWithPurposes,
+    private val getCategoryWithPurpose: CategoryWithPurposeGettingUseCase,
     @Named(CoroutineModule.DEFAULT_DISPATCHER) private val defaultDispatcher: CoroutineDispatcher,
     private val exceptionHandler: CoroutineExceptionHandler
 ) : ViewModel() {
@@ -46,14 +46,15 @@ class CategoryListViewModel @Inject constructor(
         }
     }
 
-    private fun loadCategoriesWithPurposes() = allCategoriesWithPurposes()
-        .onStart { Timber.d("start loading categories with purposes") }
-        .onEach(this::handleError)
-        .mapNotNull {
-            Timber.d("map to category list items ${it.getOrNull()?.size}")
-            it.getOrNull()?.toCategoryListItems()
-        }
-        .flowOn(defaultDispatcher)
+    private fun loadCategoriesWithPurposes() =
+        getCategoryWithPurpose.all()
+            .onStart { Timber.d("start loading categories with purposes") }
+            .onEach(this::handleError)
+            .mapNotNull {
+                Timber.d("map to category list items ${it.getOrNull()?.size}")
+                it.getOrNull()?.toCategoryListItems()
+            }
+            .flowOn(defaultDispatcher)
 
     private fun <T> handleError(result: Result<T>) {
         if (result.isFailure) {

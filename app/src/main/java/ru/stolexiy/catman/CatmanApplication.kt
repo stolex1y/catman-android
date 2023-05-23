@@ -2,16 +2,22 @@ package ru.stolexiy.catman
 
 import android.app.NotificationManager
 import android.os.Build
+import android.os.Process
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.core.di.CoroutineModule
+import ru.stolexiy.catman.core.model.DefaultColor
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.usecase.AllCategoriesWithPurposes
-import ru.stolexiy.catman.domain.usecase.CategoryCrud
-import ru.stolexiy.catman.domain.usecase.PurposeCrud
+import ru.stolexiy.catman.domain.usecase.category.CategoryAddingUseCase
+import ru.stolexiy.catman.domain.usecase.category.CategoryDeletingUseCase
+import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
+import ru.stolexiy.catman.domain.usecase.category.CategoryWithPurposeGettingUseCase
+import ru.stolexiy.catman.domain.usecase.purpose.PurposeAddingUseCase
+import ru.stolexiy.catman.domain.usecase.purpose.PurposeDeletingUseCase
+import ru.stolexiy.catman.domain.usecase.purpose.PurposeGettingUseCase
 import ru.stolexiy.catman.ui.util.notification.NotificationChannels.initChannels
 import timber.log.Timber
 import java.util.GregorianCalendar
@@ -28,13 +34,25 @@ class CatmanApplication : BaseApplication() {
     lateinit var applicationScope: CoroutineScope
 
     @Inject
-    lateinit var categoryCrud: CategoryCrud
+    lateinit var getCategory: CategoryGettingUseCase
 
     @Inject
-    lateinit var purposeCrud: PurposeCrud
+    lateinit var deleteCategory: CategoryDeletingUseCase
 
     @Inject
-    lateinit var allCategoriesWithPurposes: AllCategoriesWithPurposes
+    lateinit var addCategory: CategoryAddingUseCase
+
+    @Inject
+    lateinit var getPurpose: PurposeGettingUseCase
+
+    @Inject
+    lateinit var deletePurpose: PurposeDeletingUseCase
+
+    @Inject
+    lateinit var addPurpose: PurposeAddingUseCase
+
+    @Inject
+    lateinit var getCategoryWithPurpose: CategoryWithPurposeGettingUseCase
 
     @Inject
     lateinit var notificationManager: Optional<NotificationManager>
@@ -42,8 +60,16 @@ class CatmanApplication : BaseApplication() {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG)
-            Timber.plant(Timber.DebugTree())
+        if (BuildConfig.DEBUG) {
+            Timber.plant(object : Timber.DebugTree() {
+                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                    super.log(
+                        priority, "[$GLOBAL_TAG]" +
+                                "$tag | ${Process.getElapsedCpuTime()} ms", message, t
+                    )
+                }
+            })
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.getOrNull()?.initChannels(this)
@@ -52,20 +78,24 @@ class CatmanApplication : BaseApplication() {
         applicationScope.launch {
             fillDatabase()
         }
+
+        Timber.d("appliction created")
     }
 
     private suspend fun clearDatabase() {
-        categoryCrud.clear()
+        deleteCategory.all()
     }
 
     private suspend fun fillDatabase() {
-        var categories = categoryCrud.getAll().first().getOrThrow()
+        var categories = getCategory.all().first().onFailure {
+            throw it
+        }.getOrThrow()
         if (categories.isEmpty()) {
-            val category1 = DomainCategory("Образование", 0x7FFFD4)
-            val category2 = DomainCategory("Работа", 0x66CC66)
-            categoryCrud.create(category1).onFailure { throw it }
-            categoryCrud.create(category2).onFailure { throw it }
-            categories = categoryCrud.getAll().first().getOrNull() ?: return
+            val category1 = DomainCategory("Образование",  DefaultColor.AMARANTH_PINK.rgba)
+            val category2 = DomainCategory("Работа", DefaultColor.AQUAMARINE.rgba)
+            addCategory(category1).onFailure { throw it }
+            addCategory(category2).onFailure { throw it }
+            categories = getCategory.all().first().getOrNull() ?: return
             val purpose1 = DomainPurpose(
                 "Диплом",
                 categories[0].id,
@@ -78,14 +108,15 @@ class CatmanApplication : BaseApplication() {
                 GregorianCalendar(2023, 7, 28),
                 progress = 27
             )
-            purposeCrud.create(purpose1).onFailure { throw it }
-            purposeCrud.create(purpose2).onFailure { throw it }
+            addPurpose(purpose1).onFailure { throw it }
+            addPurpose(purpose2).onFailure { throw it }
         }
-        allCategoriesWithPurposes().first().getOrNull()?.let {
-            Timber.d("init db $it")
-        }
-        allCategoriesWithPurposes.invoke().first().getOrThrow().let {
+        getCategoryWithPurpose.all().first().getOrThrow().let {
             Timber.d("all categories with purposes $it")
         }
+    }
+
+    companion object {
+        private const val GLOBAL_TAG: String = "AY"
     }
 }

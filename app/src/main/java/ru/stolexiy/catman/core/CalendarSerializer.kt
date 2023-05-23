@@ -7,7 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import ru.stolexiy.catman.domain.util.DateUtils.toCalendar
+import ru.stolexiy.common.DateUtils.toCalendar
 import java.lang.reflect.Type
 import java.util.Calendar
 

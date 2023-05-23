@@ -34,7 +34,7 @@ class Category(
         ): Category {
             val rgba = domainCategory.color
             val color = if (domainColor != null) {
-                Color.fromDomainColor(domainColor)
+                Color.fromDomainColor(context, domainColor)
             } else if (Colors.defaultColorNames.containsKey(rgba)) {
                 Color(rgba, context.getString(Colors.defaultColorNames[rgba]!!))
             } else {

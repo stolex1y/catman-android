@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
@@ -26,7 +27,7 @@ import kotlinx.coroutines.launch
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
-import ru.stolexiy.catman.domain.usecase.CategoryCrud
+import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
 import ru.stolexiy.catman.ui.dialog.purpose.model.Category
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.catman.ui.dialog.purpose.model.toCategory
@@ -38,8 +39,9 @@ import javax.inject.Named
 
 class AddPurposeViewModel @AssistedInject constructor(
     @Named(CoroutineModule.APPLICATION_SCOPE) private val applicationScope: CoroutineScope,
-    private val categoryCrud: CategoryCrud,
-    private val workManager: WorkManager
+    private val getCategory: CategoryGettingUseCase,
+    private val workManager: WorkManager,
+    @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(State.Init)
@@ -128,7 +130,7 @@ class AddPurposeViewModel @AssistedInject constructor(
     }
 
     private fun getCategories() =
-        categoryCrud.getAll()
+        getCategory.all()
             .handleError()
             .mapNotNull {
                 it.getOrNull()?.map(DomainCategory::toCategory)

@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.data.datasource.local
+package ru.stolexiy.catman.data.datasource.local.db
 
 import android.content.Context
 import androidx.room.Database
@@ -22,7 +22,7 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
         PlanEntity::class,
         ColorEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -32,7 +32,7 @@ abstract class LocalDatabase : RoomDatabase() {
     abstract fun categoriesWithPurposesDao(): CategoriesWithPurposesDao
 
     companion object {
-        val DATABASE_NAME = "catman-db"
+        const val DATABASE_NAME = "catman-db"
 
         @Volatile
         var instance: LocalDatabase? = null
@@ -46,6 +46,7 @@ abstract class LocalDatabase : RoomDatabase() {
         private fun buildDatabase(context: Context): LocalDatabase =
             Room.databaseBuilder(context, LocalDatabase::class.java, DATABASE_NAME)
                 .fallbackToDestructiveMigration()
+                .addCallback(LocalDatabaseCallback())
                 .build()
     }
 }
