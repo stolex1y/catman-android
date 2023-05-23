@@ -10,8 +10,8 @@ import androidx.test.filters.MediumTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import ru.stolexiy.commontest.withButtonText
-import ru.stolexiy.commontest.withPropertyValue
+import ru.stolexiy.commontest.CustomMatchers.withButtonText
+import ru.stolexiy.commontest.CustomMatchers.withPropertyValue
 import ru.stolexiy.widgets.ProgressView
 import ru.stolexiy.widgets.sample.R
 import ru.stolexiy.widgets.sample.progressview.SimpleActivityWithProgressView

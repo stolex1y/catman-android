@@ -26,14 +26,14 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.domain.usecase.CategoryCrud
-import ru.stolexiy.catman.domain.usecase.PurposeCrud
+import ru.stolexiy.catman.domain.repository.CategoryRepository
+import ru.stolexiy.catman.domain.repository.PurposeRepository
 import ru.stolexiy.catman.ui.MainActivity
 import ru.stolexiy.catman.ui.dialog.purpose.model.Category
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
-import ru.stolexiy.commontest.swipeToTop
-import ru.stolexiy.commontest.waitAllWorkersInstruction
-import ru.stolexiy.commontest.withButtonText
+import ru.stolexiy.commontest.CustomActions.swipeToTop
+import ru.stolexiy.commontest.CustomInstructions.waitAllWorkersInstruction
+import ru.stolexiy.commontest.CustomMatchers.withButtonText
 import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
@@ -49,10 +49,10 @@ class AddPurposeDialogTest {
     val activityScenarioRule = activityScenarioRule<MainActivity>()
 
     @Inject
-    lateinit var categoryCrud: CategoryCrud
+    lateinit var categoryRepository: CategoryRepository
 
     @Inject
-    lateinit var purposeCrud: PurposeCrud
+    lateinit var purposeRepository: PurposeRepository
 
     @Inject
     lateinit var workManager: WorkManager
@@ -82,7 +82,7 @@ class AddPurposeDialogTest {
         hiltRule.inject()
         clearDatabase()
         runBlocking {
-            categoryCrud.create(testCategory.toDomainCategory()).onSuccess {
+            categoryRepository.insert(testCategory.toDomainCategory()).onSuccess {
                 testCategory = testCategory.copy(id = it.first())
             }
         }
@@ -109,7 +109,7 @@ class AddPurposeDialogTest {
 
     private fun assertThatNotContainsPurposeWithName(purposeName: String) {
         runBlocking {
-            purposeCrud.getAll().first().onSuccess { purposes ->
+            purposeRepository.getAll().first().onSuccess { purposes ->
                 assertThat(purposes.map { it.name }, not(containsInAnyOrder(purposeName)))
             }
         }
@@ -117,7 +117,7 @@ class AddPurposeDialogTest {
 
     private fun assertThatContainsPurposeWithName(purposeName: String) {
         runBlocking {
-            purposeCrud.getAll().first().onSuccess { purposes ->
+            purposeRepository.getAll().first().onSuccess { purposes ->
                 assertThat(purposes.map { it.name }, containsInAnyOrder(purposeName))
             }
         }
@@ -150,8 +150,8 @@ class AddPurposeDialogTest {
     @After
     fun clearDatabase() {
         runBlocking {
-            purposeCrud.clear()
-            categoryCrud.clear()
+            purposeRepository.deleteAll()
+            categoryRepository.deleteAll()
         }
     }
 

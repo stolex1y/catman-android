@@ -1,9 +1,10 @@
-package ru.stolexiy.common
+package ru.stolexiy.commontest
 
 import org.junit.Assert
 import kotlin.math.abs
 
-internal object CustomAsserts {
+object CustomAsserts {
+    @JvmStatic
     fun assertEquals(expected: Long, actual: Long, delta: Long) =
         Assert.assertTrue(
             "Expected value: <$expected> differs from the actual: <$actual> " +
