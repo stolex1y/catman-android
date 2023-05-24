@@ -12,7 +12,6 @@ import AppDependencies.hilt
 import AppDependencies.hiltNavigation
 import AppDependencies.hiltWorkManager
 import AppDependencies.junit4
-import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
 import AppDependencies.material
@@ -93,7 +92,6 @@ dependencies {
     coroutines()
     timberAndroid()
     androidAnnotation()
-    jvmAnnotation()
     hilt()
     hiltNavigation()
     hiltWorkManager()

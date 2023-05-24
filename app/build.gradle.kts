@@ -5,7 +5,6 @@ import AppDependencies.androidCoreKtx
 import AppDependencies.androidTest
 import AppDependencies.appcompat
 import AppDependencies.coroutines
-import AppDependencies.dagger
 import AppDependencies.firebase
 import AppDependencies.fragment
 import AppDependencies.gson
@@ -14,17 +13,16 @@ import AppDependencies.hiltNavigation
 import AppDependencies.hiltTest
 import AppDependencies.hiltWorkManager
 import AppDependencies.junit4
-import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
 import AppDependencies.material
 import AppDependencies.moduleAndroidTestImplementation
 import AppDependencies.moduleImplementation
 import AppDependencies.navigation
-import AppDependencies.room
 import AppDependencies.timberAndroid
 import AppDependencies.workManager
 import modules.AppModuleConfig
+import modules.Modules
 
 plugins {
     id(Plugins.APPLICATION)
@@ -80,19 +78,19 @@ android {
 }
 
 dependencies {
-    moduleImplementation("widgets")
-    moduleImplementation("common")
-    moduleAndroidTestImplementation("common-test")
-    moduleImplementation("domain")
+    moduleImplementation(Modules.WIDGETS)
+    moduleImplementation(Modules.COMMON)
+    moduleAndroidTestImplementation(Modules.COMMON_TEST)
+    moduleImplementation(Modules.DOMAIN_USECASE)
+    moduleImplementation(Modules.DOMAIN_MODEL)
+    moduleImplementation(Modules.DATA_REPOSITORY)
 
     kotlinStdLib()
-    dagger()
     androidCoreKtx()
     appcompat()
     androidConstraintLayout()
     lifecycle()
     firebase()
-    room()
     activityKtx()
     fragment()
     androidTest()
@@ -101,7 +99,6 @@ dependencies {
     coroutines()
     timberAndroid()
     androidAnnotation()
-    jvmAnnotation()
     hilt()
     hiltNavigation()
     hiltWorkManager()

@@ -2,13 +2,11 @@ package ru.stolexiy.catman.ui.dialog.purpose.edit
 
 import androidx.lifecycle.ViewModel
 import ru.stolexiy.catman.CatmanApplication
-import ru.stolexiy.catman.domain.repository.category.CategoryRepository
-import ru.stolexiy.catman.domain.repository.purpose.PurposeRepository
 
 class EditPurposeViewModel(
     private val editingPurposeId: Long,
-    private val purposeRepository: PurposeRepository,
-    private val categoryRepository: CategoryRepository,
+//    private val purposeRepository: PurposeRepository,
+//    private val categoryRepository: CategoryRepository,
     private val application: CatmanApplication
 ) : ViewModel() {
 

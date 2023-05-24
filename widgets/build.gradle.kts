@@ -4,7 +4,6 @@ import AppDependencies.androidTest
 import AppDependencies.coroutines
 import AppDependencies.fragment
 import AppDependencies.junit4
-import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.lifecycle
 import AppDependencies.material
@@ -71,7 +70,6 @@ dependencies {
     timberAndroid()
     material()
     androidAnnotation()
-    jvmAnnotation()
 
     //testing
     junit4()

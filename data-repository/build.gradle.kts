@@ -1,23 +1,21 @@
-import AppDependencies.activityKtx
-import AppDependencies.androidAnnotation
-import AppDependencies.androidTest
 import AppDependencies.coroutines
-import AppDependencies.fragment
-import AppDependencies.junit4
+import AppDependencies.hilt
 import AppDependencies.kotlinStdLib
-import AppDependencies.lifecycle
-import AppDependencies.material
+import AppDependencies.moduleImplementation
 import AppDependencies.timberAndroid
-import AppDependencies.workManager
-import modules.CommonTestModuleConfig
+import modules.DataRepositoryModuleConfig
+import modules.Modules
 
 plugins {
     id(Plugins.ANDROID_LIBRARY)
     id(Plugins.KOTLIN_ANDROID)
+    id(Plugins.KSP)
+    id(Plugins.KOTLIN_KAPT)
+    id(Plugins.HILT)
 }
 
 android {
-    val moduleConfig = CommonTestModuleConfig
+    val moduleConfig = DataRepositoryModuleConfig
     namespace = moduleConfig.namespace
     compileSdk = moduleConfig.compileSdk
 
@@ -60,16 +58,13 @@ android {
 }
 
 dependencies {
-    kotlinStdLib()
-    activityKtx()
-    fragment()
-    lifecycle()
-    coroutines()
-    timberAndroid()
-    material()
-    androidAnnotation()
-    workManager()
+    moduleImplementation(Modules.DOMAIN_REPOSITORY_API)
+    moduleImplementation(Modules.DOMAIN_MODEL)
+    moduleImplementation(Modules.DATA_SOURCE_LOCAL)
+    moduleImplementation(Modules.COMMON)
 
-    junit4(AppDependencies.ConfigurationName.IMPLEMENTATION)
-    androidTest(AppDependencies.ConfigurationName.IMPLEMENTATION)
+    kotlinStdLib()
+    timberAndroid()
+    coroutines()
+    hilt()
 }
