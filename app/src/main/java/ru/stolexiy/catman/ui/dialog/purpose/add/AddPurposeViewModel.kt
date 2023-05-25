@@ -1,29 +1,13 @@
 package ru.stolexiy.catman.ui.dialog.purpose.add
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.takeWhile
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
@@ -31,42 +15,51 @@ import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
 import ru.stolexiy.catman.ui.dialog.purpose.model.Category
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.catman.ui.dialog.purpose.model.toCategory
+import ru.stolexiy.catman.ui.util.udfv2.AbstractViewModel
+import ru.stolexiy.catman.ui.util.udfv2.IData
+import ru.stolexiy.catman.ui.util.udfv2.IState
 import ru.stolexiy.catman.ui.util.work.WorkUtils.getResult
 import ru.stolexiy.catman.ui.util.work.purpose.AddPurposeWorker
 import ru.stolexiy.catman.ui.util.work.purpose.DeletePurposeWorker
 import timber.log.Timber
 import javax.inject.Named
+import javax.inject.Provider
 
 class AddPurposeViewModel @AssistedInject constructor(
-    @Named(CoroutineModule.APPLICATION_SCOPE) private val applicationScope: CoroutineScope,
     private val getCategory: CategoryGettingUseCase,
-    private val workManager: WorkManager,
-    @Assisted private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+    workManager: Provider<WorkManager>,
+    @Named(CoroutineModule.APPLICATION_SCOPE) applicationScope: CoroutineScope,
+    @Assisted savedStateHandle: SavedStateHandle
+) : AbstractViewModel<AddPurposeEvent, AddPurposeViewModel.Data, AddPurposeViewModel.State>(
+    Data.EMPTY,
+    State.Init,
+    applicationScope,
+    workManager,
+    savedStateHandle
+) {
 
-    private val _state: MutableStateFlow<State> = MutableStateFlow(State.Init)
-    val state: StateFlow<State> = _state.asStateFlow()
-
-    private val _data: MutableStateFlow<Data> = MutableStateFlow(Data.EMPTY)
-    val data: StateFlow<Data> = _data.asStateFlow()
-
-    private var work: StateFlow<WorkInfo>? = null
-    private var lastFinishedWork: WorkInfo? = null
-
-    init {
-        initState()
-    }
+    override val loadedState: State = State.Loaded
 
     override fun onCleared() {
         super.onCleared()
         Timber.d("cleared")
     }
 
-    fun dispatchEvent(event: AddPurposeEvent) {
+    override fun dispatchEvent(event: AddPurposeEvent) {
         when (event) {
             is AddPurposeEvent.Add -> addPurpose(event.purpose)
             is AddPurposeEvent.Cancel -> cancelCurrentWork()
             is AddPurposeEvent.DeleteAdded -> deleteAddedPurpose()
+        }
+    }
+
+    override fun loadData(): Flow<Result<Data>> {
+        return getCategories()
+    }
+
+    override fun parseError(error: Throwable): State {
+        return when (error) {
+            else -> State.Error(R.string.internal_error)
         }
     }
 
@@ -77,7 +70,7 @@ class AddPurposeViewModel @AssistedInject constructor(
         }
         _state.value = State.Adding
         val workRequest = AddPurposeWorker.createWorkRequest(purpose.toDomainPurpose())
-        startWork(workRequest, State.Added)
+        startWork(workRequest, State.Added) { State.Error(R.string.internal_error) }
     }
 
     private fun deleteAddedPurpose() {
@@ -90,59 +83,16 @@ class AddPurposeViewModel @AssistedInject constructor(
         _state.value = State.Deleting
         val addedPurposeId = addWork.outputData.getResult<Long>()
         val workRequest = DeletePurposeWorker.createWorkRequest(addedPurposeId)
-        startWork(workRequest, State.Deleted)
+        startWork(workRequest, State.Deleted) { State.Error(R.string.internal_error) }
     }
 
-    private fun cancelCurrentWork() {
-        val currentWork = work?.value ?: return
-        workManager.cancelWorkById(currentWork.id)
-    }
-
-    private fun startWork(workRequest: WorkRequest, finishState: State) {
-        workManager.run {
-            enqueue(workRequest)
-            applicationScope.launch {
-                val currentWork = getWorkInfoByIdLiveData(workRequest.id)
-                    .asFlow()
-                    .stateIn(applicationScope)
-                work = currentWork
-
-                currentWork.takeWhile { !it.state.isFinished }.collect()
-                val finishedWorkInfo = currentWork.value
-                _state.value = if (finishedWorkInfo.state == WorkInfo.State.FAILED)
-                    State.Error(R.string.internal_error)
-                else
-                    finishState
-                lastFinishedWork = finishedWorkInfo
-            }
-        }
-    }
-
-    private fun initState() {
-        viewModelScope.launch {
-            getCategories().collectLatest { categories ->
-                _data.update {
-                    it.copy(categories = categories)
+    private fun getCategories(): Flow<Result<Data>> {
+        return getCategory.all()
+            .map { result ->
+                result.map { domainCategories ->
+                    Data(domainCategories.map(DomainCategory::toCategory))
                 }
-                _state.value = State.Loaded
             }
-        }
-    }
-
-    private fun getCategories() =
-        getCategory.all()
-            .handleError()
-            .mapNotNull {
-                it.getOrNull()?.map(DomainCategory::toCategory)
-            }
-
-    private fun <T> Flow<Result<T>>.handleError(): Flow<Result<T>> {
-        return this.onEach {
-            if (it.isFailure) {
-                _state.value = State.Error(R.string.internal_error)
-                throw CancellationException()
-            }
-        }
     }
 
     @AssistedFactory
@@ -150,7 +100,7 @@ class AddPurposeViewModel @AssistedInject constructor(
         fun create(savedStateHandle: SavedStateHandle): AddPurposeViewModel
     }
 
-    sealed class State {
+    sealed class State : IState {
         object Init : State()
         object Loaded : State()
         data class Error(val error: Int) : State()
@@ -162,10 +112,10 @@ class AddPurposeViewModel @AssistedInject constructor(
 
     data class Data(
         val categories: List<Category>
-    ) {
+    ) : IData {
         companion object {
             @JvmStatic
-            val EMPTY: Data by lazy { Data(emptyList()) }
+            val EMPTY: Data = Data(emptyList())
         }
     }
 }
