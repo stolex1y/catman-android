@@ -15,6 +15,7 @@ import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.dialog.purpose.add.AddPurposeDialog
 import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
 import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
+import ru.stolexiy.catman.ui.util.recyclerview.ItemActionListener
 import ru.stolexiy.catman.ui.util.snackbar.SnackbarManager
 import ru.stolexiy.catman.ui.util.viewmodel.CustomAbstractSavedStateViewModelFactory.Companion.assistedViewModels
 import timber.log.Timber
@@ -52,25 +53,8 @@ internal class CategoryListFragment : Fragment() {
             lifecycleOwner = viewLifecycleOwner
             listAdapter.apply {
                 longPressDragEnabled = true
-                setOnCategoryClickListener {
-                    Timber.d("clicked on category ${(it as CategoryListItem.CategoryItem).name}")
-                }
-                setOnPurposeClickListener {
-                    Timber.d("clicked on purpose ${(it as CategoryListItem.PurposeItem).name}")
-                }
-                onItemSwipedToEndListener = {
-                    Timber.d("delete item with name ${(it as CategoryListItem.PurposeItem).name}")
-                    viewModel.dispatchEvent(CategoryListEvent.Delete(it.id))
-                }
-                onItemMovedListener = { source, target ->
-                    viewModel.dispatchEvent(
-                        CategoryListEvent.SwapPriority(
-                            source.id,
-                            target.id
-                        )
-                    )
-                    Timber.d("moved ${source.id} to ${target.id}")
-                }
+                setCategoryActionListener(categoryActionListener())
+                setPurposeActionListener(purposeActionListener())
             }
             categoryList.adapter = listAdapter
             addPurposeButton.setOnClickListener {
@@ -157,5 +141,40 @@ internal class CategoryListFragment : Fragment() {
                 show(this@CategoryListFragment.childFragmentManager, "ADD_PURPOSE")
             }
         }
+    }
+
+    private fun categoryActionListener(): ItemActionListener<CategoryListItem> {
+        return object : ItemActionListener<CategoryListItem> {
+
+        }
+    }
+
+    private fun purposeActionListener(): ItemActionListener<CategoryListItem> {
+        return object : ItemActionListener<CategoryListItem> {
+            override fun onSwipeToEnd(item: CategoryListItem) {
+                item as CategoryListItem.PurposeItem
+                Timber.d("Delete item with name: ${item.name}")
+                deletePurpose(item.id)
+            }
+
+            override fun onSwipeToStart(item: CategoryListItem) {
+                item as CategoryListItem.PurposeItem
+                Timber.d("Delete item with name: '${item.name}'")
+                deletePurpose(item.id)
+            }
+
+            override fun onMoveTo(item: CategoryListItem, to: CategoryListItem) {
+                viewModel.dispatchEvent(
+                    CategoryListEvent.SwapPriority(item.id, to.id)
+                )
+                item as CategoryListItem.PurposeItem
+                to as CategoryListItem.PurposeItem
+                Timber.d("Swap items: '${item.name}' and '${to.name}'")
+            }
+        }
+    }
+
+    private fun deletePurpose(id: Long) {
+        viewModel.dispatchEvent(CategoryListEvent.Delete(id))
     }
 }

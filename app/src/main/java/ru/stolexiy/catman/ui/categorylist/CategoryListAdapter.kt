@@ -3,32 +3,32 @@ package ru.stolexiy.catman.ui.categorylist
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.util.recyclerview.BaseListAdapter
-import javax.inject.Inject
+import ru.stolexiy.catman.ui.util.recyclerview.ItemActionListener
 import kotlin.reflect.KClass
 
 class CategoryListAdapter : BaseListAdapter<CategoryListItem>() {
 
-    override val mItemHierarchy: Map<Int, Int> = mapOf(
+    override val itemHierarchy: Map<Int, Int> = mapOf(
         getItemType(CategoryListItem.CategoryItem::class) to 1,
         getItemType(CategoryListItem.PurposeItem::class) to 2
     )
 
-    override var mItemMoveEnabled: Set<Int> = mutableSetOf(
+    override var itemMoveEnabled: Set<Int> = mutableSetOf(
         getItemType(CategoryListItem.PurposeItem::class),
     )
-    override var mItemSwipeEnabled: Map<Int, Pair<Boolean, Boolean>> = mutableMapOf(
+    override var itemSwipeEnabled: Map<Int, Pair<Boolean, Boolean>> = mutableMapOf(
         getItemType(CategoryListItem.PurposeItem::class) to Pair(true, true)
     )
 
     override fun getLayoutIdForPosition(position: Int): Int =
         getItem(position)::class.run(this::getItemType)
 
-    fun setOnCategoryClickListener(listener: ItemClickListener) {
-        this.onItemClickListeners[getItemType(CategoryListItem.CategoryItem::class)] = listener
+    fun setCategoryActionListener(listener: ItemActionListener<CategoryListItem>) {
+        itemActionListeners[getItemType(CategoryListItem.CategoryItem::class)] = listener
     }
 
-    fun setOnPurposeClickListener(listener: ItemClickListener) {
-        this.onItemClickListeners[getItemType(CategoryListItem.PurposeItem::class)] = listener
+    fun setPurposeActionListener(listener: ItemActionListener<CategoryListItem>) {
+        itemActionListeners[getItemType(CategoryListItem.PurposeItem::class)] = listener
     }
 
     private fun getItemType(type: KClass<out CategoryListItem>): Int {

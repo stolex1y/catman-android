@@ -17,33 +17,33 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
     diffCallback()
 ) {
 
-    var longPressDragEnabled = false
-//    var itemMoveModeEnabled = false
-    protected open var mItemMoveEnabled: Set<Int> = emptySet()
-    protected open var mItemSwipeEnabled: Map<Int, Pair<Boolean, Boolean>> = emptyMap()
-    protected open val mItemHierarchy: Map<Int, Int> = emptyMap()
-    var onItemMovedListener: ((source: T, target: T) -> Unit)? = null
-    var onItemSwipedToStartListener: ((source: T) -> Unit)? = null
-    var onItemSwipedToEndListener: ((source: T) -> Unit)? = null
-    var onItemClickListeners: MutableMap<Int, ItemClickListener> = mutableMapOf()
+    private var list: MutableList<T>? = null
 
-    protected val mTouchHelper: ItemTouchHelper
-    private var mRecyclerView: RecyclerView? = null
+    var longPressDragEnabled = false
+
+    //    var itemMoveModeEnabled = false
+    protected open var itemMoveEnabled: Set<Int> = emptySet()
+    protected open var itemSwipeEnabled: Map<Int, Pair<Boolean, Boolean>> = emptyMap()
+    protected open val itemHierarchy: Map<Int, Int> = emptyMap()
+    protected val itemActionListeners: MutableMap<Int, ItemActionListener<T>> = mutableMapOf()
+
+    protected val touchHelper: ItemTouchHelper
+//    private var recyclerView: RecyclerView? = null
 
     init {
-        mTouchHelper = ItemTouchHelper(TouchHelperCallback())
+        touchHelper = ItemTouchHelper(TouchHelperCallback())
 //        setHasStableIds(true)
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-        mTouchHelper.attachToRecyclerView(recyclerView)
-        mRecyclerView = recyclerView
+        touchHelper.attachToRecyclerView(recyclerView)
+//        this.recyclerView = recyclerView
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
-        mRecyclerView = null
+//        this.recyclerView = null
     }
 
     private inner class TouchHelperCallback : ItemTouchHelper.Callback() {
@@ -52,15 +52,15 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
             viewHolder: RecyclerView.ViewHolder
         ): Int {
             val itemType = viewHolder.itemViewType
-            val dragFlags = if (mItemMoveEnabled.contains(itemType))
+            val dragFlags = if (itemMoveEnabled.contains(itemType))
                 ItemTouchHelper.UP or ItemTouchHelper.DOWN
             else
                 0
-            var swipeFlags = if (mItemSwipeEnabled[itemType]?.first == true)
+            var swipeFlags = if (itemSwipeEnabled[itemType]?.first == true)
                 ItemTouchHelper.START
             else
                 0
-            swipeFlags = swipeFlags or if (mItemSwipeEnabled[itemType]?.second == true)
+            swipeFlags = swipeFlags or if (itemSwipeEnabled[itemType]?.second == true)
                 ItemTouchHelper.END
             else
                 0
@@ -84,8 +84,10 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
                 return false
             val sourceItem = source.adapterPosition.run(this@BaseListAdapter::getItem)
             val targetItem = target.adapterPosition.run(this@BaseListAdapter::getItem)
-            onItemMovedListener?.invoke(sourceItem, targetItem)
-            this@BaseListAdapter.notifyItemMoved(source.adapterPosition, target.adapterPosition)
+            itemActionListeners[source.itemViewType]?.onMoveTo(sourceItem, targetItem)
+            list!![source.adapterPosition] = targetItem
+            list!![target.adapterPosition] = sourceItem
+            notifyItemMoved(source.adapterPosition, target.adapterPosition)
             return true
         }
 
@@ -100,8 +102,9 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
             val start = min(current.adapterPosition, target.adapterPosition)
             val end = max(current.adapterPosition, target.adapterPosition)
             for (i in start..end) {
-                if (mItemHierarchy.getOrDefault(getItemViewType(i), 0) <
-                    mItemHierarchy.getOrDefault(getItemViewType(start), 0)) {
+                if (itemHierarchy.getOrDefault(getItemViewType(i), 0) <
+                    itemHierarchy.getOrDefault(getItemViewType(start), 0)
+                ) {
                     return false
                 }
             }
@@ -110,9 +113,10 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val item = viewHolder.adapterPosition.run(this@BaseListAdapter::getItem)
+            val moveListener = itemActionListeners[viewHolder.itemViewType] ?: return
             when (direction) {
-                ItemTouchHelper.START -> onItemSwipedToStartListener?.invoke(item)
-                ItemTouchHelper.END -> onItemSwipedToEndListener?.invoke(item)
+                ItemTouchHelper.START -> moveListener.onSwipeToStart(item)
+                ItemTouchHelper.END -> moveListener.onSwipeToEnd(item)
                 else -> Timber.w("unsupported swipe")
             }
         }
@@ -133,19 +137,24 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
 
     companion object {
         fun <T : ListItem> diffCallback() = object : DiffUtil.ItemCallback<T>() {
-            override fun areItemsTheSame(oldItem: T, newItem: T): Boolean = oldItem::class == newItem::class && oldItem.id == newItem.id
-            override fun areContentsTheSame(oldItem: T, newItem: T): Boolean = oldItem.areContentEquals(newItem)
+            override fun areItemsTheSame(oldItem: T, newItem: T): Boolean =
+                oldItem::class == newItem::class && oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: T, newItem: T): Boolean =
+                oldItem.areContentEquals(newItem)
         }
     }
 
     override fun submitList(list: MutableList<T>?) {
+        this.list = list
         super.submitList(list)
         Timber.d("submit list")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val binding: ViewDataBinding = DataBindingUtil.inflate(layoutInflater, viewType, parent, false)
+        val binding: ViewDataBinding =
+            DataBindingUtil.inflate(layoutInflater, viewType, parent, false)
         return ViewHolder(binding)
     }
 
@@ -155,7 +164,7 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
         getItem(position).let { item ->
             holder.setData(item)
             val itemType = getItemViewType(position)
-            holder.itemView.setOnClickListener { onItemClickListeners[itemType]?.onClick(item) }
+            holder.itemView.setOnClickListener { itemActionListeners[itemType]?.onClick(item) }
         }
     }
 
@@ -171,9 +180,4 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
             binding.executePendingBindings()
         }
     }
-
-    fun interface ItemClickListener {
-        fun onClick(item: ListItem)
-    }
 }
-
