@@ -1,5 +1,6 @@
 package ru.stolexiy.catman.ui.categorylist
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.work.WorkManager
 import dagger.Lazy
@@ -54,6 +55,8 @@ class CategoryListViewModel @AssistedInject constructor(
                 event.firstId,
                 event.secondId
             )
+
+            is CategoryListEvent.Cancel -> cancelCurrentWork()
         }
     }
 
@@ -61,7 +64,7 @@ class CategoryListViewModel @AssistedInject constructor(
         return loadCategoriesWithPurposes()
     }
 
-    override fun setErrorStateWith(errorMsg: Int) {
+    override fun setErrorStateWith(@StringRes errorMsg: Int) {
         updateState(State.Error(errorMsg))
     }
 
@@ -78,7 +81,7 @@ class CategoryListViewModel @AssistedInject constructor(
     private fun deletePurpose(id: Long) {
         updateState(State.Deleting)
         val workRequest = DeletePurposeWorker.createWorkRequest(id)
-        startWork(workRequest, State.Deleted)
+        startWork(workRequest, State.Deleted, State.Canceled)
     }
 
     private fun addPurpose() {
@@ -92,22 +95,23 @@ class CategoryListViewModel @AssistedInject constructor(
         val deletedPurpose = deleteWork.outputData.deserialize(DomainPurpose::class) ?: return
         updateState(State.Adding)
         val workRequest = AddPurposeWorker.createWorkRequest(deletedPurpose)
-        startWork(workRequest, State.Added)
+        startWork(workRequest, State.Added, State.Canceled)
     }
 
     private fun swapPurposesPriority(firstId: Long, secondId: Long) {
         val workRequest = SwapPurposePriorityWorker.createWorkRequest(firstId, secondId)
-        startWork(workRequest, State.Loaded)
+        startWork(workRequest, State.Loaded, State.Canceled)
     }
 
     sealed interface State : IState {
         object Init : State
-        data class Error(val error: Int) : State
+        data class Error(@StringRes val error: Int) : State
         object Loaded : State
         object Deleting : State
         object Deleted : State
         object Adding : State
         object Added : State
+        object Canceled : State
     }
 
     data class Data(

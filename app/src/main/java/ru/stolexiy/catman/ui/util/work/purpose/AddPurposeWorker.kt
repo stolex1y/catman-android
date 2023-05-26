@@ -8,6 +8,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeAddingUseCase
@@ -39,6 +40,7 @@ class AddPurposeWorker @AssistedInject constructor(
     }
 
     override suspend fun calculate(inputArg: DomainPurpose): kotlin.Result<Long> {
+        delay(1000)
         return addPurpose(inputArg).map { it.first() }
     }
 }

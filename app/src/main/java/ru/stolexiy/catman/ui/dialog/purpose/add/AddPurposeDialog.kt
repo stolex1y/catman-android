@@ -4,15 +4,12 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.DialogPurposeAddBinding
-import ru.stolexiy.common.DateUtils.toCalendar
 import ru.stolexiy.catman.ui.dialog.AbstractBottomDialogFragment
 import ru.stolexiy.catman.ui.dialog.adapter.TextWithColorAdapter
 import ru.stolexiy.catman.ui.dialog.custom.DatePicker
@@ -20,9 +17,11 @@ import ru.stolexiy.catman.ui.dialog.purpose.add.di.AddPurposeDialogEntryPoint
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
 import ru.stolexiy.catman.ui.util.di.entryPointAccessors
+import ru.stolexiy.catman.ui.util.fragment.repeatOnParentViewLifecycle
 import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
 import ru.stolexiy.catman.ui.util.fragment.requireParentView
 import ru.stolexiy.catman.ui.util.viewmodel.CustomAbstractSavedStateViewModelFactory.Companion.assistedViewModels
+import ru.stolexiy.common.DateUtils.toCalendar
 import timber.log.Timber
 
 class AddPurposeDialog(
@@ -53,19 +52,10 @@ class AddPurposeDialog(
             purposeDeadlineLayout.setStartIconOnClickListener { chooseDeadline() }
             purposeDeadline.setOnClickListener { chooseDeadline() }
             purposeCategory.onItemClickListener = onCategoryClickListener()
-//            purposeCategory.onItemSelectedListener = onSelectCategoryListener()
             addPurposeButton.setOnClickListener { addPurpose() }
         }
-        repeatOnViewLifecycle {
-            viewModel.state.collect { onNewState(it) }
-        }
-        repeatOnViewLifecycle {
-            viewModel.data.collectLatest { onNewData(it) }
-        }
-        requireParentFragment().viewLifecycleOwner.lifecycleScope.launch {
-            val parentView = requireParentView()
-            viewModel.state.collect { updateSnackbarWithNewState(parentView, it) }
-        }
+        observeData()
+        observeStateWithParentView()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -96,85 +86,73 @@ class AddPurposeDialog(
             ?.remove<Purpose>(ADDING_PURPOSE)
     }
 
-    private fun onNewState(newState: AddPurposeViewModel.State) {
-        when (newState) {
-            AddPurposeViewModel.State.Init -> {
-                Toast.makeText(requireContext(), "Loading...", Toast.LENGTH_SHORT).show()
-            }
+    private fun observeStateWithParentView() {
+        val parentView = requireParentView()
+        repeatOnParentViewLifecycle {
+            viewModel.state.collect { newState ->
+                when (newState) {
+                    AddPurposeViewModel.State.Adding -> showAddingPurposeSnackbar(parentView)
 
-            AddPurposeViewModel.State.Loaded -> {
-                Toast.makeText(requireContext(), "Loaded...", Toast.LENGTH_SHORT).show()
-            }
+                    AddPurposeViewModel.State.Added -> showAddedPurposeSnackbar(parentView)
 
-            is AddPurposeViewModel.State.Error -> {
-                Toast.makeText(
-                    requireContext(),
-                    "Error... ${getString(newState.error)}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+                    AddPurposeViewModel.State.Deleting -> showCancellingSnackbar(parentView)
 
-            else -> {}
+                    AddPurposeViewModel.State.Deleted -> showCancelledSnackbar(parentView)
+
+                    AddPurposeViewModel.State.Canceled -> showCancelledSnackbar(parentView)
+
+                    else -> {}
+                }
+            }
         }
     }
 
-    private fun onNewData(data: AddPurposeViewModel.Data) {
-        val categories = data.categories
-        binding.purposeCategory.setAdapter(
-            TextWithColorAdapter(categories, requireContext()) {
-                TextWithColorAdapter.Item(it.id, it.color, it.name)
-            }
-        )
-        if (categories.isNotEmpty()) {
-            val selected = addingPurpose.category.get() ?: categories.first()
-            val selectedIdx = categories.indexOf(selected).takeIf { it >= 0 } ?: 0
-            binding.purposeCategory.listSelection = selectedIdx
+    private fun showAddingPurposeSnackbar(parentView: View) {
+        entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+            setAction(R.string.cancel) { viewModel.dispatchEvent(AddPurposeEvent.Cancel) }
+            setText(R.string.purpose_adding)
+            duration = Snackbar.LENGTH_INDEFINITE
         }
     }
 
-    private fun updateSnackbarWithNewState(
-        parentView: View,
-        newState: AddPurposeViewModel.State
-    ) {
-        when (newState) {
-            AddPurposeViewModel.State.Adding -> {
-                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
-                    setText(R.string.purpose_adding)
-                    setAction(R.string.cancel) {
-                        viewModel.dispatchEvent(AddPurposeEvent.Cancel)
+    private fun showAddedPurposeSnackbar(parentView: View) {
+        entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+            setAction(R.string.cancel) { viewModel.dispatchEvent(AddPurposeEvent.DeleteAdded) }
+            setText(R.string.purpose_added)
+            duration = Snackbar.LENGTH_SHORT
+        }
+    }
+
+    private fun showCancellingSnackbar(parentView: View) {
+        entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+            setText(R.string.cancelling)
+            duration = Snackbar.LENGTH_INDEFINITE
+        }
+    }
+
+    private fun showCancelledSnackbar(parenView: View) {
+        entryPointProvider.snackbarManager().replaceOrAddSnackbar(parenView) {
+            setText(R.string.cancelled)
+            duration = Snackbar.LENGTH_SHORT
+        }
+    }
+
+    private fun observeData() {
+        repeatOnViewLifecycle {
+            viewModel.data.collectLatest { data ->
+                delay(500)
+                val categories = data.categories
+                binding.purposeCategory.setAdapter(
+                    TextWithColorAdapter(categories, requireContext()) {
+                        TextWithColorAdapter.Item(it.id, it.color, it.name)
                     }
-                    duration = Snackbar.LENGTH_INDEFINITE
+                )
+                if (categories.isNotEmpty()) {
+                    val selected = addingPurpose.category.get() ?: categories.first()
+                    val selectedIdx = categories.indexOf(selected).takeIf { it >= 0 } ?: 0
+                    binding.purposeCategory.listSelection = selectedIdx
                 }
             }
-
-            AddPurposeViewModel.State.Added -> {
-                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
-                    setText(R.string.purpose_added)
-                    setAction(R.string.cancel) {
-                        viewModel.dispatchEvent(AddPurposeEvent.DeleteAdded)
-                    }
-                    duration = Snackbar.LENGTH_SHORT
-                }
-            }
-
-            AddPurposeViewModel.State.Deleting -> {
-                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
-                    setText(R.string.purpose_deleting)
-                    setAction(R.string.cancel) {
-                        viewModel.dispatchEvent(AddPurposeEvent.Cancel)
-                    }
-                    duration = Snackbar.LENGTH_INDEFINITE
-                }
-            }
-
-            AddPurposeViewModel.State.Deleted -> {
-                entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
-                    setText(R.string.purpose_deleted)
-                    duration = Snackbar.LENGTH_SHORT
-                }
-            }
-
-            else -> {}
         }
     }
 

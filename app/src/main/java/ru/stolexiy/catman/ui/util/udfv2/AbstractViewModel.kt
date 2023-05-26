@@ -102,7 +102,8 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
 
     protected fun startWork(
         workRequest: WorkRequest,
-        finishState: S
+        finishState: S,
+        canceledState: S
     ) {
         workManager.get().run {
             enqueue(workRequest)
@@ -114,12 +115,17 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
 
                 currentWork.takeWhile { !it.state.isFinished }.collect()
                 val finishedWorkInfo = currentWork.value
-                if (finishedWorkInfo.state == WorkInfo.State.FAILED)
-                    updateState(finishedWorkInfo.outputData.deserialize(Throwable::class)!!)
-                else {
-                    updateState(finishState)
-                    updateState(loadedState)
+                when (finishedWorkInfo.state) {
+                    WorkInfo.State.FAILED ->
+                        updateState(finishedWorkInfo.outputData.deserialize(Throwable::class)!!)
+
+                    WorkInfo.State.CANCELLED ->
+                        updateState(canceledState)
+
+                    else ->
+                        updateState(finishState)
                 }
+                updateState(loadedState)
                 lastFinishedWork = finishedWorkInfo
             }
         }

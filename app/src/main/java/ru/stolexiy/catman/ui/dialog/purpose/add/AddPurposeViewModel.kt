@@ -72,7 +72,7 @@ class AddPurposeViewModel @AssistedInject constructor(
         }
         updateState(State.Adding)
         val workRequest = AddPurposeWorker.createWorkRequest(purpose.toDomainPurpose())
-        startWork(workRequest, State.Added)
+        startWork(workRequest, State.Added, State.Canceled)
     }
 
     private fun deleteAddedPurpose() {
@@ -88,7 +88,7 @@ class AddPurposeViewModel @AssistedInject constructor(
 
         updateState(State.Deleting)
         val workRequest = DeletePurposeWorker.createWorkRequest(addedPurposeId)
-        startWork(workRequest, State.Deleted)
+        startWork(workRequest, State.Deleted, State.Canceled)
     }
 
     private fun getCategories(): Flow<Result<Data>> {
@@ -113,6 +113,7 @@ class AddPurposeViewModel @AssistedInject constructor(
         object Added : State()
         object Deleting : State()
         object Deleted : State()
+        object Canceled : State()
     }
 
     data class Data(

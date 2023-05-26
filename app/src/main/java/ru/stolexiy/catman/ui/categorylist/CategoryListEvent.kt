@@ -7,4 +7,5 @@ sealed interface CategoryListEvent : IEvent {
     data class Delete(val id: Long) : CategoryListEvent
     object Add : CategoryListEvent
     data class SwapPriority(val firstId: Long, val secondId: Long) : CategoryListEvent
+    object Cancel : CategoryListEvent
 }

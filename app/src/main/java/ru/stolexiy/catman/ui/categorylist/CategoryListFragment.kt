@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,60 +65,54 @@ internal class CategoryListFragment : Fragment() {
         observeState()
     }
 
-    private fun observeData() {
-        repeatOnViewLifecycle {
-            viewModel.data.collectLatest {
-                handleNewData(it)
-            }
-        }
-    }
-
     private fun observeState() {
         repeatOnViewLifecycle {
-            viewModel.state.collect {
-                handleState(it)
+            viewModel.state.collect { state ->
+                when (state) {
+                    is CategoryListViewModel.State.Error -> onError(state.error)
+                    is CategoryListViewModel.State.Init -> {}
+                    is CategoryListViewModel.State.Loaded -> {}
+                    is CategoryListViewModel.State.Deleting -> showDeletingPurposeSnackbar()
+                    is CategoryListViewModel.State.Deleted -> showDeletedPurposeSnackbar()
+                    is CategoryListViewModel.State.Added -> showCancelledSnackbar()
+                    is CategoryListViewModel.State.Adding -> showCancellingSnackbar()
+                    is CategoryListViewModel.State.Canceled -> showCancelledSnackbar()
+                }
             }
         }
     }
 
-    private fun handleState(state: CategoryListViewModel.State) {
-        when (state) {
-            is CategoryListViewModel.State.Error -> onError()
-            is CategoryListViewModel.State.Init -> onLoading()
-            is CategoryListViewModel.State.Loaded -> {}
-            is CategoryListViewModel.State.Deleting -> showDeletingSnackbar()
-            is CategoryListViewModel.State.Deleted -> showDeletedSnackbar()
-            is CategoryListViewModel.State.Added -> showAddedSnackbar()
-            is CategoryListViewModel.State.Adding -> showAddingSnackbar()
+    private fun observeData() {
+        repeatOnViewLifecycle {
+            viewModel.data.collectLatest { data ->
+                listAdapter.submitList(data.categories.toMutableList())
+            }
         }
     }
 
-    private fun handleNewData(data: CategoryListViewModel.Data) =
-        listAdapter.submitList(data.categories.toMutableList())
-
-    private fun onLoading() {
-//        Toast.makeText(requireContext(), "Data is loading...", Toast.LENGTH_LONG).show()
+    private fun onError(@StringRes msg: Int) {
+        snackbarManager.addSnackbar(requireView()) {
+            setText(msg)
+            duration = Snackbar.LENGTH_INDEFINITE
+        }
     }
 
-    private fun onError() {
-        Toast.makeText(requireContext(), "Error...", Toast.LENGTH_LONG).show()
-    }
-
-    private fun showDeletingSnackbar() {
+    private fun showDeletingPurposeSnackbar() {
         snackbarManager.replaceOrAddSnackbar(requireView()) {
+            setAction(R.string.cancel) { viewModel.dispatchEvent(CategoryListEvent.Cancel) }
             setText(R.string.purpose_deleting)
             duration = Snackbar.LENGTH_INDEFINITE
         }
     }
 
-    private fun showAddingSnackbar() {
+    private fun showCancellingSnackbar() {
         snackbarManager.replaceOrAddSnackbar(requireView()) {
             setText(R.string.cancelling)
             duration = Snackbar.LENGTH_INDEFINITE
         }
     }
 
-    private fun showDeletedSnackbar() {
+    private fun showDeletedPurposeSnackbar() {
         snackbarManager.replaceOrAddSnackbar(requireView()) {
             setAction(R.string.cancel) { viewModel.dispatchEvent(CategoryListEvent.Add) }
             setText(R.string.purpose_deleted)
@@ -126,7 +120,7 @@ internal class CategoryListFragment : Fragment() {
         }
     }
 
-    private fun showAddedSnackbar() {
+    private fun showCancelledSnackbar() {
         snackbarManager.replaceOrAddSnackbar(requireView()) {
             setText(R.string.cancelled)
             duration = Snackbar.LENGTH_SHORT
