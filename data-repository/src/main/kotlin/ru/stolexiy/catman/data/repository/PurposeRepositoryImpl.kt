@@ -48,13 +48,13 @@ class PurposeRepositoryImpl @Inject constructor(
 
     override suspend fun update(vararg purposes: DomainPurpose) =
         withContext(dispatcher) {
-            Timber.d("update purposes: ${purposes.map { it.id }}")
+            Timber.d("update purposes with IDs: ${purposes.joinToString { it.id.toString() }}")
             localDao.update(*purposes.toPurposeEntities())
         }
 
     override suspend fun delete(vararg ids: Long) =
         withContext(dispatcher) {
-            Timber.d("delete purposes: $ids")
+            Timber.d("delete purposes: ${ids.toList()}")
             ids.map { get(it).first() }
                 .filterNotNull()
                 .map { launch { localDao.delete(it.toPurposeEntity()) } }

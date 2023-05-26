@@ -64,7 +64,7 @@ class CatmanApplication : BaseApplication() {
             Timber.plant(object : Timber.DebugTree() {
                 override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
                     super.log(
-                        priority, "[$GLOBAL_TAG]" +
+                        priority, "[$GLOBAL_TAG] " +
                                 "$tag | ${Process.getElapsedCpuTime()} ms", message, t
                     )
                 }
@@ -91,7 +91,7 @@ class CatmanApplication : BaseApplication() {
             throw it
         }.getOrThrow()
         if (categories.isEmpty()) {
-            val category1 = DomainCategory("Образование",  DefaultColors.AMARANTH_PINK.rgba)
+            val category1 = DomainCategory("Образование", DefaultColors.AMARANTH_PINK.rgba)
             val category2 = DomainCategory("Работа", DefaultColors.AQUAMARINE.rgba)
             addCategory(category1).onFailure { throw it }
             addCategory(category2).onFailure { throw it }
