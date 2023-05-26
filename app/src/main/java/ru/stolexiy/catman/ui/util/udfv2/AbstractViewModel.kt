@@ -1,5 +1,6 @@
 package ru.stolexiy.catman.ui.util.udfv2
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
@@ -8,6 +9,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +21,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
+import ru.stolexiy.catman.R
 import ru.stolexiy.catman.core.di.CoroutineModule
+import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
 import timber.log.Timber
 import javax.inject.Named
 import javax.inject.Provider
@@ -27,17 +31,24 @@ import kotlin.coroutines.cancellation.CancellationException
 
 abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     initData: D,
-    initState: S,
+    private val initState: S,
     @Named(CoroutineModule.APPLICATION_SCOPE) private val applicationScope: CoroutineScope,
     private val workManager: Provider<WorkManager>,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    protected val _state: MutableStateFlow<S> = MutableStateFlow(initState)
+    private var dataLoadingJob: Job? = null
+
+    private val _state: MutableStateFlow<S> = MutableStateFlow(initState)
     val state: StateFlow<S> = _state.asStateFlow()
 
     private val _data: MutableStateFlow<D> = MutableStateFlow(initData)
-    val data: StateFlow<D> = _data.asStateFlow()
+    val data: StateFlow<D> by lazy {
+        if (dataLoadingJob == null) {
+            Timber.w("Didn't start data loading (call startLoadingData in ${this::class.simpleName})")
+        }
+        _data.asStateFlow()
+    }
 
     private var work: StateFlow<WorkInfo>? = null
     protected var lastFinishedWork: WorkInfo? = null
@@ -45,8 +56,19 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
 
     protected abstract val loadedState: S
 
-    init {
-        viewModelScope.launch {
+    abstract fun dispatchEvent(event: E)
+
+    protected abstract fun loadData(): Flow<Result<D>>
+
+    protected abstract fun setErrorStateWith(@StringRes errorMsg: Int)
+
+    protected fun startLoadingData() {
+        val currentLoadingJob = dataLoadingJob
+        if (currentLoadingJob != null) {
+            currentLoadingJob.cancel()
+            dataLoadingJob = null
+        }
+        dataLoadingJob = viewModelScope.launch {
             loadData().handleError()
                 .mapNotNull { it.getOrNull() }
                 .collectLatest {
@@ -57,21 +79,30 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
         }
     }
 
-    abstract fun dispatchEvent(event: E)
-
-    protected abstract fun loadData(): Flow<Result<D>>
-
-    protected abstract fun parseError(error: Throwable): S
+    @StringRes
+    protected open fun parseError(error: Throwable): Int {
+        return when (error) {
+            else -> R.string.internal_error
+        }
+    }
 
     protected fun cancelCurrentWork() {
         val currentWork = work?.value ?: return
         workManager.get().cancelWorkById(currentWork.id)
     }
 
+    protected fun updateState(state: S) {
+        _state.value = state
+    }
+
+    protected fun updateState(error: Throwable) {
+        Timber.e(error, "Updated state with error:")
+        setErrorStateWith(parseError(error))
+    }
+
     protected fun startWork(
         workRequest: WorkRequest,
-        finishState: S,
-        errorStateProvider: () -> S
+        finishState: S
     ) {
         workManager.get().run {
             enqueue(workRequest)
@@ -83,10 +114,12 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
 
                 currentWork.takeWhile { !it.state.isFinished }.collect()
                 val finishedWorkInfo = currentWork.value
-                _state.value = if (finishedWorkInfo.state == WorkInfo.State.FAILED)
-                    errorStateProvider()
-                else
-                    finishState
+                if (finishedWorkInfo.state == WorkInfo.State.FAILED)
+                    updateState(finishedWorkInfo.outputData.deserialize(Throwable::class)!!)
+                else {
+                    updateState(finishState)
+                    updateState(loadedState)
+                }
                 lastFinishedWork = finishedWorkInfo
             }
         }
@@ -95,8 +128,7 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     private fun <T> Flow<Result<T>>.handleError(): Flow<Result<T>> {
         return this.onEach {
             if (it.isFailure) {
-                Timber.e(it.exceptionOrNull())
-                _state.value = parseError(it.exceptionOrNull()!!)
+                updateState(it.exceptionOrNull()!!)
                 throw CancellationException()
             }
         }

@@ -8,6 +8,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
+import ru.stolexiy.catman.ui.util.di.FactoryWithSavedStateHandle
+import javax.inject.Provider
 
 @Suppress("UNCHECKED_CAST")
 class CustomAbstractSavedStateViewModelFactory<out T : ViewModel>(
@@ -28,6 +30,17 @@ class CustomAbstractSavedStateViewModelFactory<out T : ViewModel>(
             noinline viewModelProducer: (SavedStateHandle) -> T
         ) = viewModels<T>(ownerProducer) {
             CustomAbstractSavedStateViewModelFactory(this, viewModelProducer, this.arguments)
+        }
+
+        inline fun <reified T : ViewModel, F : FactoryWithSavedStateHandle<T>> Fragment.assistedViewModels(
+            factoryProvider: Provider<F>,
+            noinline ownerProducer: () -> ViewModelStoreOwner = { this }
+        ) = viewModels<T>(ownerProducer) {
+            CustomAbstractSavedStateViewModelFactory(
+                this,
+                { factoryProvider.get().create(it) },
+                this.arguments
+            )
         }
     }
 }

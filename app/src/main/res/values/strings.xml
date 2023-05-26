@@ -40,6 +40,8 @@
     <string name="purpose_deleting">Удаление цели…</string>
     <string name="purpose_deleted">Цель успешно удалена</string>
     <string name="deadline_cant_be_past">Дедлайн не может быть прошедшим</string>
+    <string name="cancelling">Отмена</string>
+    <string name="cancelled">Отменено</string>
 
     <string name="cream">Кремовый</string>
     <string name="aquamarine">Аквамариновый</string>

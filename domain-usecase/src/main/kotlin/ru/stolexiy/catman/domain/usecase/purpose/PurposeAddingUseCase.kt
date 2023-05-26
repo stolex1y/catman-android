@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.repository.purpose.PurposeRepository
+import ru.stolexiy.catman.domain.usecase.purpose.PurposeConstraints.checkDeadlineIsNotPast
 import ru.stolexiy.common.di.CoroutineDispatcherNames
 import javax.inject.Inject
 import javax.inject.Named
@@ -18,14 +19,16 @@ class PurposeAddingUseCase @Inject constructor(
             return Result.success(emptyList())
         return runCatching {
             withContext(dispatcher) {
+                purposes.forEach {
+                    it.checkDeadlineIsNotPast()
+                }
                 purposes.map { purpose ->
                     val lastPurposeInCategory =
                         purposeRepository.getAllByCategoryOrderByPriority(purpose.categoryId)
                             .first()
-                    val nextPriority = lastPurposeInCategory.lastOrNull()?.priority ?: 0
+                    val nextPriority = (lastPurposeInCategory.lastOrNull()?.priority ?: 0) + 1
                     return@map purpose.copy(
                         isFinished = false,
-                        progress = 0,
                         priority = nextPriority
                     )
                 }

@@ -5,7 +5,7 @@
     tools:context="ru.stolexiy.catman.ui.categorylist.CategoryListFragment">
     <data>
         <variable
-            name="viewModel"
+            name="vm"
             type="ru.stolexiy.catman.ui.categorylist.CategoryListViewModel" />
     </data>
 

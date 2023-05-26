@@ -45,6 +45,7 @@ class AddPurposeDialog(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.dispatchEvent(AddPurposeEvent.Load)
         restoreState()
         binding.apply {
             purpose = addingPurpose

@@ -8,7 +8,6 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.stolexiy.catman.R
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
@@ -18,7 +17,7 @@ import ru.stolexiy.catman.ui.dialog.purpose.model.toCategory
 import ru.stolexiy.catman.ui.util.udfv2.AbstractViewModel
 import ru.stolexiy.catman.ui.util.udfv2.IData
 import ru.stolexiy.catman.ui.util.udfv2.IState
-import ru.stolexiy.catman.ui.util.work.WorkUtils.getResult
+import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
 import ru.stolexiy.catman.ui.util.work.purpose.AddPurposeWorker
 import ru.stolexiy.catman.ui.util.work.purpose.DeletePurposeWorker
 import timber.log.Timber
@@ -40,6 +39,10 @@ class AddPurposeViewModel @AssistedInject constructor(
 
     override val loadedState: State = State.Loaded
 
+    init {
+        startLoadingData()
+    }
+
     override fun onCleared() {
         super.onCleared()
         Timber.d("cleared")
@@ -47,6 +50,7 @@ class AddPurposeViewModel @AssistedInject constructor(
 
     override fun dispatchEvent(event: AddPurposeEvent) {
         when (event) {
+            is AddPurposeEvent.Load -> startLoadingData()
             is AddPurposeEvent.Add -> addPurpose(event.purpose)
             is AddPurposeEvent.Cancel -> cancelCurrentWork()
             is AddPurposeEvent.DeleteAdded -> deleteAddedPurpose()
@@ -57,33 +61,34 @@ class AddPurposeViewModel @AssistedInject constructor(
         return getCategories()
     }
 
-    override fun parseError(error: Throwable): State {
-        return when (error) {
-            else -> State.Error(R.string.internal_error)
-        }
+    override fun setErrorStateWith(errorMsg: Int) {
+        updateState(State.Error(errorMsg))
     }
 
     private fun addPurpose(purpose: Purpose) {
-        if (!purpose.isValid || _state.value != State.Loaded) {
-            _state.value = State.Error(R.string.internal_error)
+        if (!purpose.isValid) {
+            updateState(IllegalStateException("Purpose isn't valid: $purpose"))
             return
         }
-        _state.value = State.Adding
+        updateState(State.Adding)
         val workRequest = AddPurposeWorker.createWorkRequest(purpose.toDomainPurpose())
-        startWork(workRequest, State.Added) { State.Error(R.string.internal_error) }
+        startWork(workRequest, State.Added)
     }
 
     private fun deleteAddedPurpose() {
         val addWork = lastFinishedWork
         if (addWork == null) {
-            _state.value = State.Error(R.string.internal_error)
+            updateState(
+                IllegalStateException("Last finished work is null. Can't revert adding result.")
+            )
             return
         }
 
-        _state.value = State.Deleting
-        val addedPurposeId = addWork.outputData.getResult<Long>()
+        val addedPurposeId = addWork.outputData.deserialize(Long::class) ?: return
+
+        updateState(State.Deleting)
         val workRequest = DeletePurposeWorker.createWorkRequest(addedPurposeId)
-        startWork(workRequest, State.Deleted) { State.Error(R.string.internal_error) }
+        startWork(workRequest, State.Deleted)
     }
 
     private fun getCategories(): Flow<Result<Data>> {

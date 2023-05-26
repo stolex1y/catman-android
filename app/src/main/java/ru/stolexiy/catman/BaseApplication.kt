@@ -7,6 +7,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.stolexiy.catman.ui.util.di.entryPointApplicationAccessor
+import timber.log.Timber
 
 open class BaseApplication : Application(), Configuration.Provider {
     private val entryPoint by entryPointApplicationAccessor<BaseApplicationEntryPoint>(
@@ -15,6 +16,13 @@ open class BaseApplication : Application(), Configuration.Provider {
 
     private val workerFactory: HiltWorkerFactory by lazy {
         entryPoint.workerFactory()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        Thread.currentThread().setUncaughtExceptionHandler { _, error ->
+            Timber.e(error, "Uncaught exception:")
+        }
     }
 
     override fun getWorkManagerConfiguration() =

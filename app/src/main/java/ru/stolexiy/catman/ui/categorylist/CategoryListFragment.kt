@@ -6,28 +6,34 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.FragmentCategoryListBinding
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.dialog.purpose.add.AddPurposeDialog
 import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
+import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
+import ru.stolexiy.catman.ui.util.snackbar.SnackbarManager
+import ru.stolexiy.catman.ui.util.viewmodel.CustomAbstractSavedStateViewModelFactory.Companion.assistedViewModels
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
 internal class CategoryListFragment : Fragment() {
 
-    private val viewModel: CategoryListViewModel by viewModels()
-    private val binding: FragmentCategoryListBinding by bindingDelegate()
+    @Inject
+    lateinit var viewModelFactory: CategoryListViewModel.Factory
 
     @Inject
-    lateinit var listAdapter: CategoryListAdapter
+    lateinit var snackbarManager: SnackbarManager
+
+    private val viewModel: CategoryListViewModel by assistedViewModels({ viewModelFactory })
+
+    private val binding: FragmentCategoryListBinding by bindingDelegate()
+
+    private val listAdapter = CategoryListAdapter()
 
     private var addPurposeDialog: AddPurposeDialog? = null
 
@@ -40,17 +46,29 @@ internal class CategoryListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.viewModel = viewModel
+        viewModel.dispatchEvent(CategoryListEvent.Load)
         binding.apply {
+            vm = viewModel
             lifecycleOwner = viewLifecycleOwner
             listAdapter.apply {
                 longPressDragEnabled = true
-                setOnCategoryClickListener { Timber.d("clicked on category ${(it as CategoryListItem.CategoryItem).name}") }
-                setOnPurposeClickListener { Timber.d("clicked on purpose ${(it as CategoryListItem.PurposeItem).name}") }
+                setOnCategoryClickListener {
+                    Timber.d("clicked on category ${(it as CategoryListItem.CategoryItem).name}")
+                }
+                setOnPurposeClickListener {
+                    Timber.d("clicked on purpose ${(it as CategoryListItem.PurposeItem).name}")
+                }
                 onItemSwipedToEndListener = {
-                    Timber.d("${it.javaClass.simpleName} swiped")
+                    Timber.d("delete item with name ${(it as CategoryListItem.PurposeItem).name}")
+                    viewModel.dispatchEvent(CategoryListEvent.Delete(it.id))
                 }
                 onItemMovedListener = { source, target ->
+                    viewModel.dispatchEvent(
+                        CategoryListEvent.SwapPriority(
+                            source.id,
+                            target.id
+                        )
+                    )
                     Timber.d("moved ${source.id} to ${target.id}")
                 }
             }
@@ -59,15 +77,22 @@ internal class CategoryListFragment : Fragment() {
                 showAddPurposeDialog()
             }
         }
+        observeData()
         observeState()
     }
 
+    private fun observeData() {
+        repeatOnViewLifecycle {
+            viewModel.data.collectLatest {
+                handleNewData(it)
+            }
+        }
+    }
+
     private fun observeState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.state.collect {
-                    handleState(it)
-                }
+        repeatOnViewLifecycle {
+            viewModel.state.collect {
+                handleState(it)
             }
         }
     }
@@ -76,12 +101,16 @@ internal class CategoryListFragment : Fragment() {
         when (state) {
             is CategoryListViewModel.State.Error -> onError()
             is CategoryListViewModel.State.Init -> onLoading()
-            is CategoryListViewModel.State.Loaded -> onDataLoaded(state.data)
+            is CategoryListViewModel.State.Loaded -> {}
+            is CategoryListViewModel.State.Deleting -> showDeletingSnackbar()
+            is CategoryListViewModel.State.Deleted -> showDeletedSnackbar()
+            is CategoryListViewModel.State.Added -> showAddedSnackbar()
+            is CategoryListViewModel.State.Adding -> showAddingSnackbar()
         }
     }
 
-    private fun onDataLoaded(data: List<CategoryListItem>) =
-        listAdapter.submitList(data as MutableList<CategoryListItem>)
+    private fun handleNewData(data: CategoryListViewModel.Data) =
+        listAdapter.submitList(data.categories.toMutableList())
 
     private fun onLoading() {
 //        Toast.makeText(requireContext(), "Data is loading...", Toast.LENGTH_LONG).show()
@@ -89,6 +118,35 @@ internal class CategoryListFragment : Fragment() {
 
     private fun onError() {
         Toast.makeText(requireContext(), "Error...", Toast.LENGTH_LONG).show()
+    }
+
+    private fun showDeletingSnackbar() {
+        snackbarManager.replaceOrAddSnackbar(requireView()) {
+            setText(R.string.purpose_deleting)
+            duration = Snackbar.LENGTH_INDEFINITE
+        }
+    }
+
+    private fun showAddingSnackbar() {
+        snackbarManager.replaceOrAddSnackbar(requireView()) {
+            setText(R.string.cancelling)
+            duration = Snackbar.LENGTH_INDEFINITE
+        }
+    }
+
+    private fun showDeletedSnackbar() {
+        snackbarManager.replaceOrAddSnackbar(requireView()) {
+            setAction(R.string.cancel) { viewModel.dispatchEvent(CategoryListEvent.Add) }
+            setText(R.string.purpose_deleted)
+            duration = Snackbar.LENGTH_SHORT
+        }
+    }
+
+    private fun showAddedSnackbar() {
+        snackbarManager.replaceOrAddSnackbar(requireView()) {
+            setText(R.string.cancelled)
+            duration = Snackbar.LENGTH_SHORT
+        }
     }
 
     private fun showAddPurposeDialog() {
