@@ -9,7 +9,7 @@ import android.widget.Filter
 import android.widget.TextView
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.ui.dialog.purpose.model.Category
-import ru.stolexiy.widgets.drawable.ColoredCircle
+import ru.stolexiy.widgets.ColoredCircleView
 
 class TextWithColorAdapter<T>(
     items: List<T>,
@@ -26,7 +26,7 @@ class TextWithColorAdapter<T>(
         val item = getItem(position)!!
         val view: View = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.list_item_with_color, parent, false)
-        view.findViewById<ColoredCircle>(R.id.item_color).apply {
+        view.findViewById<ColoredCircleView>(R.id.item_color).apply {
             circleColor = item.color
         }
         view.findViewById<TextView>(R.id.item_name).apply {

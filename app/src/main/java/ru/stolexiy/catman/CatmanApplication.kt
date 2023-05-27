@@ -91,8 +91,8 @@ class CatmanApplication : BaseApplication() {
             throw it
         }.getOrThrow()
         if (categories.isEmpty()) {
-            val category1 = DomainCategory("Образование", DefaultColors.AMARANTH_PINK.rgba)
-            val category2 = DomainCategory("Работа", DefaultColors.AQUAMARINE.rgba)
+            val category1 = DomainCategory("Образование", DefaultColors.AMARANTH_PINK.argb)
+            val category2 = DomainCategory("Работа", DefaultColors.AQUAMARINE.argb)
             addCategory(category1).onFailure { throw it }
             addCategory(category2).onFailure { throw it }
             categories = getCategory.all().first().getOrNull() ?: return

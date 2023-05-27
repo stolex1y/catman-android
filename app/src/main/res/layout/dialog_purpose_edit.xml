@@ -79,9 +79,8 @@
                 app:layout_constraintEnd_toEndOf="@+id/purpose_name_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_name_layout"
                 app:layout_constraintTop_toBottomOf="@+id/purpose_name_layout"
-                app:startIconDrawable="@drawable/oval_color"
                 app:startIconIsGone="@{purpose.category.asFlow == null}"
-                app:startIconTintColor="@{purpose.category.asFlow.color}">
+                app:startIconColoredCircle="@{purpose.category.asFlow.color}">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/purpose_category"

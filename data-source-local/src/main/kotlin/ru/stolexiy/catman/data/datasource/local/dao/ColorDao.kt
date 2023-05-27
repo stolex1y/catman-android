@@ -10,7 +10,7 @@ abstract class ColorDao : Dao<ColorEntity>() {
     @Query("SELECT * FROM colors")
     abstract fun getAll(): Flow<List<ColorEntity>>
 
-    @Query("SELECT * FROM colors WHERE color_int = :color")
+    @Query("SELECT * FROM colors WHERE color_argb = :color")
     abstract fun get(color: Int): Flow<ColorEntity?>
 
     @Query("DELETE FROM colors")

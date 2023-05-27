@@ -33,16 +33,16 @@ class Category(
             domainCategory: DomainCategory,
             domainColor: DomainColor? = null
         ): Category {
-            val rgba = domainCategory.color
+            val argb = domainCategory.color
             val color = if (domainColor != null) {
                 Color.fromDomainColor(context, domainColor)
-            } else if (DefaultColors.values().map { it.rgba }.contains(rgba)) {
+            } else if (DefaultColors.values().map { it.argb }.contains(argb)) {
                 Color(
-                    rgba,
-                    context.getString(DefaultColors.values().find { it.rgba == rgba }!!.nameRes)
+                    argb,
+                    context.getString(DefaultColors.values().find { it.argb == argb }!!.nameRes)
                 )
             } else {
-                Color.fromUnknownColor(rgba)
+                Color.fromUnknownColor(argb)
             }
             return Category(
                 name = domainCategory.name,

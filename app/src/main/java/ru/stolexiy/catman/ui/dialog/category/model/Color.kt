@@ -16,7 +16,7 @@ data class Color(
 
         fun fromUnknownColor(color: Int) = Color(
             color = color,
-            name = "#${String.format("#%06x", color)}"
+            name = "#${String.format("#%08x", color)}"
         )
     }
 }

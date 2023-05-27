@@ -8,7 +8,7 @@ import ru.stolexiy.catman.domain.model.DomainColor
 
 @Entity(tableName = ColorEntity.TABLE_NAME)
 data class ColorEntity(
-    @PrimaryKey @ColumnInfo(name = "color_int") val color: Int,
+    @PrimaryKey @ColumnInfo(name = "color_argb") val color: Int,
     @ColumnInfo(name = "color_name") @StringRes val name: Int
 ) {
     fun toDomainColor() = DomainColor(color = color, name = name)

@@ -12,7 +12,7 @@ class LocalDatabaseCallback : RoomDatabase.Callback() {
         super.onOpen(db)
         DefaultColors.values().forEach { color ->
             val row = ContentValues().apply {
-                put("color_int", color.rgba)
+                put("color_argb", color.argb)
                 put("color_name", color.nameRes)
             }
             db.insert(ColorEntity.TABLE_NAME, SQLiteDatabase.CONFLICT_IGNORE, row)

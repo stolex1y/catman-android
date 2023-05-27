@@ -14,8 +14,7 @@
         android:id="@+id/item_color"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="15dp"
-        android:src="@drawable/color" />
+        android:layout_marginStart="15dp" />
 
     <TextView
         android:textAppearance="?attr/textAppearanceBody2"

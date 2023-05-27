@@ -10,7 +10,7 @@
     tools:background="@drawable/background_gradient"
     tools:viewBindingIgnore="true">
 
-    <ru.stolexiy.widgets.drawable.ColoredCircle
+    <ru.stolexiy.widgets.ColoredCircleView
         android:id="@+id/item_color"
         android:layout_width="25dp"
         android:layout_height="25dp"

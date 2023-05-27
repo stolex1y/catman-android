@@ -16,10 +16,11 @@
         android:layout_marginTop="20dp"
         tools:background="@color/blue">
 
-        <ru.stolexiy.widgets.drawable.ColoredCircle
+        <ru.stolexiy.widgets.ColoredCircleView
             android:id="@+id/purpose_color"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            tools:circleColor="@color/black"
             app:circleColor="@{data.color}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/category_name"

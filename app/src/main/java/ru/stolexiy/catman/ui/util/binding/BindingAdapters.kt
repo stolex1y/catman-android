@@ -12,6 +12,7 @@ import androidx.core.text.toSpanned
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import ru.stolexiy.widgets.drawable.ColoredCircle
 
 object BindingAdapters {
     @BindingAdapter("isGone")
@@ -30,11 +31,22 @@ object BindingAdapters {
         imageView.drawable.setTint(tintColor)
     }
 
-    @BindingAdapter("startIconTintColor")
+    @BindingAdapter("coloredCircle")
     @JvmStatic
-    fun tintColor(textInputLayout: TextInputLayout, color: Int?) {
-        val tintColor = color ?: Color.TRANSPARENT
-        textInputLayout.startIconDrawable?.setTint(tintColor)
+    fun coloredCircle(imageView: ImageView, color: Int?) {
+        imageView.setImageDrawable(
+            ColoredCircle(
+                imageView.context,
+                color ?: Color.TRANSPARENT
+            )
+        )
+    }
+
+    @BindingAdapter("startIconColoredCircle")
+    @JvmStatic
+    fun coloredCircle(textInputLayout: TextInputLayout, color: Int?) {
+        textInputLayout.startIconDrawable =
+            ColoredCircle(textInputLayout.context, color ?: Color.TRANSPARENT)
     }
 
     @BindingAdapter("startIconIsGone")

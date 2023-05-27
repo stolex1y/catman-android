@@ -13,7 +13,7 @@ import ru.stolexiy.catman.domain.model.DomainCategory
     foreignKeys = [
         ForeignKey(
             entity = ColorEntity::class,
-            parentColumns = ["color_int"],
+            parentColumns = ["color_argb"],
             childColumns = ["category_color"],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE

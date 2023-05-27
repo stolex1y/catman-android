@@ -75,7 +75,7 @@ class AddPurposeDialogTest {
 
     private var testCategory = Category(
         0,
-        DefaultColors.AMARANTH_PINK.rgba,
+        DefaultColors.AMARANTH_PINK.argb,
         UUID.randomUUID().toString()
     )
 
