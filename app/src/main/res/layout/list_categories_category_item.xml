@@ -16,17 +16,15 @@
         android:layout_marginTop="20dp"
         tools:background="@color/blue">
 
-        <ImageView
+        <ru.stolexiy.widgets.drawable.ColoredCircle
             android:id="@+id/purpose_color"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:src="@drawable/color"
-            app:tintColor="@{data.color}"
-            app:layout_constraintBottom_toBottomOf="@+id/category_name"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:circleColor="@{data.color}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/category_name"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/category_name" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/category_name"
@@ -38,7 +36,6 @@
             android:textAlignment="viewStart"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/purpose_color"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Category name" />

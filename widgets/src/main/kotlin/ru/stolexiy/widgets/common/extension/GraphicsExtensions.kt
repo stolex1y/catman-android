@@ -31,7 +31,7 @@ internal object GraphicsExtensions {
     fun Paint.getTextBounds(text: String, bounds: Rect) =
         this.getTextBounds(text, 0, text.length, bounds)
 
-    fun color(r: Int, g: Int, b: Int, a: Float): Int =
+    fun rgba(r: Int, g: Int, b: Int, a: Float): Int =
         ((a * 255.0f + 0.5f).toInt() shl 24) or
                 (r * 255 shl 16) or
                 (g * 255 shl 8) or
