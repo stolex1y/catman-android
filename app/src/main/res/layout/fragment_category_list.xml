@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ru.stolexiy.catman.ui.categorylist.CategoryListFragment">
+
     <data>
+
         <variable
             name="vm"
             type="ru.stolexiy.catman.ui.categorylist.CategoryListViewModel" />
@@ -17,8 +19,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:paddingHorizontal="0dp"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingHorizontal="0dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_task_button"
@@ -27,7 +29,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:maxLines="1"
-                android:outlineProvider="background"
                 android:text="@string/add_task"
                 app:layout_constraintStart_toStartOf="@+id/purpose_list_layout"
                 app:layout_constraintTop_toTopOf="parent" />

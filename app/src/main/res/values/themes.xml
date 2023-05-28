@@ -62,11 +62,11 @@
 
         <item name="textInputOutlinedStyle">@style/TextInputLayout</item>
         <item name="textInputStyle">@style/TextInputLayout</item>
-        <item name="textInputOutlinedExposedDropdownMenuStyle">@style/TextInputLayout.Dropdown</item>
+        <item name="textInputOutlinedExposedDropdownMenuStyle">@style/TextInputLayout.ExposedDropdownMenu</item>
         <item name="editTextStyle">@style/EditText</item>
         <item name="android:editTextStyle">@style/EditText</item>
-        <item name="autoCompleteTextViewStyle">@style/AutoCompleteTextView</item>
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextView</item>
+        <item name="autoCompleteTextViewStyle">@style/EditText</item>
+        <item name="android:autoCompleteTextViewStyle">@style/EditText</item>
         <item name="circularProgressIndicatorStyle">@style/CircularProgressIndicator</item>
 
         <item name="windowActionModeOverlay">true</item>
