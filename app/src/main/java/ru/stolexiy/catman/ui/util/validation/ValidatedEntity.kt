@@ -11,7 +11,7 @@ abstract class ValidatedEntity : Serializable {
 
     protected fun <T> validatedProperty(
         initialValue: T,
-        condition: Condition<T?>
+        condition: Condition<T?> = Conditions.None()
     ): ValidatedProperty<T> =
         ValidatedProperty(initialValue, condition)
 

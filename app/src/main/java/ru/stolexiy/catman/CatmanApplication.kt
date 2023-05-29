@@ -8,13 +8,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.core.di.CoroutineModule
-import ru.stolexiy.catman.core.model.DefaultColors
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.domain.usecase.category.CategoryAddingUseCase
 import ru.stolexiy.catman.domain.usecase.category.CategoryDeletingUseCase
 import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
 import ru.stolexiy.catman.domain.usecase.category.CategoryWithPurposeGettingUseCase
+import ru.stolexiy.catman.domain.usecase.color.ColorGettingUseCase
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeAddingUseCase
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeDeletingUseCase
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeGettingUseCase
@@ -55,6 +55,9 @@ class CatmanApplication : BaseApplication() {
     lateinit var getCategoryWithPurpose: CategoryWithPurposeGettingUseCase
 
     @Inject
+    lateinit var getColor: ColorGettingUseCase
+
+    @Inject
     lateinit var notificationManager: Optional<NotificationManager>
 
     override fun onCreate() {
@@ -87,12 +90,11 @@ class CatmanApplication : BaseApplication() {
     }
 
     private suspend fun fillDatabase() {
-        var categories = getCategory.all().first().onFailure {
-            throw it
-        }.getOrThrow()
+        var categories = getCategory.all().first().getOrThrow()
+        val colors = getColor.all().first().getOrThrow()
         if (categories.isEmpty()) {
-            val category1 = DomainCategory("Образование", DefaultColors.AMARANTH_PINK.argb)
-            val category2 = DomainCategory("Работа", DefaultColors.AQUAMARINE.argb)
+            val category1 = DomainCategory("Образование", colors.first().argb)
+            val category2 = DomainCategory("Работа", colors.last().argb)
             addCategory(category1).onFailure { throw it }
             addCategory(category2).onFailure { throw it }
             categories = getCategory.all().first().getOrNull() ?: return

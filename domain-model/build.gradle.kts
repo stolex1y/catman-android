@@ -1,3 +1,4 @@
+import AppDependencies.androidAnnotation
 import AppDependencies.coroutines
 import AppDependencies.kotlinStdLib
 import AppDependencies.moduleImplementation
@@ -26,4 +27,6 @@ kotlin {
 
 dependencies {
     moduleImplementation("common")
+
+    androidAnnotation()
 }

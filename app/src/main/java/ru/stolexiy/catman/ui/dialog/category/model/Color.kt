@@ -1,22 +1,18 @@
 package ru.stolexiy.catman.ui.dialog.category.model
 
-import android.content.Context
+import androidx.annotation.ColorInt
+import androidx.annotation.StringRes
 import ru.stolexiy.catman.domain.model.DomainColor
 
 data class Color(
-    val color: Int,
-    val name: String
+    @ColorInt val argb: Int,
+    @StringRes val name: Int
 ) {
 
     companion object {
-        fun fromDomainColor(context: Context, domainColor: DomainColor) = Color(
-            color = domainColor.color,
-            name = context.getString(domainColor.name)
-        )
-
-        fun fromUnknownColor(color: Int) = Color(
-            color = color,
-            name = "#${String.format("#%08x", color)}"
+        fun fromDomainColor(domainColor: DomainColor) = Color(
+            argb = domainColor.argb,
+            name = domainColor.name
         )
     }
 }

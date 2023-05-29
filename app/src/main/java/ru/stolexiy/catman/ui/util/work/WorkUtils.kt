@@ -14,10 +14,10 @@ object WorkUtils {
     const val ADD_PURPOSE_NOTIFICATION_ID = 1
     const val UPDATE_PURPOSE_NOTIFICATION_ID = 2
     const val DELETE_PURPOSE_NOTIFICATION_ID = 3
+    const val ADD_CATEGORY_NOTIFICATION_ID = 4
+    const val UPDATE_CATEGORY_NOTIFICATION_ID = 5
+    const val DELETE_CATEGORY_NOTIFICATION_ID = 6
 
-//    private const val ERROR_DATA = "ERROR_DATA"
-//    const val OUTPUT_PRIMITIVE_DATA = "OUTPUT_PRIMITIVE_DATA"
-//    const val OUTPUT_OBJECT_DATA = "OUTPUT_OBJECT_DATA"
     private const val OBJECT_DATA = "OBJECT_DATA"
     private const val PRIMITIVE_DATA = "PRIMITIVE_DATA"
 
@@ -29,13 +29,6 @@ object WorkUtils {
             .setContentText(message)
             .build()
     }
-
-    /*    fun Data.getThrowable(): Throwable {
-            require(this.keyValueMap.containsKey(ERROR_DATA)) {
-                "Invalid data: it doesn't contain error"
-            }
-            return this.keyValueMap[ERROR_DATA] as Throwable
-        }*/
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> Data.deserialize(clazz: KClass<T>): T? {
@@ -61,10 +54,6 @@ object WorkUtils {
             workDataOf(PRIMITIVE_DATA to data)
         }
     }
-
-    /*    fun toOutputError(t: Throwable): Data {
-            return workDataOf(ERROR_DATA to t)
-        }*/
 
     private fun <T> T.needSerializing(): Boolean {
         return when (this) {
