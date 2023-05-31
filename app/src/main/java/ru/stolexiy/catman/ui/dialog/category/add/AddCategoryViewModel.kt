@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.ui.dialog.purpose.add
+package ru.stolexiy.catman.ui.dialog.category.add
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.work.WorkManager
@@ -9,26 +9,26 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.stolexiy.catman.core.di.CoroutineModule
-import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
-import ru.stolexiy.catman.ui.dialog.purpose.model.Category
-import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
+import ru.stolexiy.catman.domain.usecase.color.ColorGettingUseCase
+import ru.stolexiy.catman.ui.dialog.category.model.Category
+import ru.stolexiy.catman.ui.dialog.category.model.Color
 import ru.stolexiy.catman.ui.util.di.FactoryWithSavedStateHandle
 import ru.stolexiy.catman.ui.util.udfv2.AbstractViewModel
 import ru.stolexiy.catman.ui.util.udfv2.IData
 import ru.stolexiy.catman.ui.util.udfv2.IState
 import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
-import ru.stolexiy.catman.ui.util.work.purpose.AddPurposeWorker
-import ru.stolexiy.catman.ui.util.work.purpose.DeletePurposeWorker
+import ru.stolexiy.catman.ui.util.work.category.AddCategoryWorker
+import ru.stolexiy.catman.ui.util.work.category.DeleteCategoryWorker
 import timber.log.Timber
 import javax.inject.Named
 import javax.inject.Provider
 
-class AddPurposeViewModel @AssistedInject constructor(
-    private val getCategory: CategoryGettingUseCase,
+class AddCategoryViewModel @AssistedInject constructor(
+    private val getColor: ColorGettingUseCase,
     workManager: Provider<WorkManager>,
     @Named(CoroutineModule.APPLICATION_SCOPE) applicationScope: CoroutineScope,
     @Assisted savedStateHandle: SavedStateHandle
-) : AbstractViewModel<AddPurposeEvent, AddPurposeViewModel.Data, AddPurposeViewModel.State>(
+) : AbstractViewModel<AddCategoryEvent, AddCategoryViewModel.Data, AddCategoryViewModel.State>(
     Data.EMPTY,
     State.Init,
     applicationScope,
@@ -47,34 +47,34 @@ class AddPurposeViewModel @AssistedInject constructor(
         Timber.d("cleared")
     }
 
-    override fun dispatchEvent(event: AddPurposeEvent) {
+    override fun dispatchEvent(event: AddCategoryEvent) {
         when (event) {
-            is AddPurposeEvent.Load -> startLoadingData()
-            is AddPurposeEvent.Add -> addPurpose(event.purpose)
-            is AddPurposeEvent.Cancel -> cancelCurrentWork()
-            is AddPurposeEvent.DeleteAdded -> deleteAddedPurpose()
+            is AddCategoryEvent.Load -> startLoadingData()
+            is AddCategoryEvent.Add -> addCategory(event.category)
+            is AddCategoryEvent.Cancel -> cancelCurrentWork()
+            is AddCategoryEvent.DeleteAdded -> deleteAddedCategory()
         }
     }
 
     override fun loadData(): Flow<Result<Data>> {
-        return getCategories()
+        return getColors()
     }
 
     override fun setErrorStateWith(errorMsg: Int) {
         updateState(State.Error(errorMsg))
     }
 
-    private fun addPurpose(purpose: Purpose) {
-        if (!purpose.isValid) {
-            updateState(IllegalStateException("Purpose isn't valid: $purpose"))
+    private fun addCategory(category: Category) {
+        if (!category.isValid) {
+            updateState(IllegalStateException("Category isn't valid: $category"))
             return
         }
         updateState(State.Adding)
-        val workRequest = AddPurposeWorker.createWorkRequest(purpose.toDomainPurpose())
+        val workRequest = AddCategoryWorker.createWorkRequest(category.toDomainCategory())
         startWork(workRequest, State.Added, State.Canceled)
     }
 
-    private fun deleteAddedPurpose() {
+    private fun deleteAddedCategory() {
         val addWork = lastFinishedWork
         if (addWork == null) {
             updateState(
@@ -83,24 +83,24 @@ class AddPurposeViewModel @AssistedInject constructor(
             return
         }
 
-        val addedPurposeId = addWork.outputData.deserialize(Long::class) ?: return
+        val addedCategoryId = addWork.outputData.deserialize(Long::class) ?: return
 
         updateState(State.Deleting)
-        val workRequest = DeletePurposeWorker.createWorkRequest(addedPurposeId)
+        val workRequest = DeleteCategoryWorker.createWorkRequest(addedCategoryId)
         startWork(workRequest, State.Deleted, State.Canceled)
     }
 
-    private fun getCategories(): Flow<Result<Data>> {
-        return getCategory.all()
+    private fun getColors(): Flow<Result<Data>> {
+        return getColor.all()
             .map { result ->
-                result.map { domainCategories ->
-                    Data(domainCategories.map { Category.fromDomainCategory(it) })
+                result.map { domainColors ->
+                    Data(domainColors.map { Color.fromDomainColor(it) })
                 }
             }
     }
 
     @AssistedFactory
-    interface Factory : FactoryWithSavedStateHandle<AddPurposeViewModel>
+    interface Factory : FactoryWithSavedStateHandle<AddCategoryViewModel>
 
     sealed class State : IState {
         object Init : State()
@@ -114,7 +114,7 @@ class AddPurposeViewModel @AssistedInject constructor(
     }
 
     data class Data(
-        val categories: List<Category>
+        val colors: List<Color>
     ) : IData {
         companion object {
             @JvmStatic
@@ -122,3 +122,4 @@ class AddPurposeViewModel @AssistedInject constructor(
         }
     }
 }
+

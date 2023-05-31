@@ -7,7 +7,7 @@ import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 
 private const val GET_ALL_WITH_PURPOSE = "SELECT * FROM categories " +
-        "JOIN purposes ON category_id = purpose_category_id"
+        "LEFT JOIN purposes ON category_id = purpose_category_id"
 
 @Dao
 abstract class CategoriesWithPurposesDao {

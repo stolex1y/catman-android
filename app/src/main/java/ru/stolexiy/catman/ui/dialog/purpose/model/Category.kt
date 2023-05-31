@@ -11,6 +11,13 @@ data class Category(
 ) : Serializable {
     @VisibleForTesting
     fun toDomainCategory() = DomainCategory(name = name, color = color, id = id)
-}
 
-fun DomainCategory.toCategory() = Category(id, color, name)
+    companion object {
+        fun fromDomainCategory(category: DomainCategory) =
+            Category(
+                id = category.id,
+                color = category.color,
+                name = category.name
+            )
+    }
+}

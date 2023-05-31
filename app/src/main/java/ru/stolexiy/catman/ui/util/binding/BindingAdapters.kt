@@ -70,12 +70,22 @@ object BindingAdapters {
         autoCompleteTextView.setDropDownBackgroundResource(drawableRes)
     }
 
-    @BindingAdapter("hintAsterisk")
+    @BindingAdapter("addAsteriskToHint")
     @JvmStatic
-    fun addAsteriskToHint(inputLayout: TextInputLayout, color: Int) {
-        val asterisk = '*'
-        val hint = inputLayout.hint.toString() + " " + asterisk
-        inputLayout.hint = hint.colorize(inputLayout.context.getColor(color), asterisk.toString())
+    fun addAsteriskToHint(inputLayout: TextInputLayout, enabled: Boolean) {
+        if (!enabled)
+            return
+        inputLayout.context.theme.obtainStyledAttributes(intArrayOf(com.google.android.material.R.attr.errorTextColor))
+            .apply {
+                try {
+                    val color = getColor(0, 0)
+                    val asterisk = '*'
+                    val hint = inputLayout.hint.toString() + " " + asterisk
+                    inputLayout.hint = hint.colorize(color, asterisk.toString())
+                } finally {
+                    recycle()
+                }
+            }
     }
 
     @BindingAdapter(value = ["textColoring", "textColoringPart"], requireAll = false)

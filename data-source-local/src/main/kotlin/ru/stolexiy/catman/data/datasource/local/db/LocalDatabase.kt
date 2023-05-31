@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import ru.stolexiy.catman.data.datasource.local.dao.CategoriesWithPurposesDao
 import ru.stolexiy.catman.data.datasource.local.dao.CategoryDao
+import ru.stolexiy.catman.data.datasource.local.dao.ColorDao
 import ru.stolexiy.catman.data.datasource.local.dao.PurposeDao
 import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
 import ru.stolexiy.catman.data.datasource.local.model.ColorEntity
@@ -30,6 +31,7 @@ abstract class LocalDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun purposeDao(): PurposeDao
     abstract fun categoriesWithPurposesDao(): CategoriesWithPurposesDao
+    abstract fun colorDao(): ColorDao
 
     companion object {
         const val DATABASE_NAME = "catman-db"

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.collectLatest
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.FragmentCategoryListBinding
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
+import ru.stolexiy.catman.ui.dialog.category.add.AddCategoryDialog
 import ru.stolexiy.catman.ui.dialog.purpose.add.AddPurposeDialog
 import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
 import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
@@ -38,6 +40,8 @@ internal class CategoryListFragment : Fragment() {
 
     private var addPurposeDialog: AddPurposeDialog? = null
 
+    private var addCategoryDialog: AddCategoryDialog? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,6 +64,7 @@ internal class CategoryListFragment : Fragment() {
             addPurposeButton.setOnClickListener {
                 showAddPurposeDialog()
             }
+            setUpCategoryListMenu(categoryListToolbar)
         }
         observeData()
         observeState()
@@ -137,6 +142,16 @@ internal class CategoryListFragment : Fragment() {
         }
     }
 
+    private fun showAddCategoryDialog() {
+        if (addCategoryDialog == null) {
+            addCategoryDialog = AddCategoryDialog(
+                onDestroyDialog = { this@CategoryListFragment.addCategoryDialog = null }
+            ).apply {
+                show(this@CategoryListFragment.childFragmentManager, "ADD_CATEGORY")
+            }
+        }
+    }
+
     private fun categoryActionListener(): ItemActionListener<CategoryListItem> {
         return object : ItemActionListener<CategoryListItem> {
 
@@ -170,5 +185,18 @@ internal class CategoryListFragment : Fragment() {
 
     private fun deletePurpose(id: Long) {
         viewModel.dispatchEvent(CategoryListEvent.Delete(id))
+    }
+
+    private fun setUpCategoryListMenu(toolbar: Toolbar) {
+        toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.dialog_category_add -> {
+                    showAddCategoryDialog()
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 }

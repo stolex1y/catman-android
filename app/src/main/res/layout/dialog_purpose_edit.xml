@@ -4,8 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="ru.stolexiy.catman.R"/>
-        <import type="ru.stolexiy.catman.ui.util.Converters"/>
+
+        <import type="ru.stolexiy.catman.R" />
+
+        <import type="ru.stolexiy.catman.ui.util.Converters" />
+
         <variable
             name="purpose"
             type="ru.stolexiy.catman.ui.dialog.purpose.model.Purpose" />
@@ -50,12 +53,12 @@
                 android:layout_marginEnd="25dp"
                 android:hint="@string/purpose"
                 android:minWidth="100dp"
-                app:validateBy="@{purpose.name}"
+                app:addAsteriskToHint="@{true}"
                 app:boxBackgroundMode="outline"
-                app:hintAsterisk="@{R.color.pink}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dialog_title">
+                app:layout_constraintTop_toBottomOf="@+id/dialog_title"
+                app:validateBy="@{purpose.name}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/purpose_name"
@@ -73,14 +76,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:hint="@string/category"
+                app:addAsteriskToHint="@{true}"
                 app:bindError="@{purpose.category}"
                 app:boxBackgroundMode="outline"
-                app:hintAsterisk="@{R.color.pink}"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_name_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_name_layout"
                 app:layout_constraintTop_toBottomOf="@+id/purpose_name_layout"
-                app:startIconIsGone="@{purpose.category.asFlow == null}"
-                app:startIconColoredCircle="@{purpose.category.asFlow.color}">
+                app:startIconColoredCircle="@{purpose.category.asFlow.color}"
+                app:startIconIsGone="@{purpose.category.asFlow == null}">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/purpose_category"
@@ -100,11 +103,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
+                app:addAsteriskToHint="@{true}"
                 app:bind="@{purpose.deadline.asFlow}"
                 app:bindConverter='@{Converters.calendarToString("dd.MM.yyyy")}'
                 app:bindError="@{purpose.deadline}"
                 app:boxBackgroundMode="outline"
-                app:hintAsterisk="@{R.color.pink}"
                 app:endIconIsGone="@{true}"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_category_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_category_layout"
@@ -129,11 +132,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:hint="@string/description"
-                app:validateBy="@{purpose.description}"
                 app:boxBackgroundMode="outline"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_deadline_layout"
                 app:layout_constraintStart_toStartOf="@id/purpose_deadline_layout"
-                app:layout_constraintTop_toBottomOf="@+id/purpose_deadline_layout">
+                app:layout_constraintTop_toBottomOf="@+id/purpose_deadline_layout"
+                app:validateBy="@{purpose.description}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/purpose_description"
@@ -150,11 +153,11 @@
                 android:layout_marginTop="20dp"
                 android:text="@string/required_field_legend"
                 android:textAlignment="textStart"
-                app:textColoring="@{R.color.pink}"
-                app:textColoringPart='@{"*"}'
                 app:layout_constraintEnd_toEndOf="@+id/purpose_description_layout"
                 app:layout_constraintStart_toStartOf="@+id/purpose_description_layout"
-                app:layout_constraintTop_toBottomOf="@+id/purpose_description_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/purpose_description_layout"
+                app:textColoring="@{R.color.pink}"
+                app:textColoringPart='@{"*"}' />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/delete_purpose_button"
@@ -180,10 +183,10 @@
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="30dp"
                 android:contentDescription="@string/save"
-                android:text="@string/save"
+                android:enabled="@{purpose.isValidAsFlow}"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                android:enabled="@{purpose.isValidAsFlow}"
+                android:text="@string/save"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

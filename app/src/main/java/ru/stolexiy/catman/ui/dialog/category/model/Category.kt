@@ -1,6 +1,5 @@
 package ru.stolexiy.catman.ui.dialog.category.model
 
-import android.content.Context
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainColor
 import ru.stolexiy.catman.ui.util.DefaultConditions
@@ -16,9 +15,8 @@ class Category(
     var name: ValidatedProperty<String> = validatedProperty(name, DefaultConditions.notEmpty())
     var color: ValidatedProperty<Color?> = validatedProperty(color, DefaultConditions.notNull())
 
-    fun toDomainCategory() {
-        require(isValid) { "Can't convert to domain category, this category must be valid!" }
-        DomainCategory(
+    fun toDomainCategory(): DomainCategory {
+        return DomainCategory(
             name = name.get(),
             color = color.get()!!.argb,
             id = id,
@@ -28,7 +26,6 @@ class Category(
 
     companion object {
         fun fromDomainCategory(
-            context: Context,
             domainCategory: DomainCategory,
             domainColor: DomainColor
         ) = Category(

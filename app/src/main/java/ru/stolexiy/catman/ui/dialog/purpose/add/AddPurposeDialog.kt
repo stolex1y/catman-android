@@ -6,14 +6,14 @@ import android.view.View
 import android.widget.AdapterView
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.DialogPurposeAddBinding
 import ru.stolexiy.catman.ui.dialog.AbstractBottomDialogFragment
-import ru.stolexiy.catman.ui.dialog.adapter.TextWithColorAdapter
 import ru.stolexiy.catman.ui.dialog.custom.DatePicker
 import ru.stolexiy.catman.ui.dialog.purpose.add.di.AddPurposeDialogEntryPoint
+import ru.stolexiy.catman.ui.dialog.purpose.model.Category
+import ru.stolexiy.catman.ui.dialog.purpose.model.CategoryNameWithColorAdapter
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
 import ru.stolexiy.catman.ui.util.di.entryPointAccessors
@@ -33,7 +33,7 @@ class AddPurposeDialog(
     private val entryPointProvider: AddPurposeDialogEntryPoint by entryPointAccessors()
 
     private val viewModel: AddPurposeViewModel by assistedViewModels<AddPurposeViewModel> {
-        entryPointProvider.assistedViewModelFactory().create(it)
+        entryPointProvider.addPurposeViewModelFactory().create(it)
     }
 
     private val binding: DialogPurposeAddBinding by bindingDelegate()
@@ -140,12 +140,9 @@ class AddPurposeDialog(
     private fun observeData() {
         repeatOnViewLifecycle {
             viewModel.data.collectLatest { data ->
-                delay(500)
                 val categories = data.categories
                 binding.purposeCategory.setAdapter(
-                    TextWithColorAdapter(categories, requireContext()) {
-                        TextWithColorAdapter.Item(it.id, it.color, it.name)
-                    }
+                    CategoryNameWithColorAdapter(categories, requireContext())
                 )
                 if (categories.isNotEmpty()) {
                     val selected = addingPurpose.category.get() ?: categories.first()
@@ -183,8 +180,7 @@ class AddPurposeDialog(
 
     private fun onCategoryClickListener() =
         AdapterView.OnItemClickListener { parent, _, position, _ ->
-            val selection =
-                (parent!!.getItemAtPosition(position) as TextWithColorAdapter.Item).toCategory()
+            val selection = parent!!.getItemAtPosition(position) as Category
             addingPurpose.category.set(selection)
             binding.purposeCategory.setText(selection.name)
         }

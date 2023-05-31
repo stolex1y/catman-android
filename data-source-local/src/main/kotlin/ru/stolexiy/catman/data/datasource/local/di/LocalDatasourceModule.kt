@@ -6,10 +6,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ru.stolexiy.catman.data.datasource.local.db.LocalDatabase
 import ru.stolexiy.catman.data.datasource.local.dao.CategoriesWithPurposesDao
 import ru.stolexiy.catman.data.datasource.local.dao.CategoryDao
+import ru.stolexiy.catman.data.datasource.local.dao.ColorDao
 import ru.stolexiy.catman.data.datasource.local.dao.PurposeDao
+import ru.stolexiy.catman.data.datasource.local.db.LocalDatabase
 import javax.inject.Singleton
 
 @Module
@@ -39,6 +40,12 @@ interface LocalDatasourceModule {
         @Singleton
         fun localCategoriesWithPurposesDao(localDatabase: LocalDatabase): CategoriesWithPurposesDao {
             return localDatabase.categoriesWithPurposesDao()
+        }
+
+        @Provides
+        @Singleton
+        fun localColorDao(localDatabase: LocalDatabase): ColorDao {
+            return localDatabase.colorDao()
         }
     }
 }
