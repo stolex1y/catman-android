@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="progressIndicatorWidth">4dp</dimen>
+    <dimen name="progressIndicatorShadowRadius">3dp</dimen>
+    <dimen name="progressTrackWidth">2dp</dimen>
+    <dimen name="progressTextSize">10sp</dimen>
+</resources>

@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="transparent">#00000000</color>
-    <color name="deep_blue">#252F4A</color>
+    <color name="deepBlue">#252F4A</color>
     <color name="blue">#414D77</color>
-    <color name="dirty_white">#E0E3FF</color>
-    <color name="light_blue">#48C6EF</color>
-    <color name="violet_blue">#6F86D6</color>
+    <color name="dirtyWhite">#E0E3FF</color>
+    <color name="lightBlue">#48C6EF</color>
+    <color name="violetBlue">#6F86D6</color>
     <color name="violet">#9380EC</color>
+    <color name="violetPink">#C680EC</color>
+    <color name="violetShadow">#66D293FF</color>
     <color name="pink">#F975B1</color>
-    <color name="pink_light">#669380EC</color>
-    <color name="dirty_white_half_opacity">#7FE0E3FF</color>
+    <color name="pinkLight">#669380EC</color>
+    <color name="dirtyWhiteHalfOpacity">#7FE0E3FF</color>
     <color name="white">#FFFFFF</color>
+    <color name="progressTrack">#33ffffff</color>
 </resources>

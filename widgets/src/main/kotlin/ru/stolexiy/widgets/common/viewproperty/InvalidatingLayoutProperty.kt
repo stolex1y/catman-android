@@ -28,6 +28,7 @@ internal class InvalidatingLayoutProperty<T>(
     }
 
     fun interface Listener {
+        @MainThread
         fun onLayoutInvalidation()
     }
 }

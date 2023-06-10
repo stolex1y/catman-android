@@ -25,10 +25,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.core.model.DefaultColors
 import ru.stolexiy.catman.domain.usecase.category.CategoryAddingUseCase
 import ru.stolexiy.catman.domain.usecase.category.CategoryDeletingUseCase
 import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
+import ru.stolexiy.catman.domain.usecase.color.ColorGettingUseCase
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeAddingUseCase
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeDeletingUseCase
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeGettingUseCase
@@ -71,13 +71,12 @@ class AddPurposeDialogTest {
     lateinit var addPurpose: PurposeAddingUseCase
 
     @Inject
+    lateinit var getColor: ColorGettingUseCase
+
+    @Inject
     lateinit var workManager: WorkManager
 
-    private var testCategory = Category(
-        0,
-        DefaultColors.AMARANTH_PINK.argb,
-        UUID.randomUUID().toString()
-    )
+    private lateinit var testCategory: Category
 
     private val testPurpose by lazy {
         Purpose(
@@ -98,6 +97,15 @@ class AddPurposeDialogTest {
         hiltRule.inject()
         clearDatabase()
         runBlocking {
+            val color = getColor.all().first()
+                .getOrThrow().shuffled().first()
+
+            testCategory = Category(
+                0,
+                color.argb,
+                UUID.randomUUID().toString()
+            )
+
             addCategory(testCategory.toDomainCategory()).onSuccess {
                 testCategory = testCategory.copy(id = it.first())
             }

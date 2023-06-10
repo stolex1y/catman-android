@@ -11,5 +11,6 @@ data class DomainTask(
     val isFinished: Boolean = false,
     val progress: Int = 0,
     val priority: Int = 0,
-    val id: Long = 0
+    val id: Long = 0,
+    val timeCosts: Long = 0
 ) : Serializable

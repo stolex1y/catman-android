@@ -2,6 +2,7 @@ package ru.stolexiy.widgets
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.PointF
@@ -13,6 +14,10 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.VisibleForTesting
+import androidx.core.content.res.getColorOrThrow
+import androidx.core.content.res.getDimensionOrThrow
+import androidx.core.content.res.getIntOrThrow
+import ru.stolexiy.widgets.ProgressView.TextCalculator
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingLayoutProperty
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingProperty
@@ -20,49 +25,170 @@ import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.properties.Delegates
 
 open class ProgressView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr), InvalidatingProperty.Listener,
+) : View(context, attrs, 0, 0), InvalidatingProperty.Listener,
     InvalidatingLayoutProperty.Listener {
 
-    companion object {
-        private const val DEFAULT_TEXT_SIZE: Float = 128f
-        private const val DEFAULT_TEXT_COLOR: Int = 0xFFE0E3FF.toInt()
+    private val _fillingUp: Boolean
 
+    @ColorInt
+    private val _progressStartColor: Int
+
+    @ColorInt
+    private val _progressMidColor: Int
+
+    @ColorInt
+    private val _progressEndColor: Int
+
+    @ColorInt
+    private val _progressShadowColor: Int
+    private val _progressShadowRadius: Float
+    private val _progressWidth: Float
+    private val _clockwise: Boolean
+
+    @ColorInt
+    private val _textColor: Int
+    private val _textSize: Float
+    private val _textTypeface: Typeface
+    private val _textMaxLen: Int
+
+    private val _trackWidth: Float
+
+    @ColorInt
+    private val _trackColor: Int
+
+    init {
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.ProgressView,
+            R.attr.ay_progressViewStyle,
+            R.style.AY_ProgressView
+        ).apply {
+            try {
+                _fillingUp = getBoolean(R.styleable.ProgressView_ay_fillingUp, true)
+                _clockwise = getBoolean(R.styleable.ProgressView_ay_clockwise, true)
+                val progressColor =
+                    getColor(R.styleable.ProgressView_ay_progressColor, Color.TRANSPARENT)
+                _progressStartColor =
+                    getColor(R.styleable.ProgressView_ay_progressStartColor, progressColor)
+                _progressMidColor =
+                    getColor(R.styleable.ProgressView_ay_progressMidColor, _progressStartColor)
+                _progressEndColor =
+                    getColor(R.styleable.ProgressView_ay_progressEndColor, _progressMidColor)
+                _progressWidth = getDimension(R.styleable.ProgressView_ay_progressWidth, 50f)
+                _progressShadowColor =
+                    getColor(R.styleable.ProgressView_ay_progressColor, Color.TRANSPARENT)
+                _progressShadowRadius =
+                    getDimension(R.styleable.ProgressView_ay_progressShadowRadius, 30f)
+                _trackColor =
+                    getColor(R.styleable.ProgressView_ay_trackColor, Color.TRANSPARENT)
+                _trackWidth = getDimension(R.styleable.ProgressView_ay_trackWidth, 0f)
+                _textColor = getColorOrThrow(R.styleable.ProgressView_android_textColor)
+                _textSize = getDimensionOrThrow(R.styleable.ProgressView_android_textSize)
+                _textTypeface = getFont(R.styleable.ProgressView_android_fontFamily)
+                    ?: Typeface.MONOSPACE
+                _textMaxLen = getIntOrThrow(R.styleable.ProgressView_ay_textMaxLen)
+            } finally {
+                recycle()
+            }
+        }
     }
 
     /**
      * Filling progress circle (fraction from 0 to 1).
      */
-    var progress: Float by InvalidatingLayoutProperty(0f) { value -> value in 0f..1f }
+    var progress: Float by InvalidatingProperty(0f) { value -> value in 0f..1f }
 
     /**
      * Filling or decreasing progress circle.
      */
-    var fillingUp: Boolean by InvalidatingLayoutProperty(false)
+    var fillingUp: Boolean by InvalidatingProperty(_fillingUp)
+
+    /**
+     * Progress circle linear gradient start color.
+     */
+    @get:ColorInt
+    var progressStartColor: Int by InvalidatingProperty(_progressStartColor)
+
+    /**
+     * Progress circle linear gradient middle color.
+     */
+    @get:ColorInt
+    var progressMidColor: Int by InvalidatingProperty(_progressMidColor)
+
+    /**
+     * Progress circle linear gradient end color.
+     */
+    @get:ColorInt
+    var progressEndColor: Int by InvalidatingProperty(_progressEndColor)
+
+    /**
+     * Progress circle shadow color.
+     */
+    @get:ColorInt
+    var progressShadowColor: Int by InvalidatingProperty(_progressShadowColor)
+
+    /**
+     * Progress circle shadow radius.
+     */
+    var progressShadowRadius: Float by InvalidatingLayoutProperty(_progressShadowRadius)
+
+    /**
+     * Progress circle width.
+     */
+    var progressWidth: Float by InvalidatingLayoutProperty(_progressWidth)
+
+    /**
+     * Progress circle fill or decrease clockwise or counterclockwise.
+     */
+    var clockwise: Boolean by InvalidatingProperty(_clockwise)
+
+    /**
+     * Progress track width.
+     */
+    var trackWidth: Float by InvalidatingProperty(_trackWidth)
+
+    /**
+     * Progress track color.
+     */
+    @get:ColorInt
+    var trackColor: Int by InvalidatingProperty(_trackColor)
 
     /**
      * Text of progress color.
      */
     @get:ColorInt
-    var textColor: Int by InvalidatingProperty(DEFAULT_TEXT_COLOR)
+    var textColor: Int by InvalidatingProperty(_textColor)
 
     /**
      * Text of progress size.
      */
-    var textSize: Float by InvalidatingLayoutProperty(DEFAULT_TEXT_SIZE)
+    var textSize: Float by InvalidatingLayoutProperty(_textSize)
 
     /**
      * Text of progress typeface.
      */
-    var textTypeface: Typeface by InvalidatingLayoutProperty(Typeface.MONOSPACE)
+    var textTypeface: Typeface by InvalidatingLayoutProperty(_textTypeface)
 
-    private val textPaint = Paint().apply {
+    var textCalculator: TextCalculator? by InvalidatingLayoutProperty(null)
+
+    var textMaxLen by InvalidatingLayoutProperty(_textMaxLen) { it > 0 }
+
+    var text: String by InvalidatingLayoutProperty("")
+
+    private var textMaxHeight: Int = 0
+    private var textMaxWidth: Int = 0
+    private val letterBounds = Rect()
+    private val textRect = RectF()
+    private val textBounds = Rect()
+
+    protected val textPaint = Paint().apply {
         this.isAntiAlias = true
         this.isDither = true
         this.color = textColor
@@ -70,52 +196,19 @@ open class ProgressView @JvmOverloads constructor(
         this.typeface = textTypeface
     }
 
-    /**
-     * Progress circle linear gradient start color.
-     */
-    @get:ColorInt
-    var progressStartColor: Int by InvalidatingLayoutProperty(0xFF48C6EF.toInt())
-
-    /**
-     * Progress circle linear gradient middle color.
-     */
-    @get:ColorInt
-    var progressMidColor: Int by InvalidatingLayoutProperty(0xFF48C6EF.toInt())
-
-    /**
-     * Progress circle linear gradient end color.
-     */
-    @get:ColorInt
-    var progressEndColor: Int by InvalidatingLayoutProperty(0xFF6F86D6.toInt())
-
-    /**
-     * Progress circle shadow color.
-     */
-    @get:ColorInt
-    var progressShadowColor: Int by InvalidatingProperty(0x809380EC.toInt())
-
-    /**
-     * Progress circle shadow radius.
-     */
-    var progressShadowRadius: Float by InvalidatingLayoutProperty(30f)
-
-    /**
-     * Progress circle width.
-     */
-    var progressWidth: Float by InvalidatingLayoutProperty(50f)
-
-    /**
-     * Progress circle fill or decrease clockwise or counterclockwise.
-     */
-    var clockwise: Boolean by InvalidatingProperty(true)
-
     private lateinit var progressShader: Shader
 
     private val progressPaint = Paint().apply {
         this.isAntiAlias = true
         this.isDither = true
         this.strokeCap = Paint.Cap.ROUND
-        this.strokeWidth = progressWidth
+        this.style = Paint.Style.STROKE
+    }
+
+    private val progressTrackPaint = Paint().apply {
+        this.isAntiAlias = true
+        this.isDither = true
+        this.style = Paint.Style.STROKE
     }
 
     // Service variables
@@ -129,89 +222,77 @@ open class ProgressView @JvmOverloads constructor(
     var filledSector: Float = 0f
         private set
 
-    // -- text
-    var text: String by InvalidatingLayoutProperty("")
-    private val textContainerRect = RectF()
-    private val textBounds = Rect().also { bounds ->
-        textPaint.getTextBounds("000", bounds)
-    }
-    private var textHeight: Int = textBounds.height()
-
     init {
-//        context.theme.obtainStyledAttributes(
-//            attrs,
-//            R.styleable.TimerView,
-//            0,
-//            0
-//        )
+        onInvalidation()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
-        canvas.run(::drawCircle)
-            .run(::drawText)
+        canvas.apply {
+            drawCircle()
+            drawProgressText()
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         Timber.v("onMeasure width: ${MeasureSpec.toString(widthMeasureSpec)}")
         Timber.v("onMeasure height: ${MeasureSpec.toString(heightMeasureSpec)}")
 
-        val reqMinW: Int = paddingLeft + paddingRight +
-                getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
-        val reqMinH: Int = paddingTop + paddingBottom +
-                getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
-
         val (minW: Int, minH: Int) = calcMinSize()
         Timber.v("min width: $minW")
         Timber.v("min height: $minH")
 
-        val w: Int = resolveSizeAndState(max(reqMinW, minW), widthMeasureSpec, 1)
-        val h: Int = resolveSizeAndState(max(reqMinH, minH), heightMeasureSpec, 1)
+        val w: Int = resolveSizeAndState(minW, widthMeasureSpec, 1)
+        val h: Int = resolveSizeAndState(minH, heightMeasureSpec, 1)
 
+        Timber.v("onMeasure result width: ${MeasureSpec.toString(w)}")
+        Timber.v("onMeasure result height: ${MeasureSpec.toString(h)}")
         setMeasuredDimension(w, h)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
+        val circleWidthWithShadow = progressWidth + 2 * progressShadowRadius
         circleInnerRadius = (min(w, h) -
                 maxOf(paddingLeft, paddingRight, paddingBottom, paddingTop)) / 2f -
-                progressWidth -
-                progressShadowRadius
-        circleOuterRadius = circleInnerRadius + progressWidth + progressShadowRadius
+                circleWidthWithShadow
+        circleOuterRadius = circleInnerRadius + circleWidthWithShadow
         circleCenter.apply {
-            x = paddingLeft + circleOuterRadius
+            x = paddingStart + circleOuterRadius
             y = paddingTop + circleOuterRadius
         }
         // circle rect to draw
         circleRect.apply {
-            left = circleCenter.x - circleOuterRadius + progressWidth / 2f + progressShadowRadius
-            top = circleCenter.y - circleOuterRadius + progressWidth / 2f + progressShadowRadius
-            right = circleCenter.x + circleOuterRadius - progressWidth / 2f - progressShadowRadius
-            bottom = circleCenter.y + circleOuterRadius - progressWidth / 2f - progressShadowRadius
+            left = circleCenter.x - circleOuterRadius + circleWidthWithShadow / 2f
+            top = circleCenter.y - circleOuterRadius + circleWidthWithShadow / 2f
+            right = circleCenter.x + circleOuterRadius - circleWidthWithShadow / 2f
+            bottom = circleCenter.y + circleOuterRadius - circleWidthWithShadow / 2f
         }
 
-        val textOffsetFromCenterX =
-            sqrt(circleInnerRadius.pow(2) - (textHeight / 2f).pow(2))
-        textContainerRect.apply {
-            left = circleCenter.x - textOffsetFromCenterX
-            top = circleCenter.y - textHeight / 2f
-            right = circleCenter.x + textOffsetFromCenterX
-            bottom = circleCenter.y + textHeight / 2f
+        textRect.apply {
+            left = circleCenter.x - textMaxWidth / 2f
+            right = circleCenter.x + textMaxWidth / 2f
+            top = circleCenter.y - textMaxHeight / 2f
+            bottom = circleCenter.y + textMaxHeight / 2f
         }
-
-        onPropertyInvalidation()
     }
 
     override fun onPropertyInvalidation() {
-        configurePaints()
+        onInvalidation()
         invalidate()
     }
 
     override fun onLayoutInvalidation() {
-        onPropertyInvalidation()
+        onInvalidation()
         requestLayout()
+    }
+
+    private fun onInvalidation() {
+        updateFilledSector()
+        updateMaxTextBounds()
+        updateText()
+        configurePaints()
     }
 
     private fun configurePaints() {
@@ -231,8 +312,12 @@ open class ProgressView @JvmOverloads constructor(
         progressPaint.apply {
             this.shader = progressShader
             this.strokeWidth = progressWidth
-            this.style = Paint.Style.STROKE
             setShadowLayer(progressShadowRadius, 0f, 0f, progressShadowColor)
+        }
+
+        progressTrackPaint.apply {
+            this.strokeWidth = trackWidth
+            this.color = trackColor
         }
 
         textPaint.apply {
@@ -242,27 +327,19 @@ open class ProgressView @JvmOverloads constructor(
         }
     }
 
-    private fun drawCircle(canvas: Canvas): Canvas {
-        updateFilledSector()
-        return canvas.apply {
-            drawArc(circleRect, -90f, filledSector, false, progressPaint)
-        }
+    private fun Canvas.drawCircle() {
+        drawCircle(
+            circleRect.centerX(), circleRect.centerY(),
+            circleRect.width() / 2f,
+            progressTrackPaint
+        )
+        drawArc(circleRect, -90f, filledSector, false, progressPaint)
     }
 
-    private fun drawText(canvas: Canvas): Canvas =
-        canvas.apply {
-            drawText(
-                text,
-                textContainerRect.centerX() - textBounds.width() / 2f,
-                textContainerRect.centerY() + textHeight / 2f,
-                textPaint
-            )
-        }
-
     private fun calcMinSize(): Pair<Int, Int> {
-        textPaint.getTextBounds(text, textBounds)
-        val minW = textBounds.width() + 2 * progressWidth + progressShadowRadius * 2
-        return minW.toInt() to minW.toInt()
+        val innerRadius = sqrt((textMaxWidth / 2f).pow(2) + (textMaxHeight / 2f).pow(2))
+        val minW = (progressWidth + 2 * progressShadowRadius + innerRadius) * 2
+        return max(minimumWidth, minW.toInt()) to max(minimumHeight, minW.toInt())
     }
 
     private fun updateFilledSector() {
@@ -273,5 +350,37 @@ open class ProgressView @JvmOverloads constructor(
 
         if (!clockwise)
             filledSector *= -1
+    }
+
+    private fun updateMaxTextBounds() {
+        textPaint.getTextBounds("M", letterBounds)
+        textMaxWidth = letterBounds.width() * (textMaxLen + 1)
+        textMaxHeight = letterBounds.height()
+    }
+
+    protected open fun Canvas.drawProgressText() {
+        textPaint.getTextBounds(text, textBounds)
+        drawText(
+            text,
+            textRect.centerX() - textBounds.width() / 2f,
+            textRect.centerY() + textBounds.height() / 2f,
+            textPaint
+        )
+    }
+
+    private fun updateText() {
+        textCalculator?.let {
+            text = it.calc(progress)
+        }
+    }
+
+    fun interface TextCalculator {
+
+        fun calc(progress: Float): String
+
+        companion object {
+            val PERCENT: TextCalculator =
+                TextCalculator { progress -> "${(progress * 100).roundToInt()}%" }
+        }
     }
 }

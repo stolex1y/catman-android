@@ -19,6 +19,7 @@ import AppDependencies.material
 import AppDependencies.moduleAndroidTestImplementation
 import AppDependencies.moduleImplementation
 import AppDependencies.navigation
+import AppDependencies.preference
 import AppDependencies.timberAndroid
 import AppDependencies.workManager
 import modules.AppModuleConfig
@@ -80,10 +81,10 @@ android {
 dependencies {
     moduleImplementation(Modules.WIDGETS)
     moduleImplementation(Modules.COMMON)
-    moduleAndroidTestImplementation(Modules.COMMON_TEST)
     moduleImplementation(Modules.DOMAIN_USECASE)
     moduleImplementation(Modules.DOMAIN_MODEL)
     moduleImplementation(Modules.DATA_REPOSITORY)
+    moduleAndroidTestImplementation(Modules.COMMON_TEST)
 
     kotlinStdLib()
     androidCoreKtx()
@@ -106,4 +107,5 @@ dependencies {
     navigation()
     workManager()
     gson()
+    preference()
 }

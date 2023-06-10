@@ -28,6 +28,7 @@ internal object DependencyVersion {
     const val hiltAndroidCompiler = "1.0.0"
     const val hiltNavigation = "1.0.0"
     const val gson = "2.10.1"
+    const val preference = "1.2.0"
 
     //test
     const val junit4 = "4.13.2"

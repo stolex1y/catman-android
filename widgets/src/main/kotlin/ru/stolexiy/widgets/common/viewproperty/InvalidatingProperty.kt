@@ -28,6 +28,7 @@ internal class InvalidatingProperty<T>(
     }
 
     fun interface Listener {
+        @MainThread
         fun onPropertyInvalidation()
     }
 }

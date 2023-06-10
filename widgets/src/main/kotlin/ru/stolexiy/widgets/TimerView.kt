@@ -27,7 +27,7 @@ class TimerView @JvmOverloads constructor(
         }
     }
 
-    private val progressView = ProgressView(context, attrs, defStyleAttr)
+    private val progressView = ProgressView(context, attrs)
 
     private val timerListener = TimerListener()
 
@@ -71,7 +71,7 @@ class TimerView @JvmOverloads constructor(
 
     @MainThread
     private fun updateText() {
-        progressView.text = formatTime(timer.curTime)
+//        progressView.text = formatTime(timer.curTime)
     }
 
     @MainThread

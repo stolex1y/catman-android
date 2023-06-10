@@ -101,7 +101,7 @@ class CatmanApplication : BaseApplication() {
             val purpose1 = DomainPurpose(
                 "Диплом",
                 categories[0].id,
-                GregorianCalendar(2023, 4, 31),
+                GregorianCalendar(2023, 6, 31),
                 progress = 10
             )
             val purpose2 = DomainPurpose(

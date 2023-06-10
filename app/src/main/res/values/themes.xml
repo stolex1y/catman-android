@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.CATMan" parent="Theme.CATManBase">
 
@@ -6,29 +6,29 @@
 
     <style name="Theme.CATManBase" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/deep_blue</item>
+        <item name="colorPrimary">@color/deepBlue</item>
         <item name="colorPrimaryVariant">@color/blue</item>
-        <item name="colorPrimaryDark">@color/deep_blue</item>
-        <item name="colorOnPrimary">@color/dirty_white</item>
+        <item name="colorPrimaryDark">@color/deepBlue</item>
+        <item name="colorOnPrimary">@color/dirtyWhite</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/violet</item>
         <item name="colorSecondaryVariant">@color/pink</item>
-        <item name="colorOnSecondary">@color/dirty_white</item>
-        <item name="colorSurface">@color/light_blue</item>
-        <item name="colorSurfaceVariant">@color/violet_blue</item>
-        <item name="colorOnSurface">@color/dirty_white</item>
-        <item name="colorOnSurfaceVariant">@color/dirty_white</item>
+        <item name="colorOnSecondary">@color/dirtyWhite</item>
+        <item name="colorSurface">@color/lightBlue</item>
+        <item name="colorSurfaceVariant">@color/violetBlue</item>
+        <item name="colorOnSurface">@color/dirtyWhite</item>
+        <item name="colorOnSurfaceVariant">@color/dirtyWhite</item>
 
         <item name="colorError">@color/pink</item>
         <item name="background">@drawable/background_gradient</item>
-        <item name="backgroundColor">@color/deep_blue</item>
+        <item name="backgroundColor">@color/deepBlue</item>
 
-        <item name="android:textColor">@color/dirty_white</item>
-        <item name="android:textColorPrimary">@color/dirty_white</item>
-        <item name="android:textColorSecondary">@color/dirty_white</item>
-        <item name="android:color">@color/dirty_white</item>
+        <item name="android:textColor">@color/dirtyWhite</item>
+        <item name="android:textColorPrimary">@color/dirtyWhite</item>
+        <item name="android:textColorSecondary">@color/dirtyWhite</item>
+        <item name="android:color">@color/dirtyWhite</item>
         <item name="errorTextColor">@color/pink</item>
-        <item name="hintTextColor">@color/dirty_white_half_opacity</item>
+        <item name="hintTextColor">@color/dirtyWhiteHalfOpacity</item>
 
         <item name="textAppearanceHeadline1">@style/Headline1</item>
         <item name="textAppearanceHeadline2">@style/Headline2</item>
@@ -45,7 +45,8 @@
         <item name="textAppearanceOverline">@style/Overline</item>
 
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
-        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent
+        </item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.App.LargeComponent</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.SmallComponent</item>
 
@@ -62,7 +63,9 @@
 
         <item name="textInputOutlinedStyle">@style/TextInputLayout</item>
         <item name="textInputStyle">@style/TextInputLayout</item>
-        <item name="textInputOutlinedExposedDropdownMenuStyle">@style/TextInputLayout.ExposedDropdownMenu</item>
+        <item name="textInputOutlinedExposedDropdownMenuStyle">
+            @style/TextInputLayout.ExposedDropdownMenu
+        </item>
         <item name="editTextStyle">@style/EditText</item>
         <item name="android:editTextStyle">@style/EditText</item>
         <item name="autoCompleteTextViewStyle">@style/EditText</item>
@@ -72,6 +75,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeStyle">@style/ActionMode</item>
         <item name="toolbarStyle">@style/Toolbar</item>
-<!--        <item name="actionModeCloseDrawable"></item>-->
+        <item name="ay_progressViewStyle">@style/ProgressView</item>
+        <!--        <item name="actionModeCloseDrawable"></item>-->
     </style>
 </resources>

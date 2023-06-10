@@ -26,7 +26,7 @@ class ColoredCircleView @JvmOverloads constructor(
             0
         ).apply {
             try {
-                initColor = getColor(R.styleable.ColoredCircle_circleColor, Color.TRANSPARENT)
+                initColor = getColor(R.styleable.ColoredCircle_ay_circleColor, Color.TRANSPARENT)
             } finally {
                 recycle()
             }

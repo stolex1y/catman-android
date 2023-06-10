@@ -3,6 +3,7 @@ package ru.stolexiy.widgets.sample.progressview
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
+import ru.stolexiy.widgets.ProgressView
 import ru.stolexiy.widgets.sample.R
 import ru.stolexiy.widgets.sample.databinding.ProgressViewAcitivtyBinding
 import kotlin.math.roundToInt
@@ -61,7 +62,9 @@ internal class SimpleActivityWithProgressView : AppCompatActivity() {
         val progress = count / MAX_COUNT.toFloat()
         binding.progressView.apply {
             this.progress = progress
-            this.text = getTextFromProgress(progress)
+            this.textCalculator = ProgressView.TextCalculator {
+                getTextFromProgress(it)
+            }
         }
     }
 

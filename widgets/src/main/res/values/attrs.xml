@@ -1,6 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="ay_progressViewStyle" format="reference" />
+    <attr name="ay_timerViewStyle" format="reference" />
+    <attr name="ay_toggleButtonStyle" format="reference" />
+
+    <attr name="ay_circleColor" format="color" />
+    <attr name="ay_fillingUp" format="boolean" />
+    <attr name="ay_clockwise" format="boolean" />
+    <attr name="ay_progressWidth" format="dimension" />
+    <attr name="ay_onStateText" format="string" />
+    <attr name="ay_offStateText" format="string" />
+    <attr name="ay_onStateStyle" format="reference" />
+    <attr name="ay_offStateStyle" format="reference" />
+    <attr name="ay_progressShadowColor" format="color" />
+    <attr name="ay_progressColor" format="color" />
+    <attr name="ay_progressStartColor" format="color" />
+    <attr name="ay_progressMidColor" format="color" />
+    <attr name="ay_progressEndColor" format="color" />
+    <attr name="ay_progressShadowRadius" format="dimension" />
+    <attr name="ay_textAppearance" format="reference" />
+    <attr name="ay_progress" format="float" />
+    <attr name="ay_trackWidth" format="dimension" />
+    <attr name="ay_trackColor" format="color" />
+    <attr name="ay_textMaxLen" format="integer" />
+
+    <declare-styleable name="ProgressView">
+        <attr name="ay_fillingUp" />
+        <attr name="ay_clockwise" />
+        <attr name="ay_progressColor" />
+        <attr name="ay_progressStartColor" />
+        <attr name="ay_progressMidColor" />
+        <attr name="ay_progressEndColor" />
+        <attr name="ay_progressWidth" />
+        <attr name="ay_progressShadowColor" />
+        <attr name="ay_progressShadowRadius" />
+        <attr name="ay_progress" />
+        <attr name="ay_trackColor" />
+        <attr name="ay_trackWidth" />
+        <attr name="android:textColor" />
+        <attr name="android:textSize" />
+        <attr name="android:fontFamily" />
+        <attr name="ay_textMaxLen" />
+    </declare-styleable>
+
     <declare-styleable name="ColoredCircle">
-        <attr name="circleColor" format="color" />
+        <attr name="ay_circleColor" />
+    </declare-styleable>
+
+
+    <declare-styleable name="TimerView"></declare-styleable>
+
+    <declare-styleable name="ToggleButton">
+        <attr name="onStateText" format="string" />
+        <attr name="offStateText" format="string" />
+        <attr name="onStateStyle" format="reference" />
+        <attr name="offStateStyle" format="reference" />
     </declare-styleable>
 </resources>

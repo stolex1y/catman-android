@@ -29,18 +29,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:maxLines="1"
+                android:minWidth="150dp"
                 android:text="@string/add_task"
-                app:layout_constraintStart_toStartOf="@+id/category_list_layout"
+                app:layout_constraintEnd_toStartOf="@+id/add_purpose_button"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_purpose_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginStart="8dp"
+                android:minWidth="150dp"
                 android:text="@string/add_purpose"
-                app:layout_constraintEnd_toEndOf="@+id/category_list_layout"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintBottom_toBottomOf="@+id/add_task_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/add_task_button"
+                app:layout_constraintTop_toTopOf="@+id/add_task_button" />
 
             <LinearLayout
                 android:id="@+id/category_list_layout"
@@ -60,7 +66,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="0dp"
-                    android:paddingEnd="0dp"
                     app:menu="@menu/category_list_menu"
                     app:title="@string/category_list"
                     app:titleMargin="0dp"

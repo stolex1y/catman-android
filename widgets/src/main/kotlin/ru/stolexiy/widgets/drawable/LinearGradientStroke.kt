@@ -9,15 +9,14 @@ import android.graphics.PixelFormat
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.drawable.Drawable
-import ru.stolexiy.widgets.R
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.dpToPx
 
 class LinearGradientStroke(
     context: Context,
-    startColor: Int = context.getColor(R.color.light_blue),
-    midColor: Int = context.getColor(R.color.light_blue),
-    endColor: Int = context.getColor(R.color.violet_blue),
-    shadowColor: Int = context.getColor(R.color.blue_shadow),
+    startColor: Int,
+    midColor: Int,
+    endColor: Int,
+    shadowColor: Int,
     strokeWidth: Float = 2f.dpToPx(context)
 ) : Drawable() {
 

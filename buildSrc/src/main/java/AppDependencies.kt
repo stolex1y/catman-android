@@ -251,6 +251,13 @@ object AppDependencies {
         add(ConfigurationName.IMPLEMENTATION.configName, gson)
     }
 
+    //preferences
+    private const val preference = "androidx.preference:preference:${DependencyVersion.preference}"
+
+    fun DependencyHandler.preference() {
+        add(ConfigurationName.IMPLEMENTATION.configName, preference)
+    }
+
     fun DependencyHandler.moduleImplementation(module: String) {
         add(ConfigurationName.IMPLEMENTATION.configName, project(mapOf("path" to ":$module")))
     }

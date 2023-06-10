@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    tools:background="@color/deep_blue"
-    android:layout_height="100dp">
+    android:layout_height="100dp"
+    android:fitsSystemWindows="true"
+    tools:background="@color/deepBlue">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageView"
@@ -12,20 +13,19 @@
         android:layout_height="50dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="30dp"
-        app:srcCompat="@drawable/account"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.CircledImage"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.CircledImage"
+        app:srcCompat="@drawable/account" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:layout_marginEnd="40dp"
         android:text="@string/profile"
         android:textAppearance="?attr/textAppearanceHeadline6"
-        android:textColor="?android:attr/textColor"
-        android:layout_marginEnd="40dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"
         app:layout_constraintStart_toEndOf="@+id/imageView" />
 

@@ -6,16 +6,13 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.text.toSpanned
 import androidx.databinding.BindingAdapter
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import ru.stolexiy.widgets.drawable.ColoredCircle
-import ru.stolexiy.widgets.drawable.LinearGradientStroke
 
 object BindingAdapters {
     @BindingAdapter("isGone")
@@ -97,7 +94,7 @@ object BindingAdapters {
         textView.text = text.colorize(textView.context.getColor(color), part ?: text)
     }
 
-    @BindingAdapter("gradientOutline")
+    /*@BindingAdapter("gradientOutline")
     @JvmStatic
     fun gradientOutline(button: Button, enabled: Boolean) {
         if (enabled)
@@ -109,7 +106,7 @@ object BindingAdapters {
     fun gradientOutline(button: MaterialButton, enabled: Boolean) {
         if (enabled)
             button.background = LinearGradientStroke(button.context)
-    }
+    }*/
 
 
     fun CharSequence.colorize(color: Int, part: CharSequence = this): Spanned {

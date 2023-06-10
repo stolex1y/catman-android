@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="ay_progressWidth">18dp</dimen>
+    <dimen name="ay_progressShadowRadius">10dp</dimen>
+    <dimen name="ay_progressTrackWidth">2dp</dimen>
+</resources>

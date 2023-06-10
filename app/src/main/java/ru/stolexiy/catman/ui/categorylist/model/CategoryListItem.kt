@@ -4,6 +4,7 @@ import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.ui.mapper.toDmyString
 import ru.stolexiy.catman.ui.util.recyclerview.ListItem
+import ru.stolexiy.widgets.ProgressView
 
 sealed class CategoryListItem : ListItem {
     data class CategoryItem(
@@ -17,10 +18,9 @@ sealed class CategoryListItem : ListItem {
         val name: String,
         val deadline: String,
         val isBurning: Boolean,
-        val progress: Int
+        val progress: Float
     ) : CategoryListItem() {
-        val textProgress: String
-            get() = "$progress%"
+        val textCalculator: ProgressView.TextCalculator = ProgressView.TextCalculator.PERCENT
     }
 }
 
@@ -31,7 +31,7 @@ fun DomainPurpose.toPurposeItem(): CategoryListItem.PurposeItem {
         name,
         deadline.toDmyString(),
         isDeadlineBurning,
-        progress
+        progress / 100f
     )
 }
 
