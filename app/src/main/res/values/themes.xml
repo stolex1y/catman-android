@@ -75,7 +75,9 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeStyle">@style/ActionMode</item>
         <item name="toolbarStyle">@style/Toolbar</item>
+        <item name="android:toolbarStyle">@style/Toolbar</item>
+        <item name="toolbarNavigationButtonStyle">@style/NavigationButton</item>
+        <item name="actionOverflowButtonStyle">@style/Button.Overflow</item>
         <item name="ay_progressViewStyle">@style/ProgressView</item>
-        <!--        <item name="actionModeCloseDrawable"></item>-->
     </style>
 </resources>

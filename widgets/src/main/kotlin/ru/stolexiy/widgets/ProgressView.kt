@@ -14,6 +14,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.VisibleForTesting
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.getColorOrThrow
 import androidx.core.content.res.getDimensionOrThrow
 import androidx.core.content.res.getIntOrThrow
@@ -91,8 +92,10 @@ open class ProgressView @JvmOverloads constructor(
                 _trackWidth = getDimension(R.styleable.ProgressView_ay_trackWidth, 0f)
                 _textColor = getColorOrThrow(R.styleable.ProgressView_android_textColor)
                 _textSize = getDimensionOrThrow(R.styleable.ProgressView_android_textSize)
-                _textTypeface = getFont(R.styleable.ProgressView_android_fontFamily)
-                    ?: Typeface.MONOSPACE
+                _textTypeface = ResourcesCompat.getFont(
+                    context,
+                    getResourceId(R.styleable.ProgressView_android_fontFamily, -1)
+                ) ?: Typeface.MONOSPACE
                 _textMaxLen = getIntOrThrow(R.styleable.ProgressView_ay_textMaxLen)
             } finally {
                 recycle()
@@ -354,7 +357,7 @@ open class ProgressView @JvmOverloads constructor(
 
     private fun updateMaxTextBounds() {
         textPaint.getTextBounds("M", letterBounds)
-        textMaxWidth = letterBounds.width() * (textMaxLen + 1)
+        textMaxWidth = letterBounds.width() * textMaxLen
         textMaxHeight = letterBounds.height()
     }
 

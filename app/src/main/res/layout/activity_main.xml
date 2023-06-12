@@ -9,7 +9,6 @@
     android:contentDescription="@string/drawer_description"
     android:fitsSystemWindows="true">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,13 +19,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="9dp"
-            android:paddingEnd="9dp"
-            app:contentInsetStartWithNavigation="0dp"
+            android:paddingStart="12dp"
             app:navigationIcon="@drawable/menu"
             app:title=" "
             app:titleCentered="true"
-            app:titleMargin="0dp" />
+            tools:ignore="RtlSymmetry" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment"

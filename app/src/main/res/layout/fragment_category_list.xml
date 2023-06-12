@@ -25,8 +25,9 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_task_button"
                 style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
                 android:layout_marginTop="30dp"
                 android:maxLines="1"
                 android:minWidth="150dp"
@@ -38,9 +39,10 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_purpose_button"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:layout_marginEnd="25dp"
                 android:minWidth="150dp"
                 android:text="@string/add_purpose"
                 app:layout_constraintBottom_toBottomOf="@+id/add_task_button"
@@ -52,25 +54,20 @@
                 android:id="@+id/category_list_layout"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginStart="25dp"
                 android:layout_marginTop="30dp"
-                android:layout_marginEnd="25dp"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/add_purpose_button"
+                app:layout_constraintStart_toStartOf="@id/add_task_button"
                 app:layout_constraintTop_toBottomOf="@+id/add_task_button">
 
-                <androidx.appcompat.widget.Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/category_list_toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="0dp"
                     app:menu="@menu/category_list_menu"
                     app:title="@string/category_list"
-                    app:titleMargin="0dp"
-                    app:titleTextAppearance="?attr/textAppearanceHeadline5"
-                    app:titleTextColor="?android:attr/textColor" />
+                    app:titleTextAppearance="?attr/textAppearanceHeadline5" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/category_list"
