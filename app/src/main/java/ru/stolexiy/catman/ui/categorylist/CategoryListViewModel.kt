@@ -25,6 +25,7 @@ import ru.stolexiy.catman.ui.util.udfv2.IState
 import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
 import ru.stolexiy.catman.ui.util.work.purpose.AddPurposeWorker
 import ru.stolexiy.catman.ui.util.work.purpose.DeletePurposeWorker
+import ru.stolexiy.catman.ui.util.work.purpose.SwapPurposePriorityWorker
 import ru.stolexiy.common.di.CoroutineDispatcherNames
 import timber.log.Timber
 import javax.inject.Named

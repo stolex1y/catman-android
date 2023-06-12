@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.ui.categorylist
+package ru.stolexiy.catman.ui.util.work.purpose
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -8,7 +8,6 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeGettingUseCase
