@@ -1,6 +1,6 @@
 package ru.stolexiy.catman.ui.categorylist
 
-import ru.stolexiy.catman.ui.util.udfv2.IEvent
+import ru.stolexiy.catman.ui.util.udf.IEvent
 
 sealed interface CategoryListEvent : IEvent {
     object Load : CategoryListEvent

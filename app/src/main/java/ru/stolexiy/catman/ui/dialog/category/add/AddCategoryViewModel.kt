@@ -13,9 +13,9 @@ import ru.stolexiy.catman.domain.usecase.color.ColorGettingUseCase
 import ru.stolexiy.catman.ui.dialog.category.model.Category
 import ru.stolexiy.catman.ui.dialog.category.model.Color
 import ru.stolexiy.catman.ui.util.di.FactoryWithSavedStateHandle
-import ru.stolexiy.catman.ui.util.udfv2.AbstractViewModel
-import ru.stolexiy.catman.ui.util.udfv2.IData
-import ru.stolexiy.catman.ui.util.udfv2.IState
+import ru.stolexiy.catman.ui.util.udf.AbstractViewModel
+import ru.stolexiy.catman.ui.util.udf.IData
+import ru.stolexiy.catman.ui.util.udf.IState
 import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
 import ru.stolexiy.catman.ui.util.work.category.AddCategoryWorker
 import ru.stolexiy.catman.ui.util.work.category.DeleteCategoryWorker

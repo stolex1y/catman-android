@@ -1,4 +1,4 @@
-package ru.stolexiy.catman.ui.util.udfv2
+package ru.stolexiy.catman.ui.util.udf
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
@@ -32,7 +32,7 @@ import kotlin.coroutines.cancellation.CancellationException
 abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     initData: D,
     private val initState: S,
-    @Named(CoroutineModule.APPLICATION_SCOPE) private val applicationScope: CoroutineScope,
+    @Named(CoroutineModule.APPLICATION_SCOPE) protected val applicationScope: CoroutineScope,
     private val workManager: Provider<WorkManager>,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
