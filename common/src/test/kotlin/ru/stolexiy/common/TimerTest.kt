@@ -26,13 +26,12 @@ internal class TimerTest {
     private val testScope = TestScope()
     private val testDispatcher = UnconfinedTestDispatcher(testScope.testScheduler)
 
-    private val underTest = Timer(
-        testDispatcher,
-        Timer.Time(INIT_TIME_MS),
-        Timer.Time(UPDATE_TIME_MS)
-    ).apply {
-        listener = LogTimerListener
-    }
+    private val underTest =
+        Timer(testDispatcher).apply {
+            addListener(LogTimerListener)
+            initTime = Timer.Time(INIT_TIME_MS)
+            updateTime = Timer.Time(UPDATE_TIME_MS)
+        }
 
     @Before
     fun verifyStopped() {
@@ -88,7 +87,7 @@ internal class TimerTest {
         verifyTimeToFinish(underTest, INIT_TIME_MS - untilPause)
     }
 
-    private object LogTimerListener : Timer.TimerListener {
+    private object LogTimerListener : Timer.Listener {
         override fun onStart(timer: Timer) {
             println("timer started at ${System.currentTimeMillis()}")
         }

@@ -10,9 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,6 +17,7 @@ import ru.stolexiy.common.TimeConstants.MIN_TO_MS
 import ru.stolexiy.common.TimeConstants.MIN_TO_SEC
 import ru.stolexiy.common.TimeConstants.SEC_TO_MS
 import ru.stolexiy.common.di.CoroutineDispatcherNames
+import java.util.concurrent.ConcurrentLinkedQueue
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
@@ -38,32 +36,27 @@ open class Timer @Inject constructor(
     protected val mutex = Mutex()
 
     @Volatile
-    var maxInitTime: Time = DEFAULT_TIME_MAX
+    var maxInitTime: ITime = DEFAULT_TIME_MAX
         @AnyThread set
 
-    @Volatile
-    var listener: TimerListener? = null
-        @AnyThread set
+    private val listeners = ConcurrentLinkedQueue<Listener>()
 
     @Volatile
-    var initTime: Time = Time(0)
+    var initTime: ITime = Time(0)
         @AnyThread
         set(value) {
-            require(state == State.STOPPED) { "Timer must be stopped to set init time" }
-            field = Time(max(value.inMs, maxInitTime.inMs))
-            updateCurTime(value)
+            field = Time(min(value.inMs, maxInitTime.inMs))
         }
 
-    var curTime = Time(initTime)
-        @GuardedBy("mutex") private set
-
-    private val _curTimeFlow: MutableStateFlow<Time> = MutableStateFlow(initTime)
-    val curTimeFlow: StateFlow<Time> = _curTimeFlow.asStateFlow()
+    @GuardedBy("mutex")
+    private val _curTime = Time(initTime)
+    val curTime: ITime
+        get() = _curTime
 
     @Volatile
-    var updateTime = Time(0, 1)
+    var updateTime: ITime = Time(0, 1)
         @AnyThread set(value) {
-            require(value > 0)
+            require(value.inMs > 0)
             field = value
         }
 
@@ -91,7 +84,8 @@ open class Timer @Inject constructor(
                 timerJob = when (state) {
                     State.RUNNING -> return@launch
                     State.STOPPED -> {
-                        updateCurTime(initTime.inMs)
+                        _curTime.setTime(initTime)
+                        onUpdateCurTime()
                         timerRun()
                     }
 
@@ -136,32 +130,44 @@ open class Timer @Inject constructor(
     }
 
     @AnyThread
+    fun addListener(listener: Listener) {
+        if (!listeners.contains(listener))
+            listeners.add(listener)
+    }
+
+    @AnyThread
+    fun removeListener(listener: Listener) {
+        listeners.remove(listener)
+    }
+
+    @AnyThread
     @GuardedBy("mutex")
     protected fun onPause() {
         state = State.PAUSED
-        listener?.onPause(this)
+        listeners.forEach { it.onPause(this) }
     }
 
     @AnyThread
     @GuardedBy("mutex")
     protected fun onStart() {
         state = State.RUNNING
-        listener?.onStart(this)
+        listeners.forEach { it.onStart(this) }
     }
 
     @AnyThread
     @GuardedBy("mutex")
     protected fun onStop() {
-        updateCurTime(initTime.inMs)
+        _curTime.setTime(initTime)
+        onUpdateCurTime()
         state = State.STOPPED
-        listener?.onStop(this)
+        listeners.forEach { it.onStop(this) }
     }
 
     @AnyThread
     @GuardedBy("mutex")
     protected fun onFinish() {
         state = State.STOPPED
-        listener?.onFinish(this)
+        listeners.forEach { it.onFinish(this) }
     }
 
     @AnyThread
@@ -178,51 +184,76 @@ open class Timer @Inject constructor(
     private fun timerRun(): Job {
         return coroutineScope.launch {
             onStart()
-            while (curTime > 0) {
+            while (_curTime > 0) {
                 val delayTime = min(updateTime.inMs, curTime.inMs)
                 delay(delayTime)
-                updateCurTime(curTime - delayTime)
+                _curTime.minus(delayTime)
+                onUpdateCurTime()
             }
             onFinish()
         }
     }
 
     @AnyThread
-    @GuardedBy("mutex")
-    private fun updateCurTime(ms: Long) {
-        curTime = Time(ms)
-        _curTimeFlow.value = curTime
-        listener?.onUpdateTime(this)
+    protected fun onUpdateCurTime() {
+        listeners.forEach { it.onUpdateTime(this) }
     }
 
-    @AnyThread
-    @GuardedBy("mutex")
-    private fun updateCurTime(time: Time) {
-        updateCurTime(time.inMs)
-    }
-
-    class Time(ms: Long) {
+    interface ITime {
         val inMs: Long
         val min: Long
         val sec: Long
         val ms: Long
 
+        operator fun compareTo(ms: Long): Int {
+            return this.inMs.compareTo(ms)
+        }
+
+        operator fun compareTo(other: Time): Int {
+            return this.inMs.compareTo(other.inMs)
+        }
+    }
+
+    class Time(ms: Long) : ITime {
+        private var _inMs: Long = 0
+        private var _min: Long = 0
+        private var _sec: Long = 0
+        private var _ms: Long = 0
+
+        override val inMs: Long
+            get() = _inMs
+        override val min: Long
+            get() = _min
+        override val sec: Long
+            get() = _sec
+        override val ms: Long
+            get() = _ms
+
         init {
-            inMs = ms
-            min = ms / MIN_TO_MS
-            sec = ms % MIN_TO_MS / SEC_TO_MS
-            this.ms = ms % SEC_TO_MS
+            setTime(ms)
         }
 
         constructor(min: Long, sec: Long) : this(minAndSecToMs(min, sec))
 
-        constructor(time: Time) : this(time.inMs)
+        constructor(time: ITime) : this(time.inMs)
 
-        operator fun minus(ms: Long) = Time(max(this.inMs - ms, 0))
-        operator fun minus(time: Time) = Time(max(this.inMs - time.inMs, 0))
+        operator fun minus(ms: Long) {
+            setTime(max(this.inMs - ms, 0))
+        }
 
-        operator fun compareTo(ms: Long): Int {
-            return this.inMs.compareTo(ms)
+        operator fun minus(time: ITime) {
+            setTime(max(this.inMs - time.inMs, 0))
+        }
+
+        fun setTime(inMs: Long) {
+            this._inMs = inMs
+            _min = inMs / MIN_TO_MS
+            _sec = inMs % MIN_TO_MS / SEC_TO_MS
+            _ms = inMs % SEC_TO_MS
+        }
+
+        fun setTime(time: ITime) {
+            setTime(time.inMs)
         }
 
         private companion object {
@@ -233,7 +264,7 @@ open class Timer @Inject constructor(
         }
 
         override fun toString(): String {
-            return "$min min, $sec sec ($inMs ms)"
+            return "$_min min, $_sec sec ($_inMs ms)"
         }
     }
 
@@ -243,7 +274,7 @@ open class Timer @Inject constructor(
         PAUSED
     }
 
-    interface TimerListener {
+    interface Listener {
         @AnyThread
         fun onStart(timer: Timer) {
         }
