@@ -1,94 +1,232 @@
 package ru.stolexiy.widgets
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.PointF
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.util.AttributeSet
-import android.widget.LinearLayout
+import android.view.View
+import androidx.annotation.ColorInt
 import androidx.annotation.MainThread
-import kotlinx.coroutines.Dispatchers
-import ru.stolexiy.common.TimeConstants.MIN_TO_MS
+import ru.stolexiy.common.Delegates
 import ru.stolexiy.common.Timer
+import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
 
 class TimerView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+    attrs: AttributeSet? = null
+) : View(context, attrs) {
+
     companion object {
-        private const val TIME_FORMAT: String = "%02d:%02d"
+        private const val TIME_PART_FORMAT = "%02d"
+        private const val TIME_PART_SEPARATOR = ":"
+        const val DEFAULT_UPDATE_TIME = 30L
+    }
 
-        private const val DEFAULT_UPDATE_TIME: Long = 30
-        private const val DEFAULT_INIT_TIME: Long = MIN_TO_MS * 5
+    private val progressView = object : ProgressView(
+        context, attrs,
+        R.attr.ay_progressViewStyle,
+        R.style.AY_TimerView
+    ) {
+        private val separatorBounds = Rect()
+        private val minutesBounds = Rect()
+        private val secondsBounds = Rect()
 
-        @JvmStatic
-        private fun formatTime(time: Timer.Time): String {
-            return time.let {
-                TIME_FORMAT.format(it.min, it.sec)
-            }
+        init {
+            textMaxLen = 5
+        }
+
+        override fun onInvalidation() {
+            super.onInvalidation()
+            textPaint.getTextBounds(TIME_PART_SEPARATOR, separatorBounds)
+        }
+
+        override fun Canvas.drawProgressText() {
+            val separatorStartPoint = PointF(
+                (textRect.centerX() - separatorBounds.width() / 2f),
+                (textRect.centerY() + separatorBounds.height() / 2f)
+            )
+
+            val minutes = TIME_PART_FORMAT.format(timer?.curTime?.min ?: 0)
+            textPaint.getTextBounds(minutes, minutesBounds)
+            val minutesStartPoint = PointF(
+                (separatorStartPoint.x - minutesBounds.width() / 2f),
+                (textRect.centerY() + minutesBounds.height() / 2f)
+            )
+            drawText(minutes, minutesStartPoint)
+
+            val seconds = TIME_PART_FORMAT.format(timer?.curTime?.sec ?: 0)
+            textPaint.getTextBounds(seconds, secondsBounds)
+            val secondsStartPoint = PointF(
+                (separatorStartPoint.x - secondsBounds.width() / 2f),
+                (textRect.centerY() + secondsBounds.height() / 2f)
+            )
+            drawText(TIME_PART_SEPARATOR, separatorStartPoint)
+            drawText(seconds, secondsStartPoint)
+        }
+
+        private fun Canvas.drawText(text: String, startPoint: PointF) {
+            drawText(
+                text,
+                startPoint.x,
+                startPoint.y,
+                textPaint
+            )
         }
     }
 
-    private val progressView = ProgressView(context, attrs)
+    /**
+     * Progress circle linear gradient start color.
+     */
+    @get:ColorInt
+    var progressStartColor: Int by progressView::progressStartColor
+
+    /**
+     * Progress circle linear gradient middle color.
+     */
+    @get:ColorInt
+    var progressMidColor: Int by progressView::progressMidColor
+
+    /**
+     * Progress circle linear gradient end color.
+     */
+    @get:ColorInt
+    var progressEndColor: Int by progressView::progressEndColor
+
+    /**
+     * Progress circle shadow color.
+     */
+    @get:ColorInt
+    var progressShadowColor: Int by progressView::progressShadowColor
+
+    /**
+     * Progress circle shadow radius.
+     */
+    var progressShadowRadius: Float by progressView::progressShadowRadius
+
+    /**
+     * Progress circle width.
+     */
+    var progressWidth: Float by progressView::progressWidth
+
+    /**
+     * Progress circle fill or decrease clockwise or counterclockwise.
+     */
+    var clockwise: Boolean by progressView::clockwise
+
+    /**
+     * Filling or decreasing progress circle.
+     */
+    var fillingUp: Boolean by progressView::fillingUp
+
+    /**
+     * Progress track width.
+     */
+    var trackWidth: Float by progressView::trackWidth
+
+    /**
+     * Progress track color.
+     */
+    @get:ColorInt
+    var trackColor: Int by progressView::trackColor
+
+    /**
+     * Text of progress color.
+     */
+    @get:ColorInt
+    var textColor: Int by progressView::textColor
+
+    /**
+     * Text of progress size.
+     */
+    var textSize: Float by progressView::textSize
+
+    /**
+     * Text of progress typeface.
+     */
+    var textTypeface: Typeface by progressView::textTypeface
+
+    var initTime: Timer.ImmutableTime by Delegates.lateinitObjectProperty(
+        this::timer,
+        Timer::initTime,
+        Timer.Time(0)
+    )
+
+    var updateTime: Timer.ImmutableTime = Timer.Time(DEFAULT_UPDATE_TIME)
+
+    var timer: Timer? = null
+        private set
 
     private val timerListener = TimerListener()
 
-    private val timer = Timer(
-        Dispatchers.IO //TODO set this field from caller
-    ).apply {
-        listener = timerListener
-        initTime = Timer.Time(DEFAULT_INIT_TIME)
-        updateTime = Timer.Time(DEFAULT_UPDATE_TIME)
-    }
-
-    var initTime: Timer.Time by timer::initTime
-    var updateTime: Timer.Time by timer::updateTime
-    var clockwise: Boolean by progressView::clockwise
-
     init {
-        progressView.fillingUp = false
-        progressView.clockwise = true
-        updateText()
         updateProgress()
-        this.addView(progressView)
+
     }
 
     fun timerStart() {
-        timer.start()
+        timer?.start()
     }
 
     fun timerStop() {
-        timer.stop()
+        timer?.stop()
     }
 
     fun timerPause() {
-        timer.pause()
+        timer?.pause()
     }
 
     fun timerReset() {
-        timer.reset()
+        timer?.reset()
     }
 
-    fun timerState(): Timer.State = timer.state
+    fun timerState(): Timer.State? = timer?.state
+
+    fun setTimer(timer: Timer) {
+        if (this.timer != timer) {
+            this.timer = timer
+            addTimerListener()
+        }
+    }
+
+    private fun addTimerListener() {
+        timer?.addListener(timerListener)
+    }
+
+    private fun removeTimerListener() {
+        timer?.removeListener(timerListener)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        addTimerListener()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        removeTimerListener()
+    }
 
     @MainThread
-    private fun updateText() {
-//        progressView.text = formatTime(timer.curTime)
+    private fun updateProgress() {
+        timer?.let {
+            val initTimeMs = initTime.inMs
+            val curTimeMs = it.curTime.inMs
+            progressView.progress = (initTimeMs - curTimeMs) / initTimeMs.toFloat()
+        }
     }
 
-    @MainThread
-    fun updateProgress() {
-        val initTimeMs = initTime.inMs
-        val curTimeMs = timer.curTime.inMs
-        progressView.progress = (initTimeMs - curTimeMs) / initTimeMs.toFloat()
-    }
+    private inner class TimerListener : Timer.Listener {
+        override val updateTime: Long
+            get() = this@TimerView.updateTime.inMs
 
-    private inner class TimerListener : Timer.TimerListener {
         override fun onFinish(timer: Timer) {
             timer.reset()
         }
 
         override fun onUpdateTime(timer: Timer) {
             post {
-                updateText()
                 updateProgress()
             }
         }

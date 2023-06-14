@@ -222,6 +222,7 @@ open class Timer @Inject constructor(
 
     private fun resetListenersUpdateTime() {
         listenersLock.lock()
+        listeners.forEach { it.onUpdateTime(this) }
         listenersNextUpdateTime.clear()
         listeners.forEach { addListenerNextUpdateTime(it) }
         listenersLock.unlock()
