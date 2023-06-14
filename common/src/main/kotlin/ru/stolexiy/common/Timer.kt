@@ -17,7 +17,9 @@ import ru.stolexiy.common.TimeConstants.MIN_TO_MS
 import ru.stolexiy.common.TimeConstants.MIN_TO_SEC
 import ru.stolexiy.common.TimeConstants.SEC_TO_MS
 import ru.stolexiy.common.di.CoroutineDispatcherNames
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.PriorityQueue
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.math.max
@@ -36,13 +38,21 @@ open class Timer @Inject constructor(
     protected val mutex = Mutex()
 
     @Volatile
-    var maxInitTime: ITime = DEFAULT_TIME_MAX
+    var maxInitTime: ImmutableTime = DEFAULT_TIME_MAX
         @AnyThread set
 
-    private val listeners = ConcurrentLinkedQueue<Listener>()
+    @GuardedBy("listenersLock")
+    private val listeners: MutableSet<Listener> = mutableSetOf()
+
+    @GuardedBy("listenersLock")
+    private val listenersNextUpdateTime: PriorityQueue<Pair<Long, Listener>> =
+        PriorityQueue { p1, p2 ->
+            -p1.first.compareTo(p2.first)
+        }
+    private val listenersLock: Lock = ReentrantLock()
 
     @Volatile
-    var initTime: ITime = Time(0)
+    var initTime: ImmutableTime = Time(0)
         @AnyThread
         set(value) {
             field = Time(min(value.inMs, maxInitTime.inMs))
@@ -50,15 +60,8 @@ open class Timer @Inject constructor(
 
     @GuardedBy("mutex")
     private val _curTime = Time(initTime)
-    val curTime: ITime
+    val curTime: ImmutableTime
         get() = _curTime
-
-    @Volatile
-    var updateTime: ITime = Time(0, 1)
-        @AnyThread set(value) {
-            require(value.inMs > 0)
-            field = value
-        }
 
     var state: State = State.STOPPED
         @GuardedBy("mutex") private set
@@ -85,7 +88,7 @@ open class Timer @Inject constructor(
                     State.RUNNING -> return@launch
                     State.STOPPED -> {
                         _curTime.setTime(initTime)
-                        onUpdateCurTime()
+                        resetListenersUpdateTime()
                         timerRun()
                     }
 
@@ -131,13 +134,23 @@ open class Timer @Inject constructor(
 
     @AnyThread
     fun addListener(listener: Listener) {
-        if (!listeners.contains(listener))
+        listenersLock.lock()
+        if (!listeners.contains(listener)) {
             listeners.add(listener)
+            if (listener.updateTime > 0L)
+                listenersNextUpdateTime.add(listener.updateTime to listener)
+        }
+        listenersLock.unlock()
     }
 
     @AnyThread
     fun removeListener(listener: Listener) {
-        listeners.remove(listener)
+        listenersLock.lock()
+        if (listeners.contains(listener)) {
+            listeners.remove(listener)
+            listenersNextUpdateTime.removeIf { it.second == listener }
+        }
+        listenersLock.unlock()
     }
 
     @AnyThread
@@ -158,7 +171,7 @@ open class Timer @Inject constructor(
     @GuardedBy("mutex")
     protected fun onStop() {
         _curTime.setTime(initTime)
-        onUpdateCurTime()
+        resetListenersUpdateTime()
         state = State.STOPPED
         listeners.forEach { it.onStop(this) }
     }
@@ -185,7 +198,8 @@ open class Timer @Inject constructor(
         return coroutineScope.launch {
             onStart()
             while (_curTime > 0) {
-                val delayTime = min(updateTime.inMs, curTime.inMs)
+                val nextListenerUpdateTime = listenersNextUpdateTime.firstOrNull()?.first ?: 0
+                val delayTime = curTime.inMs - nextListenerUpdateTime
                 delay(delayTime)
                 _curTime.minus(delayTime)
                 onUpdateCurTime()
@@ -196,25 +210,61 @@ open class Timer @Inject constructor(
 
     @AnyThread
     protected fun onUpdateCurTime() {
-        listeners.forEach { it.onUpdateTime(this) }
+        listenersLock.lock()
+        while (listenersNextUpdateTime.isNotEmpty() && listenersNextUpdateTime.peek().first >= curTime.inMs) {
+            listenersNextUpdateTime.poll().second.let { listener ->
+                listener.onUpdateTime(this)
+                addListenerNextUpdateTime(listener)
+            }
+        }
+        listenersLock.unlock()
     }
 
-    interface ITime {
-        val inMs: Long
-        val min: Long
-        val sec: Long
-        val ms: Long
+    private fun resetListenersUpdateTime() {
+        listenersLock.lock()
+        listenersNextUpdateTime.clear()
+        listeners.forEach { addListenerNextUpdateTime(it) }
+        listenersLock.unlock()
+    }
+
+    @GuardedBy("listenersLock")
+    private fun addListenerNextUpdateTime(listener: Listener) {
+        listenersNextUpdateTime.removeIf { it.second == listener }
+        if (listener.updateTime <= 0 || curTime.inMs == 0L)
+            return
+        listenersNextUpdateTime.add(max(0, curTime.inMs - listener.updateTime) to listener)
+    }
+
+    abstract class ImmutableTime {
+        abstract val inMs: Long
+        abstract val min: Long
+        abstract val sec: Long
+        abstract val ms: Long
 
         operator fun compareTo(ms: Long): Int {
             return this.inMs.compareTo(ms)
         }
 
-        operator fun compareTo(other: Time): Int {
+        operator fun compareTo(other: ImmutableTime): Int {
             return this.inMs.compareTo(other.inMs)
+        }
+
+        override operator fun equals(other: Any?): Boolean {
+            if (other == null)
+                return false
+            return when (other) {
+                is Long -> this.inMs == other
+                is ImmutableTime -> this.inMs == other.inMs
+                else -> false
+            }
+        }
+
+        override fun hashCode(): Int {
+            return inMs.hashCode()
         }
     }
 
-    class Time(ms: Long) : ITime {
+    class Time(ms: Long) : ImmutableTime() {
         private var _inMs: Long = 0
         private var _min: Long = 0
         private var _sec: Long = 0
@@ -235,13 +285,13 @@ open class Timer @Inject constructor(
 
         constructor(min: Long, sec: Long) : this(minAndSecToMs(min, sec))
 
-        constructor(time: ITime) : this(time.inMs)
+        constructor(time: ImmutableTime) : this(time.inMs)
 
         operator fun minus(ms: Long) {
             setTime(max(this.inMs - ms, 0))
         }
 
-        operator fun minus(time: ITime) {
+        operator fun minus(time: ImmutableTime) {
             setTime(max(this.inMs - time.inMs, 0))
         }
 
@@ -252,7 +302,7 @@ open class Timer @Inject constructor(
             _ms = inMs % SEC_TO_MS
         }
 
-        fun setTime(time: ITime) {
+        fun setTime(time: ImmutableTime) {
             setTime(time.inMs)
         }
 
@@ -275,6 +325,9 @@ open class Timer @Inject constructor(
     }
 
     interface Listener {
+        val updateTime: Long
+            get() = 0L
+
         @AnyThread
         fun onStart(timer: Timer) {
         }
