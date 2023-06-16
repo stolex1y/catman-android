@@ -122,16 +122,13 @@
                 app:textColoring="@{R.color.pink}"
                 app:textColoringPart='@{"*"}' />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/apply_category_button"
-                style="@style/ContainedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="30dp"
                 android:contentDescription="@string/apply"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

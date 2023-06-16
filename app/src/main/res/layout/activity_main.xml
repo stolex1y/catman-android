@@ -19,11 +19,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="12dp"
+            android:paddingStart="13dp"
+            android:paddingEnd="12dp"
             app:navigationIcon="@drawable/menu"
             app:title=" "
-            app:titleCentered="true"
-            tools:ignore="RtlSymmetry" />
+            app:titleCentered="true" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment"

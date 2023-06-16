@@ -1,7 +1,7 @@
-
 import AppDependencies.activityKtx
 import AppDependencies.androidAnnotation
 import AppDependencies.androidTest
+import AppDependencies.appcompat
 import AppDependencies.coroutines
 import AppDependencies.fragment
 import AppDependencies.junit4
@@ -78,6 +78,7 @@ dependencies {
     timberAndroid()
     material()
     androidAnnotation()
+    appcompat()
 
     //testing
     junit4()

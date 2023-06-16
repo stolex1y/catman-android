@@ -17,10 +17,10 @@ class LinearGradientStroke(
     midColor: Int,
     endColor: Int,
     shadowColor: Int,
-    strokeWidth: Float = 2f.dpToPx(context)
+    strokeWidth: Float = 4f.dpToPx(context)
 ) : Drawable() {
 
-    private val shadowRadius = 4f.dpToPx(context)
+    private val shadowRadius = 2f.dpToPx(context)
 
     private val colors = intArrayOf(startColor, midColor, endColor)
 

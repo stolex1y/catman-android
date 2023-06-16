@@ -16,7 +16,8 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:background="?attr/background">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/edit_purpose_form"
@@ -25,10 +26,8 @@
 
             <View
                 android:id="@+id/view"
-                android:layout_width="40dp"
-                android:layout_height="4dp"
+                style="@style/DialogDash"
                 android:layout_marginTop="20dp"
-                android:background="?attr/colorOnPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -159,38 +158,33 @@
                 app:textColoring="@{R.color.pink}"
                 app:textColoringPart='@{"*"}' />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/delete_purpose_button"
-                style="@style/OutlinedButton"
-                android:layout_width="wrap_content"
+                style="@style/Button.Outlined"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginTop="20dp"
                 android:contentDescription="@string/remove"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
                 android:text="@string/remove"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:gradientOutline="@{true}"
+                app:layout_constraintEnd_toStartOf="@+id/save_purpose_button"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="@+id/legend_text"
                 app:layout_constraintTop_toBottomOf="@+id/legend_text" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/save_purpose_button"
-                style="@style/ContainedButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginStart="8dp"
                 android:contentDescription="@string/save"
                 android:enabled="@{purpose.isValidAsFlow}"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
                 android:text="@string/save"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/legend_text" />
+                app:layout_constraintEnd_toEndOf="@+id/legend_text"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/delete_purpose_button"
+                app:layout_constraintTop_toTopOf="@+id/delete_purpose_button" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

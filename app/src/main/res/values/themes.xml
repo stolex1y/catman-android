@@ -51,8 +51,9 @@
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.SmallComponent</item>
 
         <item name="navigationViewStyle">@style/NavigationView</item>
-        <item name="materialButtonOutlinedStyle">@style/OutlinedButton</item>
-        <item name="materialButtonStyle">@style/ContainedButton</item>
+        <item name="materialButtonOutlinedStyle">@style/Button.MaterialOutlined</item>
+        <item name="materialButtonStyle">@style/Button.Material</item>
+        <item name="buttonStyle">@style/Button</item>
 
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
@@ -79,5 +80,6 @@
         <item name="toolbarNavigationButtonStyle">@style/NavigationButton</item>
         <item name="actionOverflowButtonStyle">@style/Button.Overflow</item>
         <item name="ay_progressViewStyle">@style/ProgressView</item>
+        <item name="ay_timerViewStyle">@style/Timer</item>
     </style>
 </resources>

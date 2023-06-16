@@ -7,8 +7,9 @@
     <color name="lightBlue">#48C6EF</color>
     <color name="violetBlue">#6F86D6</color>
     <color name="violet">#9380EC</color>
+    <color name="violetShadow">#809380EC</color>
+    <color name="blueShadow">#CC00C0FF</color>
     <color name="violetPink">#C680EC</color>
-    <color name="violetShadow">#66D293FF</color>
     <color name="pink">#F975B1</color>
     <color name="pinkLight">#669380EC</color>
     <color name="dirtyWhiteHalfOpacity">#7FE0E3FF</color>

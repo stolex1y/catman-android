@@ -6,6 +6,8 @@
 
     <data>
 
+        <import type="ru.stolexiy.widgets.drawable.LinearGradientStroke" />
+
         <variable
             name="vm"
             type="ru.stolexiy.catman.ui.categorylist.CategoryListViewModel" />
@@ -15,67 +17,62 @@
         android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:background="@drawable/background_gradient">
+        tools:background="?attr/background">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingHorizontal="0dp">
+            android:layout_height="match_parent">
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/add_task_button"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="30dp"
-                android:maxLines="1"
-                android:minWidth="150dp"
                 android:text="@string/add_task"
+                app:gradientOutline="@{true}"
                 app:layout_constraintEnd_toStartOf="@+id/add_purpose_button"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/add_purpose_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="25dp"
-                android:minWidth="150dp"
                 android:text="@string/add_purpose"
                 app:layout_constraintBottom_toBottomOf="@+id/add_task_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/add_task_button"
                 app:layout_constraintTop_toTopOf="@+id/add_task_button" />
 
-            <LinearLayout
-                android:id="@+id/category_list_layout"
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/category_list_toolbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:paddingStart="25dp"
+                android:paddingEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/add_task_button"
+                app:menu="@menu/category_list_menu"
+                app:title="@string/category_list"
+                app:titleTextAppearance="?attr/textAppearanceHeadline5" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/category_list"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginTop="30dp"
-                android:orientation="vertical"
+                android:layout_marginTop="15dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/add_purpose_button"
-                app:layout_constraintStart_toStartOf="@id/add_task_button"
-                app:layout_constraintTop_toBottomOf="@+id/add_task_button">
-
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/category_list_toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:menu="@menu/category_list_menu"
-                    app:title="@string/category_list"
-                    app:titleTextAppearance="?attr/textAppearanceHeadline5" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/category_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-            </LinearLayout>
+                app:layout_constraintEnd_toEndOf="@+id/add_purpose_button"
+                app:layout_constraintStart_toStartOf="@+id/add_task_button"
+                app:layout_constraintTop_toBottomOf="@+id/category_list_toolbar" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

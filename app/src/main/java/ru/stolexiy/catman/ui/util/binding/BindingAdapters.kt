@@ -6,13 +6,16 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.text.toSpanned
 import androidx.databinding.BindingAdapter
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
+import ru.stolexiy.catman.R
 import ru.stolexiy.widgets.drawable.ColoredCircle
+import ru.stolexiy.widgets.drawable.LinearGradientStroke
 
 object BindingAdapters {
     @BindingAdapter("isGone")
@@ -94,20 +97,22 @@ object BindingAdapters {
         textView.text = text.colorize(textView.context.getColor(color), part ?: text)
     }
 
-    /*@BindingAdapter("gradientOutline")
-    @JvmStatic
-    fun gradientOutline(button: Button, enabled: Boolean) {
-        if (enabled)
-            button.background = LinearGradientStroke(button.context)
-    }
-
     @BindingAdapter("gradientOutline")
     @JvmStatic
-    fun gradientOutline(button: MaterialButton, enabled: Boolean) {
-        if (enabled)
-            button.background = LinearGradientStroke(button.context)
-    }*/
-
+    fun gradientOutline(button: Button, enabled: Boolean) {
+        if (enabled) {
+            button.context.apply {
+                button.background = LinearGradientStroke(
+                    this,
+                    getColor(R.color.lightBlue),
+                    getColor(R.color.lightBlue),
+                    getColor(R.color.violetBlue),
+                    getColor(R.color.blueShadow),
+                    4f
+                )
+            }
+        }
+    }
 
     fun CharSequence.colorize(color: Int, part: CharSequence = this): Spanned {
         val spannable = SpannableString(this)

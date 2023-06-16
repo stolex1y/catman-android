@@ -124,17 +124,14 @@
                 app:textColoring="@{R.color.pink}"
                 app:textColoringPart='@{"*"}' />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/add_category_button"
-                style="@style/ContainedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="30dp"
                 android:contentDescription="@string/add_category"
                 android:enabled="@{category.isValidAsFlow}"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
                 android:text="@string/add"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
