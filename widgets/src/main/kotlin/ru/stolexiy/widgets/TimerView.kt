@@ -6,32 +6,63 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.util.AttributeSet
-import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.ColorInt
+import androidx.annotation.IdRes
 import androidx.annotation.MainThread
-import ru.stolexiy.common.Delegates
 import ru.stolexiy.common.Timer
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
+import ru.stolexiy.widgets.common.extension.GraphicsExtensions.spToPx
+import ru.stolexiy.widgets.common.viewproperty.InvalidatingLayoutProperty
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 class TimerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
-) : View(context, attrs) {
+) : ViewGroup(context, attrs), InvalidatingLayoutProperty.Listener {
 
     companion object {
         private const val TIME_PART_FORMAT = "%02d"
         private const val TIME_PART_SEPARATOR = ":"
         const val DEFAULT_UPDATE_TIME = 30L
+
+        private fun Timer.ImmutableTime.secCeil(): Int {
+            return ceil(this.sec.toFloat() + this.ms / 1000f).toInt()
+        }
+    }
+
+    @IdRes
+    private val progressViewStyle: Int
+
+    init {
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.TimerView,
+            R.attr.ay_timerViewStyle,
+            R.style.AY_TimerView
+        ).apply {
+            try {
+                progressViewStyle = getResourceId(
+                    R.styleable.TimerView_ay_progressViewStyle,
+                    R.attr.ay_progressViewStyle
+                )
+            } finally {
+                recycle()
+            }
+        }
     }
 
     private val progressView = object : ProgressView(
-        context, attrs,
-        R.attr.ay_progressViewStyle,
-        R.style.AY_TimerView
+        context,
+        attrs,
+        R.styleable.TimerView_ay_progressViewStyle,
+        progressViewStyle
     ) {
         private val separatorBounds = Rect()
         private val minutesBounds = Rect()
         private val secondsBounds = Rect()
+        private var letterSpacing: Float = 0f
 
         init {
             textMaxLen = 5
@@ -40,6 +71,7 @@ class TimerView @JvmOverloads constructor(
         override fun onInvalidation() {
             super.onInvalidation()
             textPaint.getTextBounds(TIME_PART_SEPARATOR, separatorBounds)
+            letterSpacing = 10.spToPx(context)
         }
 
         override fun Canvas.drawProgressText() {
@@ -51,15 +83,15 @@ class TimerView @JvmOverloads constructor(
             val minutes = TIME_PART_FORMAT.format(timer?.curTime?.min ?: 0)
             textPaint.getTextBounds(minutes, minutesBounds)
             val minutesStartPoint = PointF(
-                (separatorStartPoint.x - minutesBounds.width() / 2f),
+                (separatorStartPoint.x - minutesBounds.width() - letterSpacing),
                 (textRect.centerY() + minutesBounds.height() / 2f)
             )
             drawText(minutes, minutesStartPoint)
 
-            val seconds = TIME_PART_FORMAT.format(timer?.curTime?.sec ?: 0)
+            val seconds = TIME_PART_FORMAT.format(timer?.curTime?.secCeil() ?: 0)
             textPaint.getTextBounds(seconds, secondsBounds)
             val secondsStartPoint = PointF(
-                (separatorStartPoint.x - secondsBounds.width() / 2f),
+                (separatorStartPoint.x + separatorBounds.width() + letterSpacing),
                 (textRect.centerY() + secondsBounds.height() / 2f)
             )
             drawText(TIME_PART_SEPARATOR, separatorStartPoint)
@@ -147,43 +179,78 @@ class TimerView @JvmOverloads constructor(
      */
     var textTypeface: Typeface by progressView::textTypeface
 
-    var initTime: Timer.ImmutableTime by Delegates.lateinitObjectProperty(
-        this::timer,
-        Timer::initTime,
-        Timer.Time(0)
-    )
-
     var updateTime: Timer.ImmutableTime = Timer.Time(DEFAULT_UPDATE_TIME)
 
-    var timer: Timer? = null
+    var timer: Timer? by InvalidatingLayoutProperty(null)
         private set
 
     private val timerListener = TimerListener()
 
+    private val center = PointF()
+
     init {
+        addView(progressView)
         updateProgress()
-
     }
 
-    fun timerStart() {
-        timer?.start()
+    override fun onLayoutInvalidation() {
+        progressView.requestLayout()
     }
 
-    fun timerStop() {
-        timer?.stop()
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        addTimerListener()
     }
 
-    fun timerPause() {
-        timer?.pause()
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        removeTimerListener()
     }
 
-    fun timerReset() {
-        timer?.reset()
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        center.apply {
+            x = (r - l) / 2f
+            y = (b - t) / 2f
+        }
+        progressView.layout(
+            (center.x - progressView.measuredWidth / 2f).roundToInt(),
+            (center.y - progressView.measuredHeight / 2f).roundToInt(),
+            (center.x + progressView.measuredWidth / 2f).roundToInt(),
+            (center.y + progressView.measuredHeight / 2f).roundToInt(),
+        )
     }
 
-    fun timerState(): Timer.State? = timer?.state
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        measureChildWithMargins(
+            progressView,
+            widthMeasureSpec,
+            0,
+            heightMeasureSpec,
+            0
+        )
+        val w: Int = resolveSizeAndState(progressView.measuredWidth, widthMeasureSpec, 1)
+        val h: Int = resolveSizeAndState(progressView.measuredHeight, heightMeasureSpec, 1)
+        setMeasuredDimension(w, h)
+    }
 
-    fun setTimer(timer: Timer) {
+    override fun generateLayoutParams(attrs: AttributeSet): LayoutParams {
+        return MarginLayoutParams(context, attrs)
+    }
+
+    override fun generateLayoutParams(p: LayoutParams): LayoutParams {
+        return MarginLayoutParams(p)
+    }
+
+    override fun generateDefaultLayoutParams(): LayoutParams {
+        return MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+    }
+
+    override fun checkLayoutParams(p: LayoutParams): Boolean {
+        return p is MarginLayoutParams
+    }
+
+    fun addTimerToView(timer: Timer) {
+        removeTimerListener()
         if (this.timer != timer) {
             this.timer = timer
             addTimerListener()
@@ -198,20 +265,10 @@ class TimerView @JvmOverloads constructor(
         timer?.removeListener(timerListener)
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        addTimerListener()
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        removeTimerListener()
-    }
-
     @MainThread
     private fun updateProgress() {
         timer?.let {
-            val initTimeMs = initTime.inMs
+            val initTimeMs = it.initTime.inMs
             val curTimeMs = it.curTime.inMs
             progressView.progress = (initTimeMs - curTimeMs) / initTimeMs.toFloat()
         }

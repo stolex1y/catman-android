@@ -4,4 +4,8 @@
     <dimen name="progressIndicatorShadowRadius">3dp</dimen>
     <dimen name="progressTrackWidth">2dp</dimen>
     <dimen name="progressTextSize">10sp</dimen>
+    <dimen name="timerTrackWidth">0dp</dimen>
+    <dimen name="timerTextSize">60sp</dimen>
+    <dimen name="timerIndicatorWidth">10dp</dimen>
+    <dimen name="timerIndicatorShadowRadius">8dp</dimen>
 </resources>

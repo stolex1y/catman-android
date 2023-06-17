@@ -22,7 +22,6 @@ import ru.stolexiy.widgets.ProgressView.TextCalculator
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingLayoutProperty
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingProperty
-import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -33,6 +32,8 @@ import kotlin.properties.Delegates
 open class ProgressView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
+    defStyleAttr: Int = R.attr.ay_progressViewStyle,
+    defStyleRes: Int = R.style.AY_ProgressView
 ) : View(context, attrs, 0, 0), InvalidatingProperty.Listener,
     InvalidatingLayoutProperty.Listener {
 
@@ -68,8 +69,8 @@ open class ProgressView @JvmOverloads constructor(
         context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.ProgressView,
-            R.attr.ay_progressViewStyle,
-            R.style.AY_ProgressView
+            defStyleAttr,
+            defStyleRes
         ).apply {
             try {
                 _fillingUp = getBoolean(R.styleable.ProgressView_ay_fillingUp, true)
@@ -185,11 +186,13 @@ open class ProgressView @JvmOverloads constructor(
 
     var text: String by InvalidatingLayoutProperty("")
 
-    private var textMaxHeight: Int = 0
-    private var textMaxWidth: Int = 0
-    private val letterBounds = Rect()
-    private val textRect = RectF()
-    private val textBounds = Rect()
+    protected var textMaxHeight: Int = 0
+        private set
+    protected var textMaxWidth: Int = 0
+        private set
+    protected val letterBounds = Rect()
+    protected val textRect = RectF()
+    protected val textBounds = Rect()
 
     protected val textPaint = Paint().apply {
         this.isAntiAlias = true
@@ -225,11 +228,7 @@ open class ProgressView @JvmOverloads constructor(
     var filledSector: Float = 0f
         private set
 
-    init {
-        onInvalidation()
-    }
-
-    override fun onDraw(canvas: Canvas) {
+    public override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.apply {
             drawCircle()
@@ -237,40 +236,43 @@ open class ProgressView @JvmOverloads constructor(
         }
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        Timber.v("onMeasure width: ${MeasureSpec.toString(widthMeasureSpec)}")
-        Timber.v("onMeasure height: ${MeasureSpec.toString(heightMeasureSpec)}")
-
+    public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        onInvalidation()
         val (minW: Int, minH: Int) = calcMinSize()
-        Timber.v("min width: $minW")
-        Timber.v("min height: $minH")
 
-        val w: Int = resolveSizeAndState(minW, widthMeasureSpec, 1)
-        val h: Int = resolveSizeAndState(minH, heightMeasureSpec, 1)
+        var w: Int = resolveSizeAndState(minW, widthMeasureSpec, 1)
+        var h: Int = resolveSizeAndState(minH, heightMeasureSpec, 1)
 
-        Timber.v("onMeasure result width: ${MeasureSpec.toString(w)}")
-        Timber.v("onMeasure result height: ${MeasureSpec.toString(h)}")
+        val desiredW: Int = MeasureSpec.getSize(w)
+        val desiredH: Int = MeasureSpec.getSize(h)
+
+        if (desiredW != desiredH) {
+            val max = max(desiredW, desiredH)
+            w = resolveSizeAndState(max, widthMeasureSpec, 1)
+            h = resolveSizeAndState(max, heightMeasureSpec, 1)
+        }
+
         setMeasuredDimension(w, h)
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+    public override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        val circleWidthWithShadow = progressWidth + 2 * progressShadowRadius
+        val circleHalfWidthWithShadow = progressWidth + 2 * progressShadowRadius + 2
         circleInnerRadius = (min(w, h) -
                 maxOf(paddingLeft, paddingRight, paddingBottom, paddingTop)) / 2f -
-                circleWidthWithShadow
-        circleOuterRadius = circleInnerRadius + circleWidthWithShadow
+                circleHalfWidthWithShadow
+        circleOuterRadius = circleInnerRadius + circleHalfWidthWithShadow
         circleCenter.apply {
-            x = paddingStart + circleOuterRadius
-            y = paddingTop + circleOuterRadius
+            x = w / 2f
+            y = h / 2f
         }
         // circle rect to draw
         circleRect.apply {
-            left = circleCenter.x - circleOuterRadius + circleWidthWithShadow / 2f
-            top = circleCenter.y - circleOuterRadius + circleWidthWithShadow / 2f
-            right = circleCenter.x + circleOuterRadius - circleWidthWithShadow / 2f
-            bottom = circleCenter.y + circleOuterRadius - circleWidthWithShadow / 2f
+            left = circleCenter.x - circleOuterRadius + circleHalfWidthWithShadow / 2f
+            top = circleCenter.y - circleOuterRadius + circleHalfWidthWithShadow / 2f
+            right = circleCenter.x + circleOuterRadius - circleHalfWidthWithShadow / 2f
+            bottom = circleCenter.y + circleOuterRadius - circleHalfWidthWithShadow / 2f
         }
 
         textRect.apply {
@@ -287,11 +289,10 @@ open class ProgressView @JvmOverloads constructor(
     }
 
     override fun onLayoutInvalidation() {
-        onInvalidation()
         requestLayout()
     }
 
-    private fun onInvalidation() {
+    protected open fun onInvalidation() {
         updateFilledSector()
         updateMaxTextBounds()
         updateText()
@@ -331,11 +332,13 @@ open class ProgressView @JvmOverloads constructor(
     }
 
     private fun Canvas.drawCircle() {
-        drawCircle(
-            circleRect.centerX(), circleRect.centerY(),
-            circleRect.width() / 2f,
-            progressTrackPaint
-        )
+        if (trackWidth > 0) {
+            drawCircle(
+                circleRect.centerX(), circleRect.centerY(),
+                circleRect.width() / 2f,
+                progressTrackPaint
+            )
+        }
         drawArc(circleRect, -90f, filledSector, false, progressPaint)
     }
 
@@ -356,7 +359,8 @@ open class ProgressView @JvmOverloads constructor(
     }
 
     private fun updateMaxTextBounds() {
-        textPaint.getTextBounds("M", letterBounds)
+        textPaint.getTextBounds("MM", letterBounds)
+        letterBounds.right = letterBounds.left + (letterBounds.width() / 2f).roundToInt()
         textMaxWidth = letterBounds.width() * textMaxLen
         textMaxHeight = letterBounds.height()
     }

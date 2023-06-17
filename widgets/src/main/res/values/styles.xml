@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="AY_ProgressView">
         <item name="ay_fillingUp">true</item>
         <item name="ay_clockwise">true</item>
@@ -12,5 +13,21 @@
         <item name="android:textSize">32sp</item>
         <item name="android:textColor">?android:attr/textColor</item>
         <item name="ay_textMaxLen">3</item>
+    </style>
+
+    <style name="AY_TimerView_Progress">
+        <item name="ay_fillingUp">false</item>
+        <item name="ay_clockwise">true</item>
+        <item name="ay_progressColor">?attr/colorSurface</item>
+        <item name="ay_progressWidth">@dimen/ay_progressWidth</item>
+        <item name="ay_progressShadowColor">?attr/colorSurfaceVariant</item>
+        <item name="ay_progressShadowRadius">@dimen/ay_progressShadowRadius</item>
+        <item name="ay_trackWidth">0dp</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">?android:attr/textColor</item>
+    </style>
+
+    <style name="AY_TimerView">
+        <item name="ay_progressViewStyle">@style/AY_TimerView_Progress</item>
     </style>
 </resources>

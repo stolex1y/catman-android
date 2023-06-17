@@ -154,6 +154,14 @@ open class Timer @Inject constructor(
     }
 
     @AnyThread
+    fun clearListeners() {
+        listenersLock.lock()
+        listeners.clear()
+        listenersNextUpdateTime.clear()
+        listenersLock.unlock()
+    }
+
+    @AnyThread
     @GuardedBy("mutex")
     protected fun onPause() {
         state = State.PAUSED
