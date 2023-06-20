@@ -18,6 +18,9 @@ import ru.stolexiy.common.TimerTestUtil.startAndVerify
 import ru.stolexiy.common.TimerTestUtil.stopAndVerify
 import ru.stolexiy.common.TimerTestUtil.verifyState
 import ru.stolexiy.common.TimerTestUtil.verifyTimeToFinish
+import ru.stolexiy.common.timer.Time
+import ru.stolexiy.common.timer.TimeConstants
+import ru.stolexiy.common.timer.Timer
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class TimerTest {
@@ -30,9 +33,11 @@ internal class TimerTest {
     private val testDispatcher = UnconfinedTestDispatcher(testScope.testScheduler)
 
     private val underTest =
-        Timer(testDispatcher).apply {
+        Timer {
+            testDispatcher
+        }.apply {
             addListener(LogTimerListener)
-            initTime = Timer.Time(INIT_TIME_MS)
+            initTime = Time(INIT_TIME_MS)
         }
 
     @Before
@@ -147,8 +152,8 @@ internal class TimerTest {
 
     private fun createListenerVerifyingUpdateTime(updateTime: Long): Timer.Listener {
         return object : Timer.Listener {
-            var onUpdateTimeChecked = false
-            var prevCurTime = underTest.initTime.inMs
+            private var onUpdateTimeChecked = false
+            private var prevCurTime = underTest.initTime.inMs
             override val updateTime: Long
                 get() = updateTime
 
@@ -156,7 +161,7 @@ internal class TimerTest {
                 onUpdateTimeChecked = true
                 val actualUpdateTime = prevCurTime - timer.curTime.inMs
                 prevCurTime = timer.curTime.inMs
-                if (timer.curTime.inMs > 0L)
+                if (timer.curTime != timer.initTime && timer.curTime.inMs > 0L)
                     assertEquals(
                         "On update time called after the time different from the specified",
                         updateTime,

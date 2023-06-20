@@ -1,4 +1,4 @@
-package ru.stolexiy.common
+package ru.stolexiy.common.timer
 
 object TimeConstants {
     const val SEC_TO_MS = 1000L

@@ -7,11 +7,14 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.newSingleThreadContext
 import ru.stolexiy.common.di.CoroutineDispatcherNames.DEFAULT_DISPATCHER
 import ru.stolexiy.common.di.CoroutineDispatcherNames.IO_DISPATCHER
 import ru.stolexiy.common.di.CoroutineDispatcherNames.MAIN_DISPATCHER
+import ru.stolexiy.common.di.SingleThreadDispatcherProvider
 import timber.log.Timber
 import javax.inject.Named
 import javax.inject.Singleton
@@ -37,6 +40,14 @@ interface CoroutineModule {
         @Provides
         @Singleton
         fun defaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+
+        @OptIn(DelicateCoroutinesApi::class)
+        @Provides
+        @Singleton
+        fun singleThreadDispatcherProvider(): SingleThreadDispatcherProvider =
+            SingleThreadDispatcherProvider { threadName ->
+                newSingleThreadContext(threadName)
+            }
 
         @Named(APPLICATION_SCOPE)
         @Provides

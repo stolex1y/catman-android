@@ -1,33 +1,28 @@
-package ru.stolexiy.common
+package ru.stolexiy.common.timer
 
 import androidx.annotation.AnyThread
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import ru.stolexiy.common.TimeConstants.MIN_TO_MS
-import ru.stolexiy.common.TimeConstants.MIN_TO_SEC
-import ru.stolexiy.common.TimeConstants.SEC_TO_MS
-import ru.stolexiy.common.di.CoroutineDispatcherNames
+import ru.stolexiy.common.di.SingleThreadDispatcherProvider
+import ru.stolexiy.common.timer.TimeConstants.MIN_TO_SEC
+import ru.stolexiy.common.timer.TimeConstants.SEC_TO_MS
 import java.util.PriorityQueue
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
-import javax.inject.Named
-import kotlin.math.ceil
+import kotlin.concurrent.withLock
 import kotlin.math.max
 import kotlin.math.min
 
 open class Timer @Inject constructor(
-    @Named(CoroutineDispatcherNames.SINGLE_THREAD_DISPATCHER) coroutineDispatcher: CoroutineDispatcher
+    singleThreadDispatcherProvider: SingleThreadDispatcherProvider
 ) {
     companion object {
         private const val TAG = "[AY] Timer"
@@ -36,7 +31,7 @@ open class Timer @Inject constructor(
         private val DEFAULT_TIME_MAX = Time((999L * MIN_TO_SEC + 59L) * SEC_TO_MS)
     }
 
-    protected val mutex = Mutex()
+    private val lock: Lock = ReentrantLock()
 
     @Volatile
     var maxInitTime: ImmutableTime = DEFAULT_TIME_MAX
@@ -59,18 +54,21 @@ open class Timer @Inject constructor(
             field = Time(min(value.inMs, maxInitTime.inMs))
         }
 
-    @GuardedBy("mutex")
+    @GuardedBy("lock")
     private val _curTime = Time(initTime)
     val curTime: ImmutableTime
         get() = _curTime
 
     var state: State = State.STOPPED
-        @GuardedBy("mutex") private set
+        @GuardedBy("lock") private set
 
+    private val coroutineDispatcher: CoroutineDispatcher = singleThreadDispatcherProvider.get(TAG)
     private val coroutineScope = CoroutineScope(
-        CoroutineName(TAG) +
-                coroutineDispatcher +
-                CoroutineExceptionHandler { _, throwable -> errors = throwable }
+        coroutineDispatcher +
+                CoroutineExceptionHandler { _, throwable ->
+                    System.err.println(throwable.stackTrace)
+                    errors = throwable
+                }
     )
 
     @VisibleForTesting
@@ -78,112 +76,108 @@ open class Timer @Inject constructor(
         private set
 
     @VisibleForTesting
-    @GuardedBy("mutex")
+    @GuardedBy("lock")
     private var timerJob: Job? = null
-
-    init {
-        coroutineScope.launch(coroutineDispatcher) {
-            Thread.currentThread().priority = Thread.MAX_PRIORITY
-        }
-    }
 
     @AnyThread
     fun start() {
-        coroutineScope.launch {
-            mutex.withLock {
-                timerJob = when (state) {
-                    State.RUNNING -> return@launch
-                    State.STOPPED -> {
-                        _curTime.setTime(initTime)
-                        resetListenersUpdateTime()
-                        timerRun()
-                    }
-
-                    State.PAUSED -> timerRun()
+        lock.withLock {
+            timerJob = when (state) {
+                State.RUNNING -> return@withLock
+                State.STOPPED -> {
+                    _curTime.setTime(initTime)
+                    resetListenersUpdateTime()
+                    timerRun()
                 }
+
+                State.PAUSED -> timerRun()
+                State.DESTROYED -> throw IllegalStateException()
             }
         }
     }
 
     @AnyThread
     fun pause() {
-        coroutineScope.launch {
-            mutex.withLock {
-                if (state == State.RUNNING) {
-                    cancelTimerJob()
-                    onPause()
-                }
+        lock.withLock {
+            if (state == State.RUNNING) {
+                cancelTimerJob()
+                onPause()
             }
         }
     }
 
     @AnyThread
     fun stop() {
-        coroutineScope.launch {
-            mutex.withLock {
-                if (state == State.STOPPED)
-                    return@launch
-                cancelTimerJob()
-                onStop()
-            }
+        lock.withLock {
+            if (state == State.STOPPED)
+                return@withLock
+            cancelTimerJob()
+            onStop()
         }
     }
 
     @AnyThread
     fun reset() {
-        coroutineScope.launch {
-            mutex.withLock {
-                cancelTimerJob()
-                onStop()
-            }
+        lock.withLock {
+            cancelTimerJob()
+            onStop()
         }
     }
 
     @AnyThread
     fun addListener(listener: Listener) {
-        listenersLock.lock()
-        if (!listeners.contains(listener)) {
-            listeners.add(listener)
-            if (listener.updateTime > 0L)
-                listenersNextUpdateTime.add(listener.updateTime to listener)
+        listenersLock.withLock {
+            if (!listeners.contains(listener)) {
+                listeners.add(listener)
+                if (listener.updateTime > 0L)
+                    addListenerNextUpdateTime(listener)
+            }
         }
-        listenersLock.unlock()
     }
 
     @AnyThread
     fun removeListener(listener: Listener) {
-        listenersLock.lock()
-        if (listeners.contains(listener)) {
-            listeners.remove(listener)
-            listenersNextUpdateTime.removeIf { it.second == listener }
+        listenersLock.withLock {
+            if (listeners.contains(listener)) {
+                listeners.remove(listener)
+                listenersNextUpdateTime.removeIf { it.second == listener }
+            }
         }
-        listenersLock.unlock()
     }
 
     @AnyThread
     fun clearListeners() {
-        listenersLock.lock()
-        listeners.clear()
-        listenersNextUpdateTime.clear()
-        listenersLock.unlock()
+        listenersLock.withLock {
+            listeners.clear()
+            listenersNextUpdateTime.clear()
+        }
     }
 
     @AnyThread
-    @GuardedBy("mutex")
+    fun destroy() {
+        lock.withLock {
+            cancelTimerJob()
+            onDestroy()
+        }
+        coroutineDispatcher.cancel()
+    }
+
+    @AnyThread
+    @GuardedBy("lock")
     protected fun onPause() {
         state = State.PAUSED
         listeners.forEach { it.onPause(this) }
     }
 
     @AnyThread
-    @GuardedBy("mutex")
+    @GuardedBy("lock")
     protected fun onStart() {
         state = State.RUNNING
         listeners.forEach { it.onStart(this) }
     }
 
     @AnyThread
-    @GuardedBy("mutex")
+    @GuardedBy("lock")
     protected fun onStop() {
         _curTime.setTime(initTime)
         resetListenersUpdateTime()
@@ -192,34 +186,44 @@ open class Timer @Inject constructor(
     }
 
     @AnyThread
-    @GuardedBy("mutex")
+    @GuardedBy("lock")
     protected fun onFinish() {
         state = State.STOPPED
         listeners.forEach { it.onFinish(this) }
     }
 
     @AnyThread
-    @GuardedBy("mutex")
-    private suspend fun cancelTimerJob() {
+    @GuardedBy("lock")
+    protected fun onDestroy() {
+        state = State.DESTROYED
+        listeners.forEach { it.onDestroy(this) }
+    }
+
+    @AnyThread
+    @GuardedBy("lock")
+    private fun cancelTimerJob() {
         timerJob = timerJob?.let {
-            it.cancelAndJoin()
+            it.cancel()
             null
         }
     }
 
     @AnyThread
-    @GuardedBy("mutex")
     private fun timerRun(): Job {
         return coroutineScope.launch {
-            onStart()
+            lock.withLock { onStart() }
             while (_curTime > 0) {
-                val nextListenerUpdateTime = listenersNextUpdateTime.firstOrNull()?.first ?: 0
+                val nextListenerUpdateTime = listenersLock.withLock {
+                    listenersNextUpdateTime.firstOrNull()?.first ?: 0
+                }
                 val delayTime = curTime.inMs - nextListenerUpdateTime
                 delay(delayTime)
-                _curTime.minus(delayTime)
-                onUpdateCurTime()
+                lock.withLock {
+                    _curTime.minus(delayTime)
+                    onUpdateCurTime()
+                }
             }
-            onFinish()
+            lock.withLock { onFinish() }
         }
     }
 
@@ -251,97 +255,17 @@ open class Timer @Inject constructor(
         listenersNextUpdateTime.add(max(0, curTime.inMs - listener.updateTime) to listener)
     }
 
-    abstract class ImmutableTime {
-        abstract val inMs: Long
-        abstract val min: Long
-        abstract val sec: Long
-        abstract val ms: Long
-
-        fun secCeil(): Int {
-            return ceil(this.sec.toFloat() + this.ms / 1000f).toInt()
-        }
-
-        operator fun compareTo(ms: Long): Int {
-            return this.inMs.compareTo(ms)
-        }
-
-        operator fun compareTo(other: ImmutableTime): Int {
-            return this.inMs.compareTo(other.inMs)
-        }
-
-        override operator fun equals(other: Any?): Boolean {
-            if (other == null)
-                return false
-            return when (other) {
-                is Long -> this.inMs == other
-                is ImmutableTime -> this.inMs == other.inMs
-                else -> false
-            }
-        }
-
-        override fun hashCode(): Int {
-            return inMs.hashCode()
-        }
-    }
-
-    class Time(ms: Long) : ImmutableTime() {
-        private var _inMs: Long = 0
-        private var _min: Long = 0
-        private var _sec: Long = 0
-        private var _ms: Long = 0
-
-        override val inMs: Long
-            get() = _inMs
-        override val min: Long
-            get() = _min
-        override val sec: Long
-            get() = _sec
-        override val ms: Long
-            get() = _ms
-
-        init {
-            setTime(ms)
-        }
-
-        constructor(min: Long, sec: Long) : this(minAndSecToMs(min, sec))
-
-        constructor(time: ImmutableTime) : this(time.inMs)
-
-        operator fun minus(ms: Long) {
-            setTime(max(this.inMs - ms, 0))
-        }
-
-        operator fun minus(time: ImmutableTime) {
-            setTime(max(this.inMs - time.inMs, 0))
-        }
-
-        fun setTime(inMs: Long) {
-            this._inMs = inMs
-            _min = inMs / MIN_TO_MS
-            _sec = inMs % MIN_TO_MS / SEC_TO_MS
-            _ms = inMs % SEC_TO_MS
-        }
-
-        fun setTime(time: ImmutableTime) {
-            setTime(time.inMs)
-        }
-
-        private companion object {
-            @JvmStatic
-            private fun minAndSecToMs(min: Long, sec: Long): Long {
-                return (min * MIN_TO_SEC + sec) * SEC_TO_MS
-            }
-        }
-
-        override fun toString(): String {
-            return "$_min min, $_sec sec ($_inMs ms)"
+    private fun increaseTimerThreadPriority() {
+        coroutineScope.launch(coroutineDispatcher) {
+            Thread.currentThread().priority = Thread.MAX_PRIORITY
         }
     }
 
     enum class State {
         STOPPED,
         RUNNING,
-        PAUSED
+        PAUSED,
+        DESTROYED
     }
 
     interface Listener {
@@ -366,6 +290,10 @@ open class Timer @Inject constructor(
 
         @AnyThread
         fun onUpdateTime(timer: Timer) {
+        }
+
+        @AnyThread
+        fun onDestroy(timer: Timer) {
         }
     }
 }

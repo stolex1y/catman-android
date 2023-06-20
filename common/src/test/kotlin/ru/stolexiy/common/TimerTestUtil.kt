@@ -4,6 +4,8 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
+import ru.stolexiy.common.timer.Time
+import ru.stolexiy.common.timer.Timer
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal object TimerTestUtil {
@@ -44,7 +46,7 @@ internal object TimerTestUtil {
         advanceTimeBy(timeToFinish)
         timer.verifyState(
             Timer.State.STOPPED,
-            "Timer must be STOPPED after waiting time to finish: ${Timer.Time(timeToFinish)}, " +
+            "Timer must be STOPPED after waiting time to finish: ${Time(timeToFinish)}, " +
                     "but actual is still time: ${timer.curTime}"
         )
     }
