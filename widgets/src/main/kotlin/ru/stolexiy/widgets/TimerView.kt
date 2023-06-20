@@ -10,11 +10,12 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.MainThread
-import ru.stolexiy.common.Timer
+import ru.stolexiy.common.timer.ImmutableTime
+import ru.stolexiy.common.timer.Time
+import ru.stolexiy.common.timer.Timer
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.spToPx
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingLayoutProperty
-import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 class TimerView @JvmOverloads constructor(
@@ -26,10 +27,6 @@ class TimerView @JvmOverloads constructor(
         private const val TIME_PART_FORMAT = "%02d"
         private const val TIME_PART_SEPARATOR = ":"
         const val DEFAULT_UPDATE_TIME = 30L
-
-        private fun Timer.ImmutableTime.secCeil(): Int {
-            return ceil(this.sec.toFloat() + this.ms / 1000f).toInt()
-        }
     }
 
     @IdRes
@@ -179,7 +176,7 @@ class TimerView @JvmOverloads constructor(
      */
     var textTypeface: Typeface by progressView::textTypeface
 
-    var updateTime: Timer.ImmutableTime = Timer.Time(DEFAULT_UPDATE_TIME)
+    var updateTime: ImmutableTime = Time(DEFAULT_UPDATE_TIME)
 
     var timer: Timer? by InvalidatingLayoutProperty(null)
         private set
@@ -194,7 +191,8 @@ class TimerView @JvmOverloads constructor(
     }
 
     override fun onLayoutInvalidation() {
-        progressView.requestLayout()
+        requestLayout()
+        progressView.invalidate()
     }
 
     override fun onAttachedToWindow() {
@@ -249,12 +247,20 @@ class TimerView @JvmOverloads constructor(
         return p is MarginLayoutParams
     }
 
-    fun addTimerToView(timer: Timer) {
+    @MainThread
+    fun attachTimer(timer: Timer) {
         removeTimerListener()
         if (this.timer != timer) {
             this.timer = timer
             addTimerListener()
+            updateProgress()
         }
+    }
+
+    @MainThread
+    fun detachTimer() {
+        removeTimerListener()
+        this.timer = null
     }
 
     private fun addTimerListener() {
@@ -277,10 +283,6 @@ class TimerView @JvmOverloads constructor(
     private inner class TimerListener : Timer.Listener {
         override val updateTime: Long
             get() = this@TimerView.updateTime.inMs
-
-        override fun onFinish(timer: Timer) {
-            timer.reset()
-        }
 
         override fun onUpdateTime(timer: Timer) {
             post {

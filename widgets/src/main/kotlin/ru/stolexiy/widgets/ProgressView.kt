@@ -289,7 +289,9 @@ open class ProgressView @JvmOverloads constructor(
     }
 
     override fun onLayoutInvalidation() {
+        onInvalidation()
         requestLayout()
+        invalidate()
     }
 
     protected open fun onInvalidation() {
