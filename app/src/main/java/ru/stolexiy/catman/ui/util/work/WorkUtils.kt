@@ -7,16 +7,17 @@ import androidx.work.Data
 import androidx.work.workDataOf
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.ui.util.notification.NotificationChannels
+import ru.stolexiy.catman.ui.util.notification.NotificationUtils
 import ru.stolexiy.common.Json
 import kotlin.reflect.KClass
 
 object WorkUtils {
-    const val ADD_PURPOSE_NOTIFICATION_ID = 1
-    const val UPDATE_PURPOSE_NOTIFICATION_ID = 2
-    const val DELETE_PURPOSE_NOTIFICATION_ID = 3
-    const val ADD_CATEGORY_NOTIFICATION_ID = 4
-    const val UPDATE_CATEGORY_NOTIFICATION_ID = 5
-    const val DELETE_CATEGORY_NOTIFICATION_ID = 6
+    val ADD_PURPOSE_NOTIFICATION_ID by lazy { NotificationUtils.getUniqueNotificationId() }
+    val UPDATE_PURPOSE_NOTIFICATION_ID by lazy { NotificationUtils.getUniqueNotificationId() }
+    val DELETE_PURPOSE_NOTIFICATION_ID by lazy { NotificationUtils.getUniqueNotificationId() }
+    val ADD_CATEGORY_NOTIFICATION_ID by lazy { NotificationUtils.getUniqueNotificationId() }
+    val UPDATE_CATEGORY_NOTIFICATION_ID by lazy { NotificationUtils.getUniqueNotificationId() }
+    val DELETE_CATEGORY_NOTIFICATION_ID by lazy { NotificationUtils.getUniqueNotificationId() }
 
     private const val OBJECT_DATA = "OBJECT_DATA"
     private const val PRIMITIVE_DATA = "PRIMITIVE_DATA"

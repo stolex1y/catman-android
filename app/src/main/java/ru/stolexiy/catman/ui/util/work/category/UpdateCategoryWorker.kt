@@ -31,7 +31,7 @@ class UpdateCategoryWorker @AssistedInject constructor(
     workerParams
 ) {
 
-    override val notificationId: Int = WorkUtils.UPDATE_PURPOSE_NOTIFICATION_ID
+    override val notificationId: Int = WorkUtils.UPDATE_CATEGORY_NOTIFICATION_ID
     override val notificationMsg: String = applicationContext.getString(R.string.category_updating)
     override val workName: String = UPDATE_PURPOSE_TAG
 
