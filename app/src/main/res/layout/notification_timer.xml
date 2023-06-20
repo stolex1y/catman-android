@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+    android:orientation="horizontal"
+    tools:layout_height="48dp">
+
+    <TextView
+        android:id="@+id/text_time"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="16dp"
+        android:layout_marginVertical="8dp"
+        android:layout_weight="1"
+        android:gravity="start|center_vertical"
+        android:textAppearance="@style/NotficationTextAppearance"
+        tools:text="10:02" />
+
+    <ImageView
+        android:id="@+id/toggle_button_start"
+        style="@style/NotificationButton"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginVertical="8dp"
+        android:src="@drawable/play"
+        tools:src="@color/transparent" />
+
+    <ImageView
+        android:id="@+id/toggle_button_stop"
+        style="@style/NotificationButton"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginVertical="8dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/settings"
+        tools:src="@drawable/play" />
+
+</LinearLayout>

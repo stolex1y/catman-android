@@ -9,6 +9,7 @@ import ru.stolexiy.catman.R
 
 object NotificationChannels {
     const val BACKGROUND_WORK = "BACKGROUND"
+    const val TIMER = "TIMER"
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     fun NotificationManager.initChannels(appContext: Context) {
@@ -17,6 +18,11 @@ object NotificationChannels {
             BACKGROUND_WORK,
             appContext.getString(R.string.background_work),
             NotificationManager.IMPORTANCE_MIN
+        )
+        channels += NotificationChannel(
+            TIMER,
+            appContext.getString(R.string.timer),
+            NotificationManager.IMPORTANCE_DEFAULT
         )
         createNotificationChannels(channels)
     }
