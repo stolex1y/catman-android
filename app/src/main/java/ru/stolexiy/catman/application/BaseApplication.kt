@@ -1,4 +1,4 @@
-package ru.stolexiy.catman
+package ru.stolexiy.catman.application
 
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory

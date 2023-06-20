@@ -1,4 +1,4 @@
-package ru.stolexiy.catman
+package ru.stolexiy.catman.application
 
 import android.app.NotificationManager
 import android.os.Build
@@ -7,6 +7,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import ru.stolexiy.catman.BuildConfig
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose

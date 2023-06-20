@@ -22,11 +22,12 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
 open class Timer @Inject constructor(
-    @Named(CoroutineDispatcherNames.IO_DISPATCHER) coroutineDispatcher: CoroutineDispatcher
+    @Named(CoroutineDispatcherNames.SINGLE_THREAD_DISPATCHER) coroutineDispatcher: CoroutineDispatcher
 ) {
     companion object {
         private const val TAG = "[AY] Timer"
@@ -79,6 +80,12 @@ open class Timer @Inject constructor(
     @VisibleForTesting
     @GuardedBy("mutex")
     private var timerJob: Job? = null
+
+    init {
+        coroutineScope.launch(coroutineDispatcher) {
+            Thread.currentThread().priority = Thread.MAX_PRIORITY
+        }
+    }
 
     @AnyThread
     fun start() {
@@ -249,6 +256,10 @@ open class Timer @Inject constructor(
         abstract val min: Long
         abstract val sec: Long
         abstract val ms: Long
+
+        fun secCeil(): Int {
+            return ceil(this.sec.toFloat() + this.ms / 1000f).toInt()
+        }
 
         operator fun compareTo(ms: Long): Int {
             return this.inMs.compareTo(ms)
