@@ -134,6 +134,7 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     private fun <T> Flow<Result<T>>.handleError(): Flow<Result<T>> {
         return this.onEach {
             if (it.isFailure) {
+                Timber.e(it.exceptionOrNull()!!, "error in flow")
                 updateState(it.exceptionOrNull()!!)
                 throw CancellationException()
             }

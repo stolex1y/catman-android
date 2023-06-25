@@ -15,12 +15,12 @@ buildscript {
 }
 
 plugins {
-    androidApp()
-    androidLib()
-    serialization()
-    ksp()
-    kotlinJvm()
-    hilt()
+    id(Plugins.APPLICATION) version PluginVersions.APPLICATION apply false
+    id(Plugins.ANDROID_LIBRARY) version PluginVersions.ANDROID_LIBRARY apply false
+    id(Plugins.SERIALIZATION) version PluginVersions.SERIALIZATION apply false
+    id(Plugins.KSP) version PluginVersions.KSP apply false
+    id(Plugins.KOTLIN_JVM) version PluginVersions.KOTLIN_JVM apply false
+    id(Plugins.HILT) version PluginVersions.HILT apply false
 }
 
 tasks.register("clean", Delete::class) {

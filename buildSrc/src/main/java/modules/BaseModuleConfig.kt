@@ -7,9 +7,9 @@ abstract class BaseModuleConfig {
     abstract val versionCode: Int
     abstract val versionName: String
 
-    open val compileSdk = 33
-    open val minSdk = 24
-    open val targetSdk = 33
+    open val compileSdk = 34
+    open val minSdk = 26
+    open val targetSdk = 34
 
     open val testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     open val proguardConsumerRules =  "consumer-rules.pro"

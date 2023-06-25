@@ -1,7 +1,7 @@
 package ru.stolexiy.catman.ui.dialog.purpose.edit
 
 import androidx.lifecycle.ViewModel
-import ru.stolexiy.catman.CatmanApplication
+import ru.stolexiy.catman.application.CatmanApplication
 
 class EditPurposeViewModel(
     private val editingPurposeId: Long,

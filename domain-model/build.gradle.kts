@@ -3,6 +3,7 @@ import AppDependencies.coroutines
 import AppDependencies.kotlinStdLib
 import AppDependencies.moduleImplementation
 import modules.DomainModelModuleConfig
+import modules.Modules
 
 plugins {
     id(Plugins.JAVA_LIBRARY)
@@ -26,7 +27,7 @@ kotlin {
 }
 
 dependencies {
-    moduleImplementation("common")
+    moduleImplementation(Modules.COMMON)
 
     androidAnnotation()
 }

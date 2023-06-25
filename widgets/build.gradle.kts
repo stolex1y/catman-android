@@ -9,6 +9,7 @@ import AppDependencies.lifecycle
 import AppDependencies.material
 import AppDependencies.moduleImplementation
 import AppDependencies.timberAndroid
+import modules.Modules
 import modules.WidgetsModuleConfig
 
 plugins {
@@ -60,7 +61,7 @@ android {
 }
 
 dependencies {
-    moduleImplementation("common")
+    moduleImplementation(Modules.COMMON)
 
     kotlinStdLib()
     activityKtx()

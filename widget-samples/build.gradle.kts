@@ -11,6 +11,7 @@ import AppDependencies.material
 import AppDependencies.moduleAndroidTestImplementation
 import AppDependencies.moduleImplementation
 import AppDependencies.timberAndroid
+import modules.Modules
 import modules.WidgetSamplesModuleConfig
 
 plugins {
@@ -66,9 +67,9 @@ android {
 
 
 dependencies {
-    moduleImplementation("widgets")
-    moduleImplementation("common")
-    moduleAndroidTestImplementation("common-test")
+    moduleImplementation(Modules.WIDGETS)
+    moduleImplementation(Modules.COMMON)
+    moduleAndroidTestImplementation(Modules.COMMON_TEST)
 
     kotlinStdLib()
     activityKtx()

@@ -5,6 +5,7 @@ import AppDependencies.jvmAnnotation
 import AppDependencies.kotlinStdLib
 import AppDependencies.moduleImplementation
 import modules.DomainModuleConfig
+import modules.Modules
 
 plugins {
     id(Plugins.JAVA_LIBRARY)
@@ -33,9 +34,9 @@ tasks.named<Test>("test") {
 }
 
 dependencies {
-    moduleImplementation("common")
-    moduleImplementation("domain-repository-api")
-    moduleImplementation("domain-model")
+    moduleImplementation(Modules.COMMON)
+    moduleImplementation(Modules.DOMAIN_REPOSITORY_API)
+    moduleImplementation(Modules.DOMAIN_MODEL)
 
     kotlinStdLib()
     dagger()
