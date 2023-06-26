@@ -10,8 +10,8 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.MainThread
-import ru.stolexiy.common.timer.ImmutableTime
 import ru.stolexiy.common.timer.Time
+import ru.stolexiy.common.timer.MutableTime
 import ru.stolexiy.common.timer.Timer
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.spToPx
@@ -176,7 +176,7 @@ class TimerView @JvmOverloads constructor(
      */
     var textTypeface: Typeface by progressView::textTypeface
 
-    var updateTime: ImmutableTime = Time(DEFAULT_UPDATE_TIME)
+    var updateTime: Time = MutableTime(DEFAULT_UPDATE_TIME)
 
     var timer: Timer? by InvalidatingLayoutProperty(null)
         private set

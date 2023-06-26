@@ -7,23 +7,29 @@ import androidx.annotation.StringRes
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import ru.stolexiy.catman.R
-import ru.stolexiy.common.DateUtils.toCalendar
 import ru.stolexiy.catman.ui.util.validation.Condition
 import ru.stolexiy.catman.ui.util.validation.Condition.Companion.isValid
+import ru.stolexiy.common.DateUtils.toEpochMillis
+import ru.stolexiy.common.DateUtils.toZonedDateTime
+import ru.stolexiy.common.DateUtils.todayLastMoment
 import java.io.Serializable
-import java.util.Calendar
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 class DatePicker(
     @StringRes title: Int,
     selection: Long = System.currentTimeMillis(),
-    isValid: (Long) -> Boolean
+    isValid: Validator
 ) {
 
     constructor(
         @StringRes title: Int,
-        selection: Long = System.currentTimeMillis(),
-        condition: Condition<Calendar?>
-    ) : this(title, selection, { condition.isValid(it.toCalendar()) })
+        selection: ZonedDateTime = todayLastMoment(),
+        condition: Condition<ZonedDateTime?>
+    ) : this(
+        title,
+        selection.toEpochMillis() + selection.offset.totalSeconds * 1000,
+        { condition.isValid(it.toZonedDateTime(ZoneOffset.UTC)) })
 
     constructor(
         @StringRes title: Int,
@@ -59,8 +65,8 @@ class DatePicker(
             override fun createFromParcel(source: Parcel): DateValidator? {
                 return source.readBundle(CREATOR::class.java.classLoader)
                     ?.getSerializable(VALIDATOR)?.let {
-                    DateValidator(it as Validator)
-                }
+                        DateValidator(it as Validator)
+                    }
             }
 
             override fun newArray(size: Int): Array<DateValidator?> {

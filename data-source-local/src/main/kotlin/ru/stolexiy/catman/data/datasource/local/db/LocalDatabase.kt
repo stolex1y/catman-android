@@ -23,7 +23,7 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
         PlanEntity::class,
         ColorEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

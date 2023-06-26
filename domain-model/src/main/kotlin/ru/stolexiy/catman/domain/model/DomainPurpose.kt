@@ -1,24 +1,40 @@
 package ru.stolexiy.catman.domain.model
 
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
+import ru.stolexiy.common.DateUtils.toZonedDateTime
+import java.time.ZonedDateTime
 
 data class DomainPurpose(
     val name: String,
     val categoryId: Long,
-    val deadline: Calendar,
-    val description: String? = null,
+    val deadline: ZonedDateTime,
+    val description: String = "",
     val isFinished: Boolean = false,
     val progress: Int = 0,
     val id: Long = 0,
     val priority: Int = 0
 ) {
+    constructor(
+        name: String,
+        categoryId: Long,
+        deadlineInMillis: Long,
+        description: String = "",
+        isFinished: Boolean = false,
+        progress: Int = 0,
+        id: Long = 0,
+        priority: Int = 0
+    ) : this(
+        name,
+        categoryId,
+        deadlineInMillis.toZonedDateTime(),
+        description,
+        isFinished,
+        progress,
+        id,
+        priority
+    )
 
     val isDeadlineBurning: Boolean
         get() {
-            val difference = deadline.timeInMillis - System.currentTimeMillis()
-            if (difference <= 0)
-                return true
-            return difference < TimeUnit.DAYS.toMillis(3)
+            return deadline.isBefore(ZonedDateTime.now(deadline.zone).plusDays(3))
         }
 }

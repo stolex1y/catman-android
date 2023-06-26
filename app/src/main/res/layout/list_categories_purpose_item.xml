@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="ru.stolexiy.widgets.ProgressView" />
 
         <variable
             name="data"
@@ -61,7 +62,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:progress="@{data.progress}"
-            app:textCalculator="@{data.textCalculator}" />
+            app:textCalculator="@{ProgressView.TextCalculator.PERCENT}" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

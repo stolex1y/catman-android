@@ -28,13 +28,13 @@ open class Timer @Inject constructor(
         private const val TAG = "[AY] Timer"
 
         @JvmStatic
-        private val DEFAULT_TIME_MAX = Time((999L * MIN_TO_SEC + 59L) * SEC_TO_MS)
+        private val DEFAULT_TIME_MAX = MutableTime((999L * MIN_TO_SEC + 59L) * SEC_TO_MS)
     }
 
     private val lock: Lock = ReentrantLock()
 
     @Volatile
-    var maxInitTime: ImmutableTime = DEFAULT_TIME_MAX
+    var maxInitTime: Time = DEFAULT_TIME_MAX
         @AnyThread set
 
     @GuardedBy("listenersLock")
@@ -48,15 +48,15 @@ open class Timer @Inject constructor(
     private val listenersLock: Lock = ReentrantLock()
 
     @Volatile
-    var initTime: ImmutableTime = Time(0)
+    var initTime: Time = MutableTime(0)
         @AnyThread
         set(value) {
-            field = Time(min(value.inMs, maxInitTime.inMs))
+            field = MutableTime(min(value.inMs, maxInitTime.inMs))
         }
 
     @GuardedBy("lock")
-    private val _curTime = Time(initTime)
-    val curTime: ImmutableTime
+    private val _curTime = MutableTime(initTime)
+    val curTime: Time
         get() = _curTime
 
     var state: State = State.STOPPED

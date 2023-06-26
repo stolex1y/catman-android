@@ -388,6 +388,7 @@ open class ProgressView @JvmOverloads constructor(
         fun calc(progress: Float): String
 
         companion object {
+            @JvmStatic
             val PERCENT: TextCalculator =
                 TextCalculator { progress -> "${(progress * 100).roundToInt()}%" }
         }

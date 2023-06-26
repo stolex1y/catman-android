@@ -38,7 +38,7 @@ import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.commontest.CustomActions.swipeToTop
 import ru.stolexiy.commontest.CustomInstructions.waitAllWorkersInstruction
 import ru.stolexiy.commontest.CustomMatchers.withButtonText
-import java.util.Calendar
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -82,7 +82,7 @@ class AddPurposeDialogTest {
         Purpose(
             UUID.randomUUID().toString(),
             testCategory,
-            Calendar.getInstance()
+            ZonedDateTime.now()
         )
     }
 

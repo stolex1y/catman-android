@@ -22,8 +22,8 @@ import ru.stolexiy.catman.ui.util.notification.NotificationChannels
 import ru.stolexiy.catman.ui.util.notification.NotificationUtils
 import ru.stolexiy.common.DateUtils.toMinSecFormat
 import ru.stolexiy.common.di.CoroutineDispatcherNames
-import ru.stolexiy.common.timer.ImmutableTime
 import ru.stolexiy.common.timer.Time
+import ru.stolexiy.common.timer.MutableTime
 import ru.stolexiy.common.timer.TimeConstants
 import ru.stolexiy.common.timer.Timer
 import timber.log.Timber
@@ -104,7 +104,7 @@ class TimerService : Service() {
     override fun onCreate() {
         super.onCreate()
         timer.apply {
-            initTime = Time(TIMER_INIT_TIME)
+            initTime = MutableTime(TIMER_INIT_TIME)
             addListener(timerListener)
         }
         Timber.d("create")
@@ -167,7 +167,7 @@ class TimerService : Service() {
         )
     }
 
-    private fun updateNotificationTimeText(time: ImmutableTime) {
+    private fun updateNotificationTimeText(time: Time) {
         notificationLayout.setTextViewText(R.id.text_time, time.toMinSecFormat())
     }
 

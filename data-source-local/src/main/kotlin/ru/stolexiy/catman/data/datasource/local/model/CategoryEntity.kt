@@ -25,7 +25,7 @@ data class CategoryEntity(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "category_id") val id: Long = 0,
     @ColumnInfo(name = "category_name") val name: String,
     @ColumnInfo(name = "category_color") val color: Int,
-    @ColumnInfo(name = "category_description") val description: String?
+    @ColumnInfo(name = "category_description") val description: String
 ) {
 
     fun toDomainCategory() = DomainCategory(

@@ -21,8 +21,10 @@ import ru.stolexiy.catman.ui.util.fragment.repeatOnParentViewLifecycle
 import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
 import ru.stolexiy.catman.ui.util.fragment.requireParentView
 import ru.stolexiy.catman.ui.util.viewmodel.CustomAbstractSavedStateViewModelFactory.Companion.assistedViewModels
-import ru.stolexiy.common.DateUtils.toCalendar
+import ru.stolexiy.common.DateUtils.toZonedDateTime
 import timber.log.Timber
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 class AddPurposeDialog(
     onDestroyDialog: () -> Unit = {}
@@ -162,11 +164,11 @@ class AddPurposeDialog(
     private fun initChooseDeadlineDialog(): DatePicker {
         val datePicker = DatePicker(
             R.string.deadline,
-            selection = addingPurpose.deadline.get()?.timeInMillis ?: System.currentTimeMillis(),
+            selection = addingPurpose.deadline.get() ?: ZonedDateTime.now(),
             condition = addingPurpose.deadline.condition
         )
         datePicker.dialog.addOnPositiveButtonClickListener {
-            addingPurpose.deadline.set(it.toCalendar())
+            addingPurpose.deadline.set(it.toZonedDateTime(ZoneOffset.UTC))
         }
         return datePicker
     }

@@ -21,7 +21,10 @@ import ru.stolexiy.catman.domain.usecase.purpose.PurposeDeletingUseCase
 import ru.stolexiy.catman.domain.usecase.purpose.PurposeGettingUseCase
 import ru.stolexiy.catman.ui.util.notification.NotificationChannels.initChannels
 import timber.log.Timber
-import java.util.GregorianCalendar
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Named
@@ -102,13 +105,21 @@ class CatmanApplication : BaseApplication() {
             val purpose1 = DomainPurpose(
                 "Диплом",
                 categories[0].id,
-                GregorianCalendar(2023, 6, 31),
+                ZonedDateTime.of(
+                    LocalDate.of(2023, 6, 31),
+                    LocalTime.MIDNIGHT,
+                    ZoneId.systemDefault()
+                ),
                 progress = 10
             )
             val purpose2 = DomainPurpose(
                 "Стажировка",
                 categories[1].id,
-                GregorianCalendar(2023, 7, 28),
+                ZonedDateTime.of(
+                    LocalDate.of(2023, 7, 30),
+                    LocalTime.MIDNIGHT,
+                    ZoneId.systemDefault()
+                ),
                 progress = 27
             )
             addPurpose(purpose1).onFailure { throw it }

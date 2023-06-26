@@ -1,20 +1,22 @@
 package ru.stolexiy.catman.ui.util.validation
 
 import androidx.annotation.StringRes
-import ru.stolexiy.common.DateUtils
-import ru.stolexiy.common.DateUtils.toCalendar
+import ru.stolexiy.common.DateUtils.maxZonedDateTime
+import ru.stolexiy.common.DateUtils.minZonedDateTime
+import ru.stolexiy.common.DateUtils.today
 import java.io.Serializable
-import java.util.Calendar
+import java.time.ZonedDateTime
 
 /**
  * Template classes for creating conditions ([Condition])
  * */
 object Conditions {
-    class None<T>: Condition<T?>, Serializable {
+    class None<T> : Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             return ValidationResult.valid()
         }
     }
+
     /**
      * Checks that a value is not null
      * true - not null
@@ -51,7 +53,7 @@ object Conditions {
     class TextMaxLength<T : CharSequence?>(
         val maxLength: Int,
         @StringRes private val errorStringRes: Int
-    ) : Condition<T?>, Serializable{
+    ) : Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             return if ((value?.length ?: 0) <= maxLength) {
                 ValidationResult.valid()
@@ -120,28 +122,21 @@ object Conditions {
     }
 
     class DateRange(
-        val min: Long,
-        val max: Long,
+        val min: ZonedDateTime = minZonedDateTime(),
+        val max: ZonedDateTime = maxZonedDateTime(),
         @StringRes private val errorStringRes: Int
-    ) : Condition<Calendar?>, Serializable {
+    ) : Condition<ZonedDateTime?>, Serializable {
 
-        constructor(
-            min: Calendar = 0L.toCalendar(),
-            max: Calendar = Long.MAX_VALUE.toCalendar(),
-            errorStringRes: Int
-        ) : this(min.timeInMillis, max.timeInMillis, errorStringRes)
-
-        init {
-            require(min >= 0)
-            require(max >= min)
-        }
-
-        override fun validate(value: Calendar?): ValidationResult {
-            return ValidationResult.create(value?.timeInMillis in min..max, errorStringRes)
+        override fun validate(value: ZonedDateTime?): ValidationResult {
+            return if (value == null)
+                ValidationResult.invalid(errorStringRes)
+            else
+                ValidationResult.create(!value.isBefore(min) && !value.isAfter(max), errorStringRes)
         }
 
         companion object {
-            fun fromToday(errorStringRes: Int) = DateRange(DateUtils.todayCalendar(), errorStringRes = errorStringRes)
+            fun fromToday(errorStringRes: Int) =
+                DateRange(today(), errorStringRes = errorStringRes)
         }
     }
 }

@@ -18,7 +18,7 @@ import ru.stolexiy.common.TimerTestUtil.startAndVerify
 import ru.stolexiy.common.TimerTestUtil.stopAndVerify
 import ru.stolexiy.common.TimerTestUtil.verifyState
 import ru.stolexiy.common.TimerTestUtil.verifyTimeToFinish
-import ru.stolexiy.common.timer.Time
+import ru.stolexiy.common.timer.MutableTime
 import ru.stolexiy.common.timer.TimeConstants
 import ru.stolexiy.common.timer.Timer
 
@@ -37,7 +37,7 @@ internal class TimerTest {
             testDispatcher
         }.apply {
             addListener(LogTimerListener)
-            initTime = Time(INIT_TIME_MS)
+            initTime = MutableTime(INIT_TIME_MS)
         }
 
     @Before

@@ -2,9 +2,10 @@ package ru.stolexiy.catman.ui.categorylist.model
 
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.ui.mapper.toDmyString
 import ru.stolexiy.catman.ui.util.recyclerview.ListItem
-import ru.stolexiy.widgets.ProgressView
+import ru.stolexiy.common.DateUtils
+import ru.stolexiy.common.DateUtils.toString
+import java.time.ZonedDateTime
 
 sealed class CategoryListItem : ListItem {
     data class CategoryItem(
@@ -16,11 +17,12 @@ sealed class CategoryListItem : ListItem {
     data class PurposeItem(
         override val id: Long,
         val name: String,
-        val deadline: String,
+        private val _deadline: ZonedDateTime,
         val isBurning: Boolean,
         val progress: Float
     ) : CategoryListItem() {
-        val textCalculator: ProgressView.TextCalculator = ProgressView.TextCalculator.PERCENT
+        val deadline: String
+            get() = _deadline.toString(DateUtils.DMY_DATE)
     }
 }
 
@@ -29,7 +31,7 @@ fun DomainPurpose.toPurposeItem(): CategoryListItem.PurposeItem {
     return CategoryListItem.PurposeItem(
         id,
         name,
-        deadline.toDmyString(),
+        deadline,
         isDeadlineBurning,
         progress / 100f
     )

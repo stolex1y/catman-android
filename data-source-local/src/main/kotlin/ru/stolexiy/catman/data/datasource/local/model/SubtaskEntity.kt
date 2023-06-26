@@ -5,9 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.LocalDateTime
-import java.util.Calendar
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Entity(
     tableName = "subtasks",
@@ -25,8 +23,8 @@ import java.util.Date
 data class SubtaskEntity(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "subtask_id") val id: Long,
     @ColumnInfo(name = "subtask_name") val name: String,
-    @ColumnInfo(name = "subtask_description") val description: String?,
-    @ColumnInfo(name = "subtask_deadline") val deadline: Calendar,
+    @ColumnInfo(name = "subtask_description") val description: String,
+    @ColumnInfo(name = "subtask_deadline") val deadline: ZonedDateTime?,
     @ColumnInfo(name = "subtask_parent_task_id") val parentTaskId: Long,
     @ColumnInfo(name = "subtask_priority") val priority: Int,
     @ColumnInfo(name = "subtask_is_finished") val isFinished: Boolean,

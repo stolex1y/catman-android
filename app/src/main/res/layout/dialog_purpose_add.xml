@@ -102,7 +102,7 @@
                 android:layout_marginTop="15dp"
                 app:addAsteriskToHint="@{true}"
                 app:bind="@{purpose.deadline.asFlow}"
-                app:bindConverter='@{Converters.calendarToString("dd.MM.yyyy")}'
+                app:bindConverter='@{Converters.zonedDateTimeDmyConverter("dd.MM.yyyy")}'
                 app:bindError="@{purpose.deadline}"
                 app:endIconIsGone="@{true}"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_category_layout"
@@ -129,15 +129,15 @@
                 android:hint="@string/description"
                 app:layout_constraintEnd_toEndOf="@+id/purpose_deadline_layout"
                 app:layout_constraintStart_toStartOf="@id/purpose_deadline_layout"
-                app:layout_constraintTop_toBottomOf="@+id/purpose_deadline_layout"
-                app:validateBy="@{purpose.description}">
+                app:layout_constraintTop_toBottomOf="@+id/purpose_deadline_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/purpose_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textImeMultiLine|textAutoComplete|textAutoCorrect|textCapSentences"
-                    android:maxLines="2" />
+                    android:maxLines="2"
+                    android:text="@{purpose.description}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
