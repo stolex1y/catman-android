@@ -1,19 +1,13 @@
-import AppDependencies.androidTest
-import AppDependencies.hilt
-import AppDependencies.junit4
-import AppDependencies.kotlinStdLib
 import AppDependencies.moduleImplementation
-import AppDependencies.room
-import AppDependencies.timberAndroid
 import modules.DataSourceLocalModuleConfig
 import modules.Modules
 
 plugins {
-    id(Plugins.ANDROID_LIBRARY)
-    id(Plugins.KOTLIN_ANDROID)
-    id(Plugins.KSP)
-    id(Plugins.KOTLIN_KAPT)
-    id(Plugins.HILT)
+    alias(libs.plugins.android.lib)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -63,10 +57,33 @@ dependencies {
     moduleImplementation(Modules.DOMAIN_MODEL)
     moduleImplementation(Modules.COMMON)
 
-    kotlinStdLib()
-    timberAndroid()
-    room()
-    hilt()
-    junit4()
-    androidTest()
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.timber)
+
+    kapt(libs.hilt.ext.compiler)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.android)
+    kaptTest(libs.hilt.compiler)
+
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.ext.junit.ktx)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.compose.ui.test)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.conditionwatcher)
+    androidTestImplementation(libs.androidx.work.testing)
+    kaptAndroidTest(libs.hilt.android.testing)
 }

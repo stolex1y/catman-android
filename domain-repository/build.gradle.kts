@@ -1,17 +1,9 @@
-import AppDependencies.coroutines
-import AppDependencies.dagger
-import AppDependencies.junit4
-import AppDependencies.jvmAnnotation
-import AppDependencies.kotlinStdLib
 import AppDependencies.moduleImplementation
 import modules.DomainRepositoryModuleConfig
 import modules.Modules
 
 plugins {
-    id(Plugins.JAVA_LIBRARY)
-    id(Plugins.KOTLIN_JVM)
-    id(Plugins.JAVA)
-    id(Plugins.KOTLIN_KAPT)
+    alias(libs.plugins.kotlin.jvm)
 }
 
 val moduleConfig = DomainRepositoryModuleConfig
@@ -33,9 +25,10 @@ dependencies {
     moduleImplementation(Modules.DOMAIN_MODEL)
     moduleImplementation(Modules.COMMON)
 
-    dagger()
-    jvmAnnotation()
-    junit4()
-    kotlinStdLib()
-    coroutines()
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.timber)
+    implementation(libs.dagger)
+    testImplementation(libs.junit)
 }

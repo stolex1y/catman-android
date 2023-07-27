@@ -1,33 +1,13 @@
-import AppDependencies.activityKtx
-import AppDependencies.androidAnnotation
-import AppDependencies.androidConstraintLayout
-import AppDependencies.androidCoreKtx
-import AppDependencies.androidTest
-import AppDependencies.appcompat
-import AppDependencies.coroutines
-import AppDependencies.dagger
-import AppDependencies.fragment
-import AppDependencies.gson
-import AppDependencies.hilt
-import AppDependencies.hiltNavigation
-import AppDependencies.hiltWorkManager
-import AppDependencies.junit4
-import AppDependencies.kotlinStdLib
-import AppDependencies.lifecycle
-import AppDependencies.material
 import AppDependencies.moduleImplementation
-import AppDependencies.navigation
-import AppDependencies.room
-import AppDependencies.timberAndroid
-import AppDependencies.workManager
 import modules.DemoModuleConfig
 
 plugins {
-    id(Plugins.APPLICATION)
-    id(Plugins.KOTLIN_KAPT)
-    id(Plugins.KSP)
-    id(Plugins.NAV_SAFEARGS)
-    id(Plugins.KOTLIN_ANDROID)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.navigation.safeargs)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -77,25 +57,81 @@ dependencies {
     moduleImplementation("widgets")
     moduleImplementation("common")
 
-    kotlinStdLib()
-    dagger()
-    androidCoreKtx()
-    appcompat()
-    androidConstraintLayout()
-    lifecycle()
-    room()
-    activityKtx()
-    fragment()
-    androidTest()
-    junit4()
-    material()
-    coroutines()
-    timberAndroid()
-    androidAnnotation()
-    hilt()
-    hiltNavigation()
-    hiltWorkManager()
-    navigation()
-    workManager()
-    gson()
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.annotation)
+    implementation(libs.androidx.preference)
+    implementation(libs.timber)
+    kapt(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.ui.util)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.animation)
+    implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+
+    implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.flowlayout)
+
+    implementation(libs.coil.kt.compose)
+
+    implementation(libs.google.android.material)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter)
+
+    implementation(libs.gson)
+
+    kapt(libs.hilt.ext.compiler)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation)
+    implementation(libs.hilt.workmanager)
+
+    kaptTest(libs.hilt.compiler)
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.ext.junit.ktx)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.compose.ui.test)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.conditionwatcher)
+    androidTestImplementation(libs.androidx.work.testing)
+    kaptAndroidTest(libs.hilt.android.testing)
 }

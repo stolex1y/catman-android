@@ -1,19 +1,8 @@
-import AppDependencies.activityKtx
-import AppDependencies.androidAnnotation
-import AppDependencies.androidTest
-import AppDependencies.coroutines
-import AppDependencies.fragment
-import AppDependencies.junit4
-import AppDependencies.kotlinStdLib
-import AppDependencies.lifecycle
-import AppDependencies.material
-import AppDependencies.timberAndroid
-import AppDependencies.workManager
 import modules.CommonTestModuleConfig
 
 plugins {
-    id(Plugins.ANDROID_LIBRARY)
-    id(Plugins.KOTLIN_ANDROID)
+    alias(libs.plugins.android.lib)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -60,16 +49,36 @@ android {
 }
 
 dependencies {
-    kotlinStdLib()
-    activityKtx()
-    fragment()
-    lifecycle()
-    coroutines()
-    timberAndroid()
-    material()
-    androidAnnotation()
-    workManager()
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 
-    junit4(AppDependencies.ConfigurationName.IMPLEMENTATION)
-    androidTest(AppDependencies.ConfigurationName.IMPLEMENTATION)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.annotation)
+    implementation(libs.timber)
+
+    implementation(libs.google.android.material)
+
+    implementation(libs.junit)
+    implementation(libs.androidx.room.testing)
+    implementation(libs.androidx.test.core)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.androidx.test.espresso.core)
+    implementation(libs.androidx.test.rules)
+    implementation(libs.androidx.test.ext.junit)
+    implementation(libs.androidx.test.ext.junit.ktx)
+    implementation(libs.kotlinx.coroutines.test)
+    implementation(libs.androidx.compose.ui.test)
+    implementation(libs.hilt.android.testing)
+    implementation(libs.conditionwatcher)
+    implementation(libs.androidx.work.testing)
 }

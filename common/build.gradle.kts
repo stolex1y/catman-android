@@ -1,28 +1,13 @@
-import AppDependencies.coroutines
-import AppDependencies.dagger
-import AppDependencies.gson
-import AppDependencies.junit4
-import AppDependencies.jvmAnnotation
-import AppDependencies.kotlinStdLib
 import modules.CommonModuleConfig
 
 plugins {
-    id(Plugins.JAVA_LIBRARY)
-    id(Plugins.KOTLIN_JVM)
-    id(Plugins.JAVA)
-    id(Plugins.KOTLIN_KAPT)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 val moduleConfig = CommonModuleConfig
 group = moduleConfig.namespace
 version = moduleConfig.versionCode
-
-java {
-    toolchain {
-        sourceCompatibility = moduleConfig.sourceJdk
-        targetCompatibility = moduleConfig.targetJdk
-    }
-}
 
 kotlin {
     jvmToolchain(moduleConfig.targetJdk.majorVersion.toInt())
@@ -33,10 +18,10 @@ tasks.named<Test>("test") {
 }
 
 dependencies {
-    kotlinStdLib()
-    coroutines()
-    dagger()
-    jvmAnnotation()
-    gson()
-    junit4()
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.dagger)
+    implementation(libs.gson)
+    implementation(libs.junit)
 }

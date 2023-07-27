@@ -1,17 +1,13 @@
-import AppDependencies.coroutines
-import AppDependencies.hilt
-import AppDependencies.kotlinStdLib
 import AppDependencies.moduleImplementation
-import AppDependencies.timberAndroid
 import modules.DataRepositoryModuleConfig
 import modules.Modules
 
 plugins {
-    id(Plugins.ANDROID_LIBRARY)
-    id(Plugins.KOTLIN_ANDROID)
-    id(Plugins.KSP)
-    id(Plugins.KOTLIN_KAPT)
-    id(Plugins.HILT)
+    alias(libs.plugins.android.lib)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -63,8 +59,10 @@ dependencies {
     moduleImplementation(Modules.DATA_SOURCE_LOCAL)
     moduleImplementation(Modules.COMMON)
 
-    kotlinStdLib()
-    timberAndroid()
-    coroutines()
-    hilt()
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.timber)
+    kapt(libs.hilt.ext.compiler)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.android)
 }
