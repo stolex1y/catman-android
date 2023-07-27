@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.data.datasource.local.dao.purpose.PurposeCrudDao
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
+import ru.stolexiy.catman.data.datasource.local.model.Tables
+import ru.stolexiy.catman.data.repository.Sort
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.model.Sort
 import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingByCategoryRepository
 import ru.stolexiy.common.FlowExtensions.mapToResult
 import ru.stolexiy.common.Mappers.mapList
@@ -44,9 +45,12 @@ class PurposeGettingByCategoryRepositoryImpl @Inject constructor(
 
     override fun allOrderedByPriority(
         categoryId: Long,
-        direction: Sort.Direction
+        asc: Boolean
     ): Flow<Result<List<DomainPurpose>>> {
-        return localDao.getAllByCategoryOrderedByPriority(categoryId)
+        return localDao.getAllByCategoryOrderedByPriority(
+            categoryId,
+            Sort.create(Tables.Purposes.Fields.PRIORITY, asc).query
+        )
             .distinctUntilChanged()
             .mapList(PurposeEntity.Response::toDomainPurpose)
             .onStart { Timber.d("get all purposes by category ordered by priority: $categoryId") }
@@ -56,11 +60,14 @@ class PurposeGettingByCategoryRepositoryImpl @Inject constructor(
 
     override suspend fun allOrderedByPriorityOnce(
         categoryId: Long,
-        direction: Sort.Direction
+        asc: Boolean
     ): Result<List<DomainPurpose>> = runCatching {
         withContext(dispatcher) {
             Timber.d("get all purposes by category ordered by priority: $categoryId")
-            localDao.getAllByCategoryOrderedByPriorityOnce(categoryId)
+            localDao.getAllByCategoryOrderedByPriorityOnce(
+                categoryId,
+                Sort.create(Tables.Purposes.Fields.PRIORITY, asc).query
+            )
                 .map(PurposeEntity.Response::toDomainPurpose)
         }
     }

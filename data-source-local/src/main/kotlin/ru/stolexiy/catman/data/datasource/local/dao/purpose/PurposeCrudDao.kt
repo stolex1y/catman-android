@@ -4,7 +4,6 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import ru.stolexiy.catman.data.datasource.local.dao.DYNAMIC_PURPOSE_FIELDS
 import ru.stolexiy.catman.data.datasource.local.dao.Dao
-import ru.stolexiy.catman.data.datasource.local.dao.PURPOSE_PROGRESS
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 import ru.stolexiy.catman.data.datasource.local.model.Tables.Purposes.Fields as purposeFields
 import ru.stolexiy.catman.data.datasource.local.model.Tables.Purposes.NAME as purposes
@@ -14,7 +13,7 @@ private const val GET = "$GET_ALL WHERE ${purposeFields.ID} = :id"
 private const val GET_ALL_BY_CATEGORY =
     "$GET_ALL WHERE ${purposeFields.CATEGORY_ID} = :categoryId"
 private const val GET_ALL_BY_CATEGORY_ORDER_BY_PRIORITY =
-    "$GET_ALL_BY_CATEGORY ORDER BY ${purposeFields.PRIORITY}"
+    "$GET_ALL_BY_CATEGORY ORDER BY :sorting"
 private const val DELETE_ALL = "DELETE FROM $purposes"
 private const val IS_EXIST = "SELECT EXISTS($GET)"
 
@@ -48,12 +47,12 @@ abstract class PurposeCrudDao : Dao<PurposeEntity>() {
     @Query(GET_ALL_BY_CATEGORY_ORDER_BY_PRIORITY)
     abstract fun getAllByCategoryOrderedByPriority(
         categoryId: Long,
-//        direction: String
+        sorting: String
     ): Flow<List<PurposeEntity.Response>>
 
     @Query(GET_ALL_BY_CATEGORY_ORDER_BY_PRIORITY)
     abstract suspend fun getAllByCategoryOrderedByPriorityOnce(
         categoryId: Long,
-//        direction: String
+        sorting: String
     ): List<PurposeEntity.Response>
 }

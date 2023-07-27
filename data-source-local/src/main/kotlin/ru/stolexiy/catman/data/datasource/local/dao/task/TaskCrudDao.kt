@@ -12,8 +12,8 @@ private const val GET_BY_ID = "$GET_ALL WHERE ${field.ID} = :id"
 private const val DELETE_ALL = "DELETE FROM $table"
 private const val GET_ALL_BY_PURPOSE =
     "$GET_ALL WHERE ${field.PURPOSE_ID} = :purposeId"
-private const val GET_ALL_BY_PURPOSE_ORDER_BY_PRIORITY =
-    "$GET_ALL_BY_PURPOSE ORDER BY ${field.PRIORITY}"
+private const val GET_ALL_BY_PURPOSE_ORDER_BY =
+    "$GET_ALL_BY_PURPOSE ORDER BY :sorting"
 
 @androidx.room.Dao
 abstract class TaskCrudDao : Dao<TaskEntity>() {
@@ -43,15 +43,15 @@ abstract class TaskCrudDao : Dao<TaskEntity>() {
         purposeId: Long
     ): List<TaskEntity>
 
-    @Query(GET_ALL_BY_PURPOSE_ORDER_BY_PRIORITY)
+    @Query(GET_ALL_BY_PURPOSE_ORDER_BY)
     abstract fun getAllByPurposeOrderedByPriority(
         purposeId: Long,
-//        direction: String
+        sorting: String
     ): Flow<List<TaskEntity>>
 
-    @Query(GET_ALL_BY_PURPOSE_ORDER_BY_PRIORITY)
+    @Query(GET_ALL_BY_PURPOSE_ORDER_BY)
     abstract suspend fun getAllByPurposeOrderedByPriorityOnce(
         purposeId: Long,
-//        direction: String
+        sorting: String
     ): List<TaskEntity>
 }

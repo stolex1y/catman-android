@@ -7,13 +7,15 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.data.datasource.local.dao.task.TaskCrudDao
+import ru.stolexiy.catman.data.datasource.local.model.Tables
 import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
+import ru.stolexiy.catman.data.repository.Sort
 import ru.stolexiy.catman.domain.model.DomainTask
-import ru.stolexiy.catman.domain.model.Sort
 import ru.stolexiy.catman.domain.repository.task.TaskGettingByPurposeRepository
 import ru.stolexiy.common.FlowExtensions.mapToResult
 import ru.stolexiy.common.Mappers.mapList
 import ru.stolexiy.common.di.CoroutineDispatcherNames
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -40,9 +42,12 @@ internal class TaskGettingByPurposeRepositoryImpl @Inject constructor(
 
     override fun allOrderedByPriority(
         purposeId: Long,
-        direction: Sort.Direction
+        asc: Boolean
     ): Flow<Result<List<DomainTask>>> {
-        return localDao.getAllByPurposeOrderedByPriority(purposeId)
+        return localDao.getAllByPurposeOrderedByPriority(
+            purposeId,
+            Sort.create(Tables.Tasks.Fields.PRIORITY, asc).query
+        )
             .distinctUntilChanged()
             .mapList(TaskEntity::toDomainTask)
             .onStart { Timber.d("get all tasks by purpose ordered by priority: $purposeId") }
@@ -52,11 +57,14 @@ internal class TaskGettingByPurposeRepositoryImpl @Inject constructor(
 
     override suspend fun allOrderedByPriorityOnce(
         purposeId: Long,
-        direction: Sort.Direction
+        asc: Boolean
     ): Result<List<DomainTask>> = runCatching {
         withContext(ioDispatcher) {
             Timber.d("get all tasks by purpose ordered by priority: $purposeId")
-            localDao.getAllByPurposeOrderedByPriorityOnce(purposeId)
+            localDao.getAllByPurposeOrderedByPriorityOnce(
+                purposeId,
+                Sort.create(Tables.Tasks.Fields.PRIORITY, asc).query
+            )
                 .map(TaskEntity::toDomainTask)
         }
     }

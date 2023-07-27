@@ -2,7 +2,6 @@ package ru.stolexiy.catman.domain.repository.purpose
 
 import kotlinx.coroutines.flow.Flow
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.model.Sort
 
 interface PurposeGettingByCategoryRepository {
     fun all(categoryId: Long): Flow<Result<List<DomainPurpose>>>
@@ -10,11 +9,11 @@ interface PurposeGettingByCategoryRepository {
 
     fun allOrderedByPriority(
         categoryId: Long,
-        direction: Sort.Direction
+        asc: Boolean = true
     ): Flow<Result<List<DomainPurpose>>>
 
     suspend fun allOrderedByPriorityOnce(
         categoryId: Long,
-        direction: Sort.Direction
+        asc: Boolean = true
     ): Result<List<DomainPurpose>>
 }

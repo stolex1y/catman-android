@@ -2,7 +2,6 @@ package ru.stolexiy.catman.domain.repository.task
 
 import kotlinx.coroutines.flow.Flow
 import ru.stolexiy.catman.domain.model.DomainTask
-import ru.stolexiy.catman.domain.model.Sort
 
 interface TaskGettingByPurposeRepository {
     fun all(
@@ -15,11 +14,11 @@ interface TaskGettingByPurposeRepository {
 
     fun allOrderedByPriority(
         purposeId: Long,
-        direction: Sort.Direction
+        asc: Boolean = false
     ): Flow<Result<List<DomainTask>>>
 
     suspend fun allOrderedByPriorityOnce(
         purposeId: Long,
-        direction: Sort.Direction
+        asc: Boolean = false
     ): Result<List<DomainTask>>
 }
