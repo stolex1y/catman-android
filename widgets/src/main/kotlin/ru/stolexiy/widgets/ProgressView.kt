@@ -10,6 +10,9 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
@@ -18,10 +21,13 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.getColorOrThrow
 import androidx.core.content.res.getDimensionOrThrow
 import androidx.core.content.res.getIntOrThrow
-import ru.stolexiy.widgets.ProgressView.TextCalculator
+import androidx.customview.view.AbsSavedState
+import ru.stolexiy.catman.ui.common.readBooleanCompat
+import ru.stolexiy.catman.ui.common.writeBooleanCompat
 import ru.stolexiy.widgets.common.extension.GraphicsExtensions.getTextBounds
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingLayoutProperty
 import ru.stolexiy.widgets.common.viewproperty.InvalidatingProperty
+import java.io.Serializable
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -288,6 +294,60 @@ open class ProgressView @JvmOverloads constructor(
         invalidate()
     }
 
+    override fun onSaveInstanceState(): Parcelable? {
+        val parcelable = super.onSaveInstanceState()
+        return parcelable?.let {
+            SavedState(parcelable).also {
+                it.progress = progress
+                it.text = text
+                it.textCalculator = textCalculator
+                it.fillingUp = fillingUp
+                it.progressStartColor = progressStartColor
+                it.progressMidColor = progressMidColor
+                it.progressEndColor = progressEndColor
+                it.progressShadowColor = progressShadowColor
+                it.progressShadowRadius = progressShadowRadius
+                it.progressWidth = progressWidth
+                it.clockwise = clockwise
+                it.textColor = textColor
+                it.textSize = textSize
+//            it.textTypeface = textTypeface
+                it.textMaxLen = textMaxLen
+                it.trackWidth = trackWidth
+                it.trackColor = trackColor
+            }
+        }
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        when (state) {
+            is SavedState -> {
+                super.onRestoreInstanceState(state.superState)
+                this.progress = progress
+                this.text = text
+                this.textCalculator = textCalculator
+                this.fillingUp = fillingUp
+                this.progressStartColor = progressStartColor
+                this.progressMidColor = progressMidColor
+                this.progressEndColor = progressEndColor
+                this.progressShadowColor = progressShadowColor
+                this.progressShadowRadius = progressShadowRadius
+                this.progressWidth = progressWidth
+                this.clockwise = clockwise
+                this.textColor = textColor
+                this.textSize = textSize
+//            this.textTypeface = textTypeface
+                this.textMaxLen = textMaxLen
+                this.trackWidth = trackWidth
+                this.trackColor = trackColor
+            }
+
+            else -> {
+                super.onRestoreInstanceState(state)
+            }
+        }
+    }
+
     override fun onLayoutInvalidation() {
         onInvalidation()
         requestLayout()
@@ -383,14 +443,135 @@ open class ProgressView @JvmOverloads constructor(
         }
     }
 
-    fun interface TextCalculator {
+    fun interface TextCalculator : Serializable {
 
         fun calc(progress: Float): String
+    }
 
-        companion object {
-            @JvmStatic
-            val PERCENT: TextCalculator =
-                TextCalculator { progress -> "${(progress * 100).roundToInt()}%" }
+    private class SavedState : AbsSavedState {
+        var progress: Float by Delegates.notNull()
+        lateinit var text: String
+        var textCalculator: TextCalculator? = null
+        var fillingUp: Boolean by Delegates.notNull()
+
+        @get:ColorInt
+        var progressStartColor: Int by Delegates.notNull()
+
+        @get:ColorInt
+        var progressMidColor: Int by Delegates.notNull()
+
+        @get:ColorInt
+        var progressEndColor: Int by Delegates.notNull()
+
+        @get:ColorInt
+        var progressShadowColor: Int by Delegates.notNull()
+        var progressShadowRadius: Float by Delegates.notNull()
+        var progressWidth: Float by Delegates.notNull()
+        var clockwise: Boolean by Delegates.notNull()
+
+        @get:ColorInt
+        var textColor: Int by Delegates.notNull()
+        var textSize: Float by Delegates.notNull()
+
+        //        lateinit var textTypeface: Typeface
+        var textMaxLen: Int by Delegates.notNull()
+
+        var trackWidth: Float by Delegates.notNull()
+
+        @get:ColorInt
+        var trackColor: Int by Delegates.notNull()
+
+        constructor(superState: Parcelable) : super(superState)
+        constructor(source: Parcel, classLoader: ClassLoader?) : super(source, classLoader) {
+            progress = source.readFloat()
+            text = source.readString() ?: ""
+            textCalculator =
+                source.readTypedObject(TextCalculatorParcelable.CREATOR)?.textCalculator
+            fillingUp = source.readBooleanCompat()
+            progressStartColor = source.readInt()
+            progressMidColor = source.readInt()
+            progressEndColor = source.readInt()
+            progressShadowColor = source.readInt()
+            progressShadowRadius = source.readFloat()
+            progressWidth = source.readFloat()
+            clockwise = source.readBooleanCompat()
+            textColor = source.readInt()
+            textSize = source.readFloat()
+//            textTypeface = Typeface.createFromAsset(
+//                getContext().getAssets(), "fonts/" + fontName);
+            textMaxLen = source.readInt()
+            trackWidth = source.readFloat()
+            trackColor = source.readInt()
         }
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {
+            super.writeToParcel(dest, flags)
+            dest.writeFloat(progress)
+            dest.writeString(text)
+            dest.writeTypedObject(TextCalculatorParcelable(textCalculator), 0)
+            dest.writeBooleanCompat(fillingUp)
+            dest.writeInt(progressStartColor)
+            dest.writeInt(progressMidColor)
+            dest.writeInt(progressEndColor)
+            dest.writeInt(progressShadowColor)
+            dest.writeFloat(progressShadowRadius)
+            dest.writeFloat(progressWidth)
+            dest.writeBooleanCompat(clockwise)
+            dest.writeInt(textColor)
+            dest.writeFloat(textSize)
+//            textTypeface = Typeface.createFromAsset(
+//                getContext().getAssets(), "fonts/" + fontName);
+            dest.writeInt(textMaxLen)
+            dest.writeFloat(trackWidth)
+            dest.writeInt(trackColor)
+        }
+
+        companion object CREATOR : Parcelable.ClassLoaderCreator<SavedState> {
+
+            override fun createFromParcel(parcel: Parcel): SavedState {
+                return SavedState(parcel, null)
+            }
+
+            override fun createFromParcel(parcel: Parcel, classLoader: ClassLoader?): SavedState {
+                return SavedState(parcel, classLoader)
+            }
+
+            override fun newArray(size: Int): Array<SavedState?> {
+                return arrayOfNulls(size)
+            }
+        }
+
+        private data class TextCalculatorParcelable(
+            val textCalculator: TextCalculator?
+        ) : Parcelable {
+            override fun writeToParcel(parcel: Parcel, flags: Int) {
+                parcel.writeBundle(Bundle().apply {
+                    putSerializable(
+                        TEXT_CALCULATOR,
+                        textCalculator
+                    )
+                })
+            }
+
+            override fun describeContents(): Int {
+                return 0
+            }
+
+            companion object CREATOR : Parcelable.Creator<TextCalculatorParcelable> {
+
+                private const val TEXT_CALCULATOR = "TEXT_CALCULATOR"
+                override fun createFromParcel(parcel: Parcel): TextCalculatorParcelable? {
+                    return parcel.readBundle(CREATOR::class.java.classLoader)
+                        ?.getSerializable(TEXT_CALCULATOR)?.let {
+                            TextCalculatorParcelable(it as TextCalculator)
+                        }
+                }
+
+                override fun newArray(size: Int): Array<TextCalculatorParcelable?> {
+                    return arrayOfNulls(size)
+                }
+            }
+        }
+
     }
 }

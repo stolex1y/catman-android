@@ -62,6 +62,7 @@ android {
 
 dependencies {
     moduleImplementation(Modules.COMMON)
+    moduleImplementation(Modules.UI_COMMON)
 
     kotlinStdLib()
     activityKtx()
