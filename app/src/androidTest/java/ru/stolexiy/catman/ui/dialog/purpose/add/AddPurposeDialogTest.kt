@@ -25,20 +25,20 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import ru.stolexiy.catman.R
-import ru.stolexiy.catman.domain.usecase.category.CategoryAddingUseCase
-import ru.stolexiy.catman.domain.usecase.category.CategoryDeletingUseCase
-import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
+import ru.stolexiy.catman.domain.model.DomainCategory
+import ru.stolexiy.catman.domain.repository.category.CategoryAddingRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryDeletingRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeDeletingRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingRepository
 import ru.stolexiy.catman.domain.usecase.color.ColorGettingUseCase
-import ru.stolexiy.catman.domain.usecase.purpose.PurposeAddingUseCase
-import ru.stolexiy.catman.domain.usecase.purpose.PurposeDeletingUseCase
-import ru.stolexiy.catman.domain.usecase.purpose.PurposeGettingUseCase
 import ru.stolexiy.catman.ui.MainActivity
-import ru.stolexiy.catman.ui.dialog.purpose.model.Category
+import ru.stolexiy.catman.ui.dialog.common.model.Category
+import ru.stolexiy.catman.ui.dialog.common.model.toCategory
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.commontest.CustomActions.swipeToTop
 import ru.stolexiy.commontest.CustomInstructions.waitAllWorkersInstruction
 import ru.stolexiy.commontest.CustomMatchers.withButtonText
-import java.time.ZonedDateTime
+import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
@@ -53,25 +53,19 @@ class AddPurposeDialogTest {
     val activityScenarioRule = activityScenarioRule<MainActivity>()
 
     @Inject
-    lateinit var getCategory: CategoryGettingUseCase
+    lateinit var categoryDelete: CategoryDeletingRepository
 
     @Inject
-    lateinit var deleteCategory: CategoryDeletingUseCase
+    lateinit var categoryAdd: CategoryAddingRepository
 
     @Inject
-    lateinit var addCategory: CategoryAddingUseCase
+    lateinit var purposeDelete: PurposeDeletingRepository
 
     @Inject
-    lateinit var getPurpose: PurposeGettingUseCase
+    lateinit var purposeGet: PurposeGettingRepository
 
     @Inject
-    lateinit var deletePurpose: PurposeDeletingUseCase
-
-    @Inject
-    lateinit var addPurpose: PurposeAddingUseCase
-
-    @Inject
-    lateinit var getColor: ColorGettingUseCase
+    lateinit var colorGet: ColorGettingUseCase
 
     @Inject
     lateinit var workManager: WorkManager
@@ -80,9 +74,11 @@ class AddPurposeDialogTest {
 
     private val testPurpose by lazy {
         Purpose(
-            UUID.randomUUID().toString(),
-            testCategory,
-            ZonedDateTime.now()
+            name = UUID.randomUUID().toString(),
+            category = testCategory,
+            deadline = LocalDate.now(),
+            description = "",
+            purposeId = 0,
         )
     }
 
@@ -97,16 +93,19 @@ class AddPurposeDialogTest {
         hiltRule.inject()
         clearDatabase()
         runBlocking {
-            val color = getColor.all().first()
+            val color = colorGet.all().first()
                 .getOrThrow().shuffled().first()
 
-            testCategory = Category(
-                0,
-                color.argb,
-                UUID.randomUUID().toString()
+            val testDomainCategory = DomainCategory(
+                name = UUID.randomUUID().toString(),
+                color = color.argb,
+                id = 0,
+                description = "",
             )
 
-            addCategory(testCategory.toDomainCategory()).onSuccess {
+            testCategory = testDomainCategory.toCategory()
+
+            categoryAdd(testDomainCategory).onSuccess {
                 testCategory = testCategory.copy(id = it.first())
             }
         }
@@ -133,7 +132,7 @@ class AddPurposeDialogTest {
 
     private fun assertThatNotContainsPurposeWithName(purposeName: String) {
         runBlocking {
-            getPurpose.all().first().onSuccess { purposes ->
+            purposeGet.all().first().onSuccess { purposes ->
                 assertThat(purposes.map { it.name }, not(containsInAnyOrder(purposeName)))
             }
         }
@@ -141,14 +140,14 @@ class AddPurposeDialogTest {
 
     private fun assertThatContainsPurposeWithName(purposeName: String) {
         runBlocking {
-            getPurpose.all().first().onSuccess { purposes ->
+            purposeGet.all().first().onSuccess { purposes ->
                 assertThat(purposes.map { it.name }, containsInAnyOrder(purposeName))
             }
         }
     }
 
     private fun expandBottomSheet() {
-        onView(withId(R.id.view))
+        onView(withId(R.id.dialog_dash))
             .perform(swipeToTop())
     }
 
@@ -174,9 +173,8 @@ class AddPurposeDialogTest {
     @After
     fun clearDatabase() {
         runBlocking {
-            deletePurpose.all()
-            deletePurpose.all()
+            purposeDelete.all()
+            categoryDelete.all()
         }
     }
-
 }

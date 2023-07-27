@@ -13,22 +13,47 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ru.stolexiy.catman.ui.util.Converter
+import ru.stolexiy.catman.ui.util.ToTextConverter
 
 object ValidationBindingAdapters {
-    @BindingAdapter("bind", "bindConverter")
+    @BindingAdapter("bind", "toTextConverter", requireAll = true)
     @JvmStatic
-    fun <T> bindTo(view: TextInputLayout, flow: StateFlow<T?>, converter: (T?) -> String) {
-        bindTo(view, flow, Converter { converter(it) })
+    fun <T> bindTo(
+        view: TextInputLayout,
+        property: ValidatedEntity.ValidatedProperty<T?>,
+        toTextConverter: (T?) -> String
+    ) {
+        bindTo(view, property.asFlow, ToTextConverter { toTextConverter(it) })
     }
 
-    @BindingAdapter("bind", "bindConverter")
+    @BindingAdapter("bind", "toTextConverter", requireAll = true)
     @JvmStatic
-    fun <T> bindTo(view: TextInputLayout, flow: StateFlow<T?>, converter: Converter<T?, String>) {
+    fun <T> bindTo(
+        view: TextInputLayout,
+        property: ValidatedEntity.ValidatedProperty<T?>,
+        toTextConverter: ToTextConverter<T?>
+    ) {
+        bindTo(view, property.asFlow, toTextConverter)
+    }
+
+    @BindingAdapter("bind", "toTextConverter", requireAll = true)
+    @JvmStatic
+    fun <T> bindTo(view: TextInputLayout, flow: StateFlow<T?>, toTextConverter: (T?) -> String) {
+        bindTo(view, flow, ToTextConverter { toTextConverter(it) })
+    }
+
+    @BindingAdapter("bind", "toTextConverter", requireAll = true)
+    @JvmStatic
+    fun <T> bindTo(
+        view: TextInputLayout,
+        flow: StateFlow<T?>,
+        toTextConverter: ToTextConverter<T?>
+    ) {
         view.findViewTreeLifecycleOwner()?.let { lifecycleOwner ->
             lifecycleOwner.lifecycleScope.launch {
                 lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                     flow.distinctUntilChangedBy { it }.collect {
-                        converter.convert(it).takeIf { it != view.editText?.text.toString() }
+                        toTextConverter.convert(it).takeIf { it != view.editText?.text.toString() }
                             ?.let { newText ->
                                 view.editText?.setText(newText)
                             }
@@ -44,14 +69,14 @@ object ValidationBindingAdapters {
         bindTo(view, flow) { source -> source ?: "" }
     }
 
-    @BindingAdapter("bind", "bindConverter")
+    @BindingAdapter("bind", "toTextConverter", requireAll = true)
     @JvmStatic
-    fun <T> bindTo(view: TextView, flow: StateFlow<T?>, converter: Converter<T?, String>) {
+    fun <T> bindTo(view: TextView, flow: StateFlow<T?>, toTextConverter: Converter<T?, String>) {
         view.findViewTreeLifecycleOwner()?.let { lifecycleOwner ->
             lifecycleOwner.lifecycleScope.launch {
                 lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                     flow.distinctUntilChangedBy { it }.collect {
-                        converter.convert(it).takeIf { it != view.text }?.let { newText ->
+                        toTextConverter.convert(it).takeIf { it != view.text }?.let { newText ->
                             view.text = newText
                         }
                     }
@@ -73,8 +98,8 @@ object ValidationBindingAdapters {
         validatedProperty: ValidatedEntity.ValidatedProperty<T?>
     ) {
         val updateError = {
-            validatedProperty.error?.let {
-                view.error = view.context.getString(it)
+            validatedProperty.validationResult.takeIf { it.isNotValid }?.let {
+                view.error = view.context.getString(it.errorMessageRes!!, it.errorMessageArgs)
             } ?: run {
                 view.error = ""
             }
@@ -82,7 +107,7 @@ object ValidationBindingAdapters {
         view.findViewTreeLifecycleOwner()?.let { lifecycleOwner ->
             lifecycleOwner.lifecycleScope.launch {
                 lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    validatedProperty.errorFlow.filter { it == null }.collect {
+                    validatedProperty.validationResultFlow.filter { it.isValid }.collect {
                         updateError()
                     }
                 }
@@ -97,6 +122,23 @@ object ValidationBindingAdapters {
             updateError()
         }
 
+    }
+
+    @BindingAdapter("validateBy", "textConverter", "toTextConverter", requireAll = true)
+    @JvmStatic
+    fun <T> validatedBy(
+        view: TextInputLayout,
+        property: ValidatedEntity.ValidatedProperty<T?>,
+        textConverter: Converter<String?, T?>,
+        toTextConverter: ToTextConverter<T?>
+    ) {
+        val editText = view.editText ?: return
+        bindTo<T>(view, property.asFlow, toTextConverter)
+
+        editText.doOnTextChanged { text, _, _, _ ->
+            property.set(textConverter.convert(text.toString()))
+        }
+        bindErrorTo(view, property)
     }
 
     @BindingAdapter("validateBy")

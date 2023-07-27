@@ -4,55 +4,63 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable.Creator
 import androidx.annotation.StringRes
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import ru.stolexiy.catman.R
+import ru.stolexiy.catman.ui.dialog.custom.DatePicker.Validator
 import ru.stolexiy.catman.ui.util.validation.Condition
 import ru.stolexiy.catman.ui.util.validation.Condition.Companion.isValid
+import ru.stolexiy.catman.ui.util.validation.ValidationResult
 import ru.stolexiy.common.DateUtils.toEpochMillis
-import ru.stolexiy.common.DateUtils.toZonedDateTime
-import ru.stolexiy.common.DateUtils.todayLastMoment
+import ru.stolexiy.common.DateUtils.toLocalDate
 import java.io.Serializable
+import java.time.LocalDate
 import java.time.ZoneOffset
-import java.time.ZonedDateTime
 
 class DatePicker(
     @StringRes title: Int,
-    selection: Long = System.currentTimeMillis(),
-    isValid: Validator
+    selection: LocalDate = LocalDate.now(),
+    validator: Validator = Validator { true },
+    onPositiveButtonClickListener: (LocalDate) -> Unit
 ) {
 
     constructor(
         @StringRes title: Int,
-        selection: ZonedDateTime = todayLastMoment(),
-        condition: Condition<ZonedDateTime?>
+        selection: LocalDate = LocalDate.now(),
+        condition: Condition<LocalDate?> = Condition { ValidationResult.valid() },
+        onPositiveButtonClickListener: (LocalDate) -> Unit
     ) : this(
         title,
-        selection.toEpochMillis() + selection.offset.totalSeconds * 1000,
-        { condition.isValid(it.toZonedDateTime(ZoneOffset.UTC)) })
-
-    constructor(
-        @StringRes title: Int,
-        selection: Long = System.currentTimeMillis(),
-        min: Long = 0,
-        max: Long = Long.MAX_VALUE
-    ) : this(title, selection, { it in min..max })
+        selection,
+        Validator { condition.isValid(it.toLocalDate(ZoneOffset.UTC)) },
+        onPositiveButtonClickListener
+    )
 
     val dialog: MaterialDatePicker<Long>
 
     init {
         dialog = MaterialDatePicker.Builder.datePicker()
             .setTitleText(title)
-            .setSelection(selection)
+            .setSelection(selection.toEpochMillis())
             .setCalendarConstraints(
                 CalendarConstraints.Builder().setValidator(
-                    DateValidator(isValid)
+                    DateValidator(validator)
                 ).build()
             )
             .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR)
             .setPositiveButtonText(R.string.choose)
             .setNegativeButtonText(R.string.cancel)
             .build()
+        dialog.addOnPositiveButtonClickListener {
+            onPositiveButtonClickListener(it.toLocalDate(ZoneOffset.UTC))
+        }
+    }
+
+    fun show(fragmentManager: FragmentManager, tag: String?) {
+        if (dialog.isResumed)
+            return
+        dialog.show(fragmentManager, tag)
     }
 
     data class DateValidator(

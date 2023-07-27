@@ -15,6 +15,7 @@ import ru.stolexiy.catman.databinding.FragmentCategoryListBinding
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
 import ru.stolexiy.catman.ui.dialog.category.add.AddCategoryDialog
 import ru.stolexiy.catman.ui.dialog.purpose.add.AddPurposeDialog
+import ru.stolexiy.catman.ui.dialog.task.add.AddTaskDialog
 import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
 import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
 import ru.stolexiy.catman.ui.util.recyclerview.ItemActionListener
@@ -41,6 +42,8 @@ internal class CategoryListFragment : Fragment() {
     private var addPurposeDialog: AddPurposeDialog? = null
 
     private var addCategoryDialog: AddCategoryDialog? = null
+
+    private var addTaskDialog: AddTaskDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

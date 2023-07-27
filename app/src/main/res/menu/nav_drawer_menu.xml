@@ -4,23 +4,23 @@
         android:id="@+id/group"
         android:checkableBehavior="single" >
         <item
-            android:id="@+id/category_list_fragment"
+            android:id="@+id/category_list"
             android:title="@string/category_list"
             android:checkable="true"/>
         <item
-            android:id="@+id/today_plan_fragment"
+            android:id="@+id/today_plan"
             android:title="@string/today_plan"
             android:checkable="true" />
         <item
-            android:id="@+id/timer_fragment"
+            android:id="@+id/timer"
             android:title="@string/timer"
             android:checkable="true" />
         <item
-            android:id="@+id/statistics_fragment"
+            android:id="@+id/statistics"
             android:title="@string/statistics"
             android:checkable="true" />
         <item
-            android:id="@+id/settings_fragment"
+            android:id="@+id/settings"
             android:title="@string/settings"
             android:checkable="true" />
     </group>

@@ -7,7 +7,7 @@
 
         <variable
             name="data"
-            type="ru.stolexiy.catman.ui.dialog.purpose.model.Category" />
+            type="ru.stolexiy.catman.ui.dialog.common.model.Category" />
     </data>
 
     <LinearLayout

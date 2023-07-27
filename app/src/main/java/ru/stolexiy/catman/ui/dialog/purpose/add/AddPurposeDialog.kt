@@ -4,16 +4,17 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
+import androidx.annotation.StringRes
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import ru.stolexiy.catman.R
 import ru.stolexiy.catman.databinding.DialogPurposeAddBinding
 import ru.stolexiy.catman.ui.dialog.AbstractBottomDialogFragment
+import ru.stolexiy.catman.ui.dialog.common.listadapter.CategoryNameWithColorAdapter
+import ru.stolexiy.catman.ui.dialog.common.model.Category
 import ru.stolexiy.catman.ui.dialog.custom.DatePicker
 import ru.stolexiy.catman.ui.dialog.purpose.add.di.AddPurposeDialogEntryPoint
-import ru.stolexiy.catman.ui.dialog.purpose.model.Category
-import ru.stolexiy.catman.ui.dialog.purpose.model.CategoryNameWithColorAdapter
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.catman.ui.util.binding.BindingDelegate.Companion.bindingDelegate
 import ru.stolexiy.catman.ui.util.di.entryPointAccessors
@@ -21,10 +22,8 @@ import ru.stolexiy.catman.ui.util.fragment.repeatOnParentViewLifecycle
 import ru.stolexiy.catman.ui.util.fragment.repeatOnViewLifecycle
 import ru.stolexiy.catman.ui.util.fragment.requireParentView
 import ru.stolexiy.catman.ui.util.viewmodel.CustomAbstractSavedStateViewModelFactory.Companion.assistedViewModels
-import ru.stolexiy.common.DateUtils.toZonedDateTime
 import timber.log.Timber
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
+import java.time.LocalDate
 
 class AddPurposeDialog(
     onDestroyDialog: () -> Unit = {}
@@ -41,12 +40,17 @@ class AddPurposeDialog(
     private val binding: DialogPurposeAddBinding by bindingDelegate()
 
     private val deadlineDialog: DatePicker by lazy {
-        initChooseDeadlineDialog()
+        DatePicker(
+            R.string.deadline,
+            selection = addingPurpose.deadline.get() ?: LocalDate.now(),
+            condition = addingPurpose.deadline.condition,
+            onPositiveButtonClickListener = { addingPurpose.deadline.set(it) }
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.dispatchEvent(AddPurposeEvent.Load)
+        viewModel.dispatchEvent(AddPurposeDialogEvent.Load)
         restoreState()
         binding.apply {
             purpose = addingPurpose
@@ -103,6 +107,14 @@ class AddPurposeDialog(
 
                     AddPurposeViewModel.State.Canceled -> showCancelledSnackbar(parentView)
 
+                    is AddPurposeViewModel.State.Error -> {
+                        showErrorSnackbar(
+                            viewModel.prevState,
+                            newState.error,
+                            parentView
+                        )
+                    }
+
                     else -> {}
                 }
             }
@@ -111,7 +123,7 @@ class AddPurposeDialog(
 
     private fun showAddingPurposeSnackbar(parentView: View) {
         entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
-            setAction(R.string.cancel) { viewModel.dispatchEvent(AddPurposeEvent.Cancel) }
+            setAction(R.string.cancel) { viewModel.dispatchEvent(AddPurposeDialogEvent.Cancel) }
             setText(R.string.purpose_adding)
             duration = Snackbar.LENGTH_INDEFINITE
         }
@@ -119,7 +131,7 @@ class AddPurposeDialog(
 
     private fun showAddedPurposeSnackbar(parentView: View) {
         entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
-            setAction(R.string.cancel) { viewModel.dispatchEvent(AddPurposeEvent.DeleteAdded) }
+            setAction(R.string.cancel) { viewModel.dispatchEvent(AddPurposeDialogEvent.DeleteAdded) }
             setText(R.string.purpose_added)
             duration = Snackbar.LENGTH_SHORT
         }
@@ -132,10 +144,30 @@ class AddPurposeDialog(
         }
     }
 
-    private fun showCancelledSnackbar(parenView: View) {
-        entryPointProvider.snackbarManager().replaceOrAddSnackbar(parenView) {
+    private fun showCancelledSnackbar(parentView: View) {
+        entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
             setText(R.string.cancelled)
             duration = Snackbar.LENGTH_SHORT
+        }
+    }
+
+    private fun showErrorSnackbar(
+        operation: AddPurposeViewModel.State,
+        @StringRes errorText: Int,
+        parentView: View
+    ) {
+        val failedOperation = when (operation) {
+            AddPurposeViewModel.State.Adding -> R.string.purpose_failed_adding
+            AddPurposeViewModel.State.Deleting -> R.string.purpose_failed_deleting
+            else -> R.string.internal_error
+        }
+        entryPointProvider.snackbarManager().replaceOrAddSnackbar(parentView) {
+            setText(failedOperation)
+            duration = Snackbar.LENGTH_SHORT
+        }
+        entryPointProvider.snackbarManager().addSnackbar(parentView) {
+            setText(errorText)
+            duration = Snackbar.LENGTH_LONG
         }
     }
 
@@ -156,21 +188,9 @@ class AddPurposeDialog(
     }
 
     private fun addPurpose() {
-        viewModel.dispatchEvent(AddPurposeEvent.Add(addingPurpose))
+        viewModel.dispatchEvent(AddPurposeDialogEvent.Add(addingPurpose))
         clearState()
         dismissNow()
-    }
-
-    private fun initChooseDeadlineDialog(): DatePicker {
-        val datePicker = DatePicker(
-            R.string.deadline,
-            selection = addingPurpose.deadline.get() ?: ZonedDateTime.now(),
-            condition = addingPurpose.deadline.condition
-        )
-        datePicker.dialog.addOnPositiveButtonClickListener {
-            addingPurpose.deadline.set(it.toZonedDateTime(ZoneOffset.UTC))
-        }
-        return datePicker
     }
 
     private fun chooseDeadline() {
@@ -184,7 +204,7 @@ class AddPurposeDialog(
         AdapterView.OnItemClickListener { parent, _, position, _ ->
             val selection = parent!!.getItemAtPosition(position) as Category
             addingPurpose.category.set(selection)
-            binding.purposeCategory.setText(selection.name)
+//            binding.purposeCategory.setText(selection.name)
         }
 
     private companion object {

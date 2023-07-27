@@ -8,7 +8,8 @@ object Modules {
     const val DATA_REPOSITORY = "data-repository"
     const val DOMAIN_MODEL = "domain-model"
     const val DOMAIN_USECASE = "domain-usecase"
-    const val DOMAIN_REPOSITORY_API = "domain-repository-api"
+    const val DOMAIN_REPOSITORY = "domain-repository"
     const val WIDGET_SAMPLES = "widget-samples"
     const val WIDGETS = "widgets"
+    const val UI_COMMON = "ui-common"
 }

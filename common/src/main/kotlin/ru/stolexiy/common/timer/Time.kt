@@ -4,12 +4,17 @@ import kotlin.math.ceil
 
 abstract class Time {
     abstract val inMs: Long
-    abstract val min: Long
-    abstract val sec: Long
-    abstract val ms: Long
+    abstract val h: Int
+    abstract val min: Int
+    abstract val sec: Int
+    abstract val ms: Int
 
     fun secCeil(): Int {
-        return ceil(this.sec.toFloat() + this.ms / 1000f).toInt()
+        return ceil(this.sec.toFloat() + this.ms / TimeConstants.SEC_TO_MS).toInt()
+    }
+
+    fun minCeil(): Int {
+        return ceil(this.min.toFloat() + this.sec / TimeConstants.MIN_TO_SEC).toInt()
     }
 
     operator fun compareTo(ms: Long): Int {
@@ -36,5 +41,13 @@ abstract class Time {
 
     companion object {
         val ZERO: Time = MutableTime(0)
+
+        @JvmStatic
+        fun from(inMs: Long) = MutableTime(inMs)
+
+        @JvmStatic
+        fun from(h: Int = 0, min: Int = 0, sec: Int = 0, ms: Int = 0) = MutableTime(
+            h, min, sec, ms
+        )
     }
 }

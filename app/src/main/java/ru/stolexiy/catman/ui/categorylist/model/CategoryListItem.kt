@@ -1,7 +1,5 @@
 package ru.stolexiy.catman.ui.categorylist.model
 
-import ru.stolexiy.catman.domain.model.DomainCategory
-import ru.stolexiy.catman.domain.model.DomainPurpose
 import ru.stolexiy.catman.ui.util.recyclerview.ListItem
 import ru.stolexiy.common.DateUtils
 import ru.stolexiy.common.DateUtils.toString
@@ -14,34 +12,14 @@ sealed class CategoryListItem : ListItem {
         val color: Int
     ) : CategoryListItem()
 
-    data class PurposeItem(
+    class PurposeItem(
         override val id: Long,
         val name: String,
-        private val _deadline: ZonedDateTime,
         val isBurning: Boolean,
-        val progress: Float
+        deadline: ZonedDateTime,
+        progress: Double
     ) : CategoryListItem() {
-        val deadline: String
-            get() = _deadline.toString(DateUtils.DMY_DATE)
+        val deadline: String = deadline.toString(DateUtils.DMY_DATE)
+        val progress: Float = (progress * 100).toFloat()
     }
-}
-
-fun DomainCategory.toCategoryItem() = CategoryListItem.CategoryItem(id, name, color)
-fun DomainPurpose.toPurposeItem(): CategoryListItem.PurposeItem {
-    return CategoryListItem.PurposeItem(
-        id,
-        name,
-        deadline,
-        isDeadlineBurning,
-        progress / 100f
-    )
-}
-
-fun Map<DomainCategory, List<DomainPurpose>>.toCategoryListItems(): List<CategoryListItem> {
-    val result = mutableListOf<CategoryListItem>()
-    this.forEach { mapEntry ->
-        result += mapEntry.key.toCategoryItem()
-        result += mapEntry.value.map(DomainPurpose::toPurposeItem)
-    }
-    return result
 }

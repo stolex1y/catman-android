@@ -23,7 +23,7 @@ class SnackbarManager @Inject constructor() {
     fun addSnackbar(view: View, setUp: Snackbar.() -> Unit) {
         createSnackbar(view).apply {
             setUp()
-            if (snackbars.isEmpty())
+            if (snackbars.size <= 1)
                 show()
         }
     }

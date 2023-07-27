@@ -1,3 +1,11 @@
 package ru.stolexiy.catman.ui.util.udf
 
-interface IState
+import androidx.annotation.StringRes
+
+interface IState {
+    interface Producer<S : IState> {
+        val initState: S
+        val loadedState: S
+        fun errorState(@StringRes error: Int): S
+    }
+}

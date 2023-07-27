@@ -31,7 +31,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     initData: D,
-    private val initState: S,
+    private val stateProducer: IState.Producer<S>,
     @Named(CoroutineModule.APPLICATION_SCOPE) protected val applicationScope: CoroutineScope,
     private val workManager: Provider<WorkManager>,
     private val savedStateHandle: SavedStateHandle
@@ -39,8 +39,10 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
 
     private var dataLoadingJob: Job? = null
 
-    private val _state: MutableStateFlow<S> = MutableStateFlow(initState)
+    private val _state: MutableStateFlow<S> = MutableStateFlow(stateProducer.initState)
     val state: StateFlow<S> = _state.asStateFlow()
+    var prevState: S = stateProducer.initState
+        private set
 
     private val _data: MutableStateFlow<D> = MutableStateFlow(initData)
     val data: StateFlow<D> by lazy {
@@ -54,13 +56,13 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     protected var lastFinishedWork: WorkInfo? = null
         private set
 
-    protected abstract val loadedState: S
-
     abstract fun dispatchEvent(event: E)
 
     protected abstract fun loadData(): Flow<Result<D>>
 
-    protected abstract fun setErrorStateWith(@StringRes errorMsg: Int)
+    private fun setErrorStateWith(@StringRes errorMsg: Int) {
+        updateState(stateProducer.errorState(errorMsg))
+    }
 
     protected fun startLoadingData() {
         val currentLoadingJob = dataLoadingJob
@@ -73,8 +75,8 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
                 .mapNotNull { it.getOrNull() }
                 .collectLatest {
                     _data.value = it
-                    if (state.value == initState)
-                        _state.value = loadedState
+                    if (state.value == stateProducer.initState)
+                        _state.value = stateProducer.loadedState
                 }
         }
     }
@@ -92,6 +94,7 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     }
 
     protected fun updateState(state: S) {
+        prevState = _state.value
         _state.value = state
     }
 
@@ -103,7 +106,7 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
     protected fun startWork(
         workRequest: WorkRequest,
         finishState: S,
-        canceledState: S
+        canceledState: S? = null
     ) {
         workManager.get().run {
             enqueue(workRequest)
@@ -120,12 +123,12 @@ abstract class AbstractViewModel<E : IEvent, D : IData, S : IState>(
                         updateState(finishedWorkInfo.outputData.deserialize(Throwable::class)!!)
 
                     WorkInfo.State.CANCELLED ->
-                        updateState(canceledState)
+                        updateState(canceledState ?: finishState)
 
                     else ->
                         updateState(finishState)
                 }
-                updateState(loadedState)
+                updateState(stateProducer.loadedState)
                 lastFinishedWork = finishedWorkInfo
             }
         }

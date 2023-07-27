@@ -9,6 +9,8 @@ interface ValidationResult {
 
     val errorMessageRes: Int?
 
+    val errorMessageArgs: Array<out Any>?
+
     /**
      * Addition of conditions
      * Boolean OR analog
@@ -19,13 +21,10 @@ interface ValidationResult {
     operator fun plus(increment: ValidationResult): ValidationResult {
         val isValid = this.isValid || increment.isValid
 
-        val errorMessage = when {
-            this.isNotValid -> this.errorMessageRes
-            increment.isNotValid -> increment.errorMessageRes
-            else -> null
-        }
-
-        return create(isValid, errorMessage)
+        return if (isValid)
+            valid()
+        else
+            invalid(errorMessageRes!!, errorMessageArgs)
     }
 
     /**
@@ -38,13 +37,15 @@ interface ValidationResult {
     operator fun times(increment: ValidationResult): ValidationResult {
         val isValid = this.isValid && increment.isValid
 
-        val errorMessage = when {
-            !this.isValid -> this.errorMessageRes
-            !increment.isValid -> increment.errorMessageRes
-            else -> null
+        return if (isValid)
+            valid()
+        else {
+            val errorMessage: Pair<Int, Array<out Any>?> = when {
+                this.isNotValid -> this.errorMessageRes!! to this.errorMessageArgs
+                else -> increment.errorMessageRes!! to increment.errorMessageArgs
+            }
+            invalid(errorMessage.first, errorMessage.second)
         }
-
-        return create(isValid, errorMessage)
     }
 
     companion object {
@@ -56,11 +57,15 @@ interface ValidationResult {
          *
          * @return [ValidationResult] where [ValidationResult.isValid] == [isValid] and [ValidationResult.errorMessageRes] == [errorMessage]
          * **/
-        fun create(isValid: Boolean, errorMessage: Int? = null): ValidationResult {
+        fun create(
+            isValid: Boolean,
+            errorMessage: Int,
+            vararg errorMessageArgs: Any
+        ): ValidationResult {
             return if (isValid) {
                 valid()
             } else {
-                invalid(errorMessage)
+                invalid(errorMessage, errorMessageArgs)
             }
         }
 
@@ -75,6 +80,9 @@ interface ValidationResult {
                     get() = true
                 override val errorMessageRes: Int?
                     get() = null
+
+                override val errorMessageArgs: Array<Any>?
+                    get() = null
             }
         }
 
@@ -83,12 +91,18 @@ interface ValidationResult {
          *
          * @return [ValidationResult] where [ValidationResult.isValid] == false and [ValidationResult.errorMessageRes] == [errorMessageRes]
          * **/
-        fun invalid(@StringRes errorMessageRes: Int?): ValidationResult {
+        fun invalid(
+            @StringRes errorMessageRes: Int,
+            errorMessageArgs: Array<out Any>? = null
+        ): ValidationResult {
             return object : ValidationResult {
                 override val isValid: Boolean
                     get() = false
-                override val errorMessageRes: Int?
+                override val errorMessageRes: Int
                     get() = errorMessageRes
+
+                override val errorMessageArgs: Array<out Any>?
+                    get() = errorMessageArgs
             }
         }
     }

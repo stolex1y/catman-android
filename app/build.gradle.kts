@@ -81,9 +81,10 @@ android {
 dependencies {
     moduleImplementation(Modules.WIDGETS)
     moduleImplementation(Modules.COMMON)
-    moduleImplementation(Modules.DOMAIN_USECASE)
+    moduleImplementation(Modules.UI_COMMON)
     moduleImplementation(Modules.DOMAIN_MODEL)
     moduleImplementation(Modules.DATA_REPOSITORY)
+    moduleImplementation(Modules.DOMAIN_REPOSITORY)
     moduleAndroidTestImplementation(Modules.COMMON_TEST)
 
     kotlinStdLib()

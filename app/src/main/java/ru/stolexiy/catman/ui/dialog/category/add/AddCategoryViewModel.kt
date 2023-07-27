@@ -30,18 +30,11 @@ class AddCategoryViewModel @AssistedInject constructor(
     @Assisted savedStateHandle: SavedStateHandle
 ) : AbstractViewModel<AddCategoryEvent, AddCategoryViewModel.Data, AddCategoryViewModel.State>(
     Data.EMPTY,
-    State.Init,
+    stateProducer,
     applicationScope,
     workManager,
     savedStateHandle
 ) {
-
-    override val loadedState: State = State.Loaded
-
-    init {
-        startLoadingData()
-    }
-
     override fun onCleared() {
         super.onCleared()
         Timber.d("cleared")
@@ -58,10 +51,6 @@ class AddCategoryViewModel @AssistedInject constructor(
 
     override fun loadData(): Flow<Result<Data>> {
         return getColors()
-    }
-
-    override fun setErrorStateWith(errorMsg: Int) {
-        updateState(State.Error(errorMsg))
     }
 
     private fun addCategory(category: Category) {
@@ -119,6 +108,15 @@ class AddCategoryViewModel @AssistedInject constructor(
         companion object {
             @JvmStatic
             val EMPTY: Data = Data(emptyList())
+        }
+    }
+
+    companion object {
+        val stateProducer: IState.Producer<State> = object : IState.Producer<State> {
+            override val initState: State = State.Init
+            override val loadedState: State = State.Loaded
+
+            override fun errorState(error: Int): State = State.Error(error)
         }
     }
 }

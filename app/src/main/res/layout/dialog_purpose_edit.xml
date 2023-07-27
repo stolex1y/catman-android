@@ -25,7 +25,7 @@
             android:layout_height="wrap_content">
 
             <View
-                android:id="@+id/view"
+                android:id="@+id/dialog_dash"
                 style="@style/DialogDash"
                 android:layout_marginTop="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +41,7 @@
                 android:text="@string/purpose_settings"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/view" />
+                app:layout_constraintTop_toBottomOf="@+id/dialog_dash" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/purpose_name_layout"
@@ -103,8 +103,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 app:addAsteriskToHint="@{true}"
-                app:bind="@{purpose.deadline.asFlow}"
-                app:bindConverter='@{Converters.zonedDateTimeDmyConverter("dd.MM.yyyy")}'
+                app:bind="@{purpose.deadline}"
+                app:toTextConverter='@{Converters.localDateConverter("dd.MM.yyyy")}'
                 app:bindError="@{purpose.deadline}"
                 app:boxBackgroundMode="outline"
                 app:endIconIsGone="@{true}"

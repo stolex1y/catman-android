@@ -3,7 +3,6 @@ package ru.stolexiy.catman.ui.categorylist
 import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.work.WorkManager
-import dagger.Lazy
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -11,13 +10,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import ru.stolexiy.catman.core.di.CoroutineModule
+import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.usecase.category.CategoryWithPurposeGettingUseCase
+import ru.stolexiy.catman.domain.repository.category.CategoryGettingWithPurposesRepository
 import ru.stolexiy.catman.ui.categorylist.model.CategoryListItem
-import ru.stolexiy.catman.ui.categorylist.model.toCategoryListItems
 import ru.stolexiy.catman.ui.util.di.FactoryWithSavedStateHandle
 import ru.stolexiy.catman.ui.util.udf.AbstractViewModel
 import ru.stolexiy.catman.ui.util.udf.IData
@@ -26,26 +24,25 @@ import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
 import ru.stolexiy.catman.ui.util.work.purpose.AddPurposeWorker
 import ru.stolexiy.catman.ui.util.work.purpose.DeletePurposeWorker
 import ru.stolexiy.catman.ui.util.work.purpose.SwapPurposePriorityWorker
+import ru.stolexiy.common.FlowExtensions.mapLatestResult
 import ru.stolexiy.common.di.CoroutineDispatcherNames
 import timber.log.Timber
 import javax.inject.Named
 import javax.inject.Provider
 
 class CategoryListViewModel @AssistedInject constructor(
-    private val getCategoryWithPurpose: Lazy<CategoryWithPurposeGettingUseCase>,
+    private val getCategoryWithPurposes: CategoryGettingWithPurposesRepository,
     @Named(CoroutineDispatcherNames.DEFAULT_DISPATCHER) private val defaultDispatcher: CoroutineDispatcher,
     workManager: Provider<WorkManager>,
     @Named(CoroutineModule.APPLICATION_SCOPE) applicationScope: CoroutineScope,
     @Assisted savedStateHandle: SavedStateHandle
 ) : AbstractViewModel<CategoryListEvent, CategoryListViewModel.Data, CategoryListViewModel.State>(
     Data.EMPTY,
-    State.Init,
+    stateProducer,
     applicationScope,
     workManager,
     savedStateHandle
 ) {
-
-    override val loadedState: State = State.Loaded
 
     override fun dispatchEvent(event: CategoryListEvent) {
         when (event) {
@@ -65,17 +62,14 @@ class CategoryListViewModel @AssistedInject constructor(
         return loadCategoriesWithPurposes()
     }
 
-    override fun setErrorStateWith(@StringRes errorMsg: Int) {
-        updateState(State.Error(errorMsg))
-    }
-
     private fun loadCategoriesWithPurposes() =
-        getCategoryWithPurpose.get().allWithPurposeOrderingByPriority()
+        getCategoryWithPurposes.all(
+//            TODO categorySort = Sort.desc(DomainCategory.Fields.NAME),
+//            TODO purposeSort = Sort.asc(DomainPurpose.Fields.PRIORITY)
+        )
             .onStart { Timber.d("start loading categories with purposes") }
-            .map { result ->
-                result.map {
-                    Data(it.toCategoryListItems())
-                }
+            .mapLatestResult {
+                Data(it.toCategoryListItems())
             }
             .flowOn(defaultDispatcher)
 
@@ -104,6 +98,26 @@ class CategoryListViewModel @AssistedInject constructor(
         startWork(workRequest, State.Loaded, State.Canceled)
     }
 
+    private fun Map<DomainCategory, List<DomainPurpose>>.toCategoryListItems(): List<CategoryListItem> {
+        return flatMap {
+            listOf(
+                it.key.toCategoryItem(),
+                *it.value.map(DomainPurpose::toPurposeItem).toTypedArray()
+            )
+        }
+    }
+
+    companion object {
+        private val stateProducer: IState.Producer<State> = object : IState.Producer<State> {
+            override val initState: State = State.Init
+            override val loadedState: State = State.Loaded
+
+            override fun errorState(@StringRes error: Int): State {
+                return State.Error(error)
+            }
+        }
+    }
+
     sealed interface State : IState {
         object Init : State
         data class Error(@StringRes val error: Int) : State
@@ -128,3 +142,17 @@ class CategoryListViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory : FactoryWithSavedStateHandle<CategoryListViewModel>
 }
+
+private fun DomainCategory.toCategoryItem() = CategoryListItem.CategoryItem(
+    id = id,
+    name = name,
+    color = color
+)
+
+private fun DomainPurpose.toPurposeItem() = CategoryListItem.PurposeItem(
+    id = id,
+    name = name,
+    deadline = deadline,
+    isBurning = isDeadlineBurning,
+    progress = progress
+)

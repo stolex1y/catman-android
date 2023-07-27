@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupNavGraph(startDestinationId: Int? = null) =
-        setupNavGraph(startDestinationId ?: R.id.category_list_fragment)
+        setupNavGraph(startDestinationId ?: R.id.category_list)
 
     private fun setupNavGraph(startDestinationId: Int) {
         val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)

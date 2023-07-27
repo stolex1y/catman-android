@@ -14,7 +14,7 @@ import ru.stolexiy.catman.R
 
 class TaskListFragment : Fragment() {
 
-    private val navArgs: TaskListFragmentArgs by navArgs()
+//    private val navArgs:  by navArgs()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)

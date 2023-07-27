@@ -5,6 +5,7 @@ import ru.stolexiy.common.DateUtils.maxZonedDateTime
 import ru.stolexiy.common.DateUtils.minZonedDateTime
 import ru.stolexiy.common.DateUtils.today
 import java.io.Serializable
+import java.time.LocalDate
 import java.time.ZonedDateTime
 
 /**
@@ -27,9 +28,9 @@ object Conditions {
     class NotNull<T>(@StringRes private val errorStringRes: Int) : Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             return if (value != null) {
-                ValidationResult.create(true, null)
+                ValidationResult.valid()
             } else {
-                ValidationResult.create(false, errorStringRes)
+                ValidationResult.invalid(errorStringRes)
             }
         }
     }
@@ -43,7 +44,7 @@ object Conditions {
         Condition<T?>, Serializable {
         override fun validate(value: T?): ValidationResult {
             return if (value.isNullOrBlank()) {
-                ValidationResult.create(false, errorStringRes)
+                ValidationResult.invalid(errorStringRes)
             } else {
                 ValidationResult.valid()
             }
@@ -58,7 +59,7 @@ object Conditions {
             return if ((value?.length ?: 0) <= maxLength) {
                 ValidationResult.valid()
             } else {
-                ValidationResult.create(false, errorStringRes)
+                ValidationResult.invalid(errorStringRes)
             }
         }
     }
@@ -72,7 +73,7 @@ object Conditions {
             return if ((value?.length ?: 0) >= minLength) {
                 ValidationResult.valid()
             } else {
-                ValidationResult.create(false, errorStringRes)
+                ValidationResult.invalid(errorStringRes)
             }
         }
     }
@@ -86,9 +87,9 @@ object Conditions {
             val textLength = (value?.length ?: 0)
 
             return if (textLength in textLenMin..textLenMax) {
-                ValidationResult.create(true)
+                ValidationResult.valid()
             } else {
-                ValidationResult.create(false, errorStringRes)
+                ValidationResult.invalid(errorStringRes)
             }
         }
     }
@@ -100,9 +101,9 @@ object Conditions {
 
         override fun validate(value: T?): ValidationResult {
             return if ((value?.length ?: 0) == textLength) {
-                ValidationResult.create(true)
+                ValidationResult.valid()
             } else {
-                ValidationResult.create(false, errorStringRes)
+                ValidationResult.invalid(errorStringRes)
             }
         }
     }
@@ -114,14 +115,14 @@ object Conditions {
         override fun validate(value: T?): ValidationResult {
             val text = value ?: ""
             return if (text.matches(regEx)) {
-                ValidationResult.create(true)
+                ValidationResult.valid()
             } else {
-                ValidationResult.create(false, errorStringRes)
+                ValidationResult.invalid(errorStringRes)
             }
         }
     }
 
-    class DateRange(
+    class DateTimeRange(
         val min: ZonedDateTime = minZonedDateTime(),
         val max: ZonedDateTime = maxZonedDateTime(),
         @StringRes private val errorStringRes: Int
@@ -129,14 +130,55 @@ object Conditions {
 
         override fun validate(value: ZonedDateTime?): ValidationResult {
             return if (value == null)
-                ValidationResult.invalid(errorStringRes)
+                ValidationResult.valid()
             else
                 ValidationResult.create(!value.isBefore(min) && !value.isAfter(max), errorStringRes)
         }
 
         companion object {
             fun fromToday(errorStringRes: Int) =
-                DateRange(today(), errorStringRes = errorStringRes)
+                DateTimeRange(today(), errorStringRes = errorStringRes)
+        }
+    }
+
+    class DateRange(
+        val min: LocalDate = LocalDate.MIN,
+        val max: LocalDate = LocalDate.MAX,
+        @StringRes private val errorStringRes: Int
+    ) : Condition<LocalDate?>, Serializable {
+
+        override fun validate(value: LocalDate?): ValidationResult {
+            return if (value == null)
+                ValidationResult.valid()
+            else
+                ValidationResult.create(!value.isBefore(min) && !value.isAfter(max), errorStringRes)
+        }
+
+        companion object {
+            fun fromToday(errorStringRes: Int) =
+                DateRange(LocalDate.now(), errorStringRes = errorStringRes)
+        }
+    }
+
+    class IntRange(
+        val min: Int = Int.MIN_VALUE,
+        val minInclusive: Boolean = true,
+        val max: Int = Int.MAX_VALUE,
+        val maxInclusive: Boolean = true,
+        @StringRes private val errorStringRes: Int
+    ) : Condition<Int?> {
+        override fun validate(value: Int?): ValidationResult {
+            return if (value == null)
+                ValidationResult.valid()
+            else {
+                val isValid = when {
+                    minInclusive && maxInclusive -> value in min..max
+                    minInclusive && !maxInclusive -> value in min until max
+                    !minInclusive && maxInclusive -> value in (min + 1)..max
+                    else -> value in (min + 1) until max
+                }
+                ValidationResult.create(isValid, errorStringRes, min, max)
+            }
         }
     }
 }

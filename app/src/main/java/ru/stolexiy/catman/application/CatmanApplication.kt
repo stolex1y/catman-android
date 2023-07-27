@@ -1,7 +1,6 @@
 package ru.stolexiy.catman.application
 
 import android.app.NotificationManager
-import android.os.Build
 import android.os.Process
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -11,20 +10,18 @@ import ru.stolexiy.catman.BuildConfig
 import ru.stolexiy.catman.core.di.CoroutineModule
 import ru.stolexiy.catman.domain.model.DomainCategory
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.usecase.category.CategoryAddingUseCase
-import ru.stolexiy.catman.domain.usecase.category.CategoryDeletingUseCase
-import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
-import ru.stolexiy.catman.domain.usecase.category.CategoryWithPurposeGettingUseCase
+import ru.stolexiy.catman.domain.repository.category.CategoryAddingRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryDeletingRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryGettingRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryGettingWithPurposesRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeAddingRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeDeletingRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingRepository
 import ru.stolexiy.catman.domain.usecase.color.ColorGettingUseCase
-import ru.stolexiy.catman.domain.usecase.purpose.PurposeAddingUseCase
-import ru.stolexiy.catman.domain.usecase.purpose.PurposeDeletingUseCase
-import ru.stolexiy.catman.domain.usecase.purpose.PurposeGettingUseCase
 import ru.stolexiy.catman.ui.util.notification.NotificationChannels.initChannels
+import ru.stolexiy.common.DateUtils.getDayLastMoment
 import timber.log.Timber
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Named
@@ -38,25 +35,25 @@ class CatmanApplication : BaseApplication() {
     lateinit var applicationScope: CoroutineScope
 
     @Inject
-    lateinit var getCategory: CategoryGettingUseCase
+    lateinit var getCategory: CategoryGettingRepository
 
     @Inject
-    lateinit var deleteCategory: CategoryDeletingUseCase
+    lateinit var deleteCategory: CategoryDeletingRepository
 
     @Inject
-    lateinit var addCategory: CategoryAddingUseCase
+    lateinit var addCategory: CategoryAddingRepository
 
     @Inject
-    lateinit var getPurpose: PurposeGettingUseCase
+    lateinit var getPurpose: PurposeGettingRepository
 
     @Inject
-    lateinit var deletePurpose: PurposeDeletingUseCase
+    lateinit var deletePurpose: PurposeDeletingRepository
 
     @Inject
-    lateinit var addPurpose: PurposeAddingUseCase
+    lateinit var addPurpose: PurposeAddingRepository
 
     @Inject
-    lateinit var getCategoryWithPurpose: CategoryWithPurposeGettingUseCase
+    lateinit var getCategoryWithPurpose: CategoryGettingWithPurposesRepository
 
     @Inject
     lateinit var getColor: ColorGettingUseCase
@@ -78,9 +75,7 @@ class CatmanApplication : BaseApplication() {
             })
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.getOrNull()?.initChannels(this)
-        }
+        notificationManager.getOrNull()?.initChannels(this)
 
         applicationScope.launch {
             fillDatabase()
@@ -97,36 +92,36 @@ class CatmanApplication : BaseApplication() {
         var categories = getCategory.all().first().getOrThrow()
         val colors = getColor.all().first().getOrThrow()
         if (categories.isEmpty()) {
-            val category1 = DomainCategory("Образование", colors.first().argb)
-            val category2 = DomainCategory("Работа", colors.last().argb)
+            val category1 = DomainCategory("Образование", colors.first().argb, 0L, "")
+            val category2 = DomainCategory("Работа", colors.last().argb, 0L, "")
             addCategory(category1).onFailure { throw it }
             addCategory(category2).onFailure { throw it }
             categories = getCategory.all().first().getOrNull() ?: return
             val purpose1 = DomainPurpose(
                 "Диплом",
                 categories[0].id,
-                ZonedDateTime.of(
-                    LocalDate.of(2023, 6, 31),
-                    LocalTime.MIDNIGHT,
-                    ZoneId.systemDefault()
-                ),
-                progress = 10
+                LocalDate.of(2023, 7, 31).getDayLastMoment(),
+                progress = 0.1,
+                description = "",
+                isFinished = false,
+                id = 0L,
+                priority = 0
             )
             val purpose2 = DomainPurpose(
                 "Стажировка",
                 categories[1].id,
-                ZonedDateTime.of(
-                    LocalDate.of(2023, 7, 30),
-                    LocalTime.MIDNIGHT,
-                    ZoneId.systemDefault()
-                ),
-                progress = 27
+                LocalDate.of(2023, 7, 30).getDayLastMoment(),
+                progress = 0.27,
+                description = "",
+                isFinished = false,
+                id = 0L,
+                priority = 0
             )
             addPurpose(purpose1).onFailure { throw it }
             addPurpose(purpose2).onFailure { throw it }
-        }
-        getCategoryWithPurpose.all().first().getOrThrow().let {
-            Timber.d("all categories with purposes $it")
+            getCategoryWithPurpose.all().first().getOrThrow().let {
+                Timber.d("all categories with purposes $it")
+            }
         }
     }
 

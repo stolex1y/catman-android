@@ -12,8 +12,17 @@ class Category(
     val id: Long = 0,
     var description: String = ""
 ) : Serializable, ValidatedEntity() {
-    val name: ValidatedProperty<String> = validatedProperty(name, DefaultConditions.notEmpty())
-    val color: ValidatedProperty<Color?> = validatedProperty(color, DefaultConditions.notNull())
+    val name: ValidatedProperty<String> =
+        validatedProperty(name, DefaultConditions.notEmpty() * DefaultConditions.notNull())
+    val color: ValidatedProperty<Color?> =
+        validatedProperty(color, DefaultConditions.notNull())
+
+    constructor() : this(
+        name = "",
+        color = null,
+        id = 0,
+        description = ""
+    )
 
     fun toDomainCategory(): DomainCategory {
         return DomainCategory(

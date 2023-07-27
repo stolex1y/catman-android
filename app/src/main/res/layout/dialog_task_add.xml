@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="ru.stolexiy.catman.R" />
+
+        <import type="ru.stolexiy.catman.ui.util.Converters" />
+
+        <variable
+            name="task"
+            type="ru.stolexiy.catman.ui.dialog.task.model.Task" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:background="?attr/background">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/dialog_dash"
+                style="@style/DialogDash"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/dialog_title"
+                style="?attr/textAppearanceHeadline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/add_task"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialog_dash" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/task_name_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="25dp"
+                android:hint="@string/task"
+                android:minWidth="100dp"
+                app:addAsteriskToHint="@{true}"
+                app:boxBackgroundMode="outline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialog_title"
+                app:validateBy="@{task.name}">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/task_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textAutoComplete|textAutoCorrect|textCapSentences" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/purpose_category_layout"
+                style="?attr/textInputOutlinedExposedDropdownMenuStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/category"
+                app:addAsteriskToHint="@{true}"
+                app:layout_constraintEnd_toEndOf="@+id/task_name_layout"
+                app:layout_constraintStart_toStartOf="@+id/task_name_layout"
+                app:layout_constraintTop_toBottomOf="@+id/task_name_layout"
+                app:startIconColoredCircle="@{task.category.asFlow.color}"
+                app:startIconIsGone="@{task.category.asFlow == null}"
+                app:startIconMinSize="25dp">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/purpose_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none"
+                    android:text="@{task.category.asFlow.name}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/task_purpose_layout"
+                style="?attr/textInputOutlinedExposedDropdownMenuStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/purpose"
+                app:addAsteriskToHint="@{true}"
+                app:layout_constraintEnd_toEndOf="@+id/task_name_layout"
+                app:layout_constraintStart_toStartOf="@+id/task_name_layout"
+                app:layout_constraintTop_toBottomOf="@+id/purpose_category_layout">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/task_purpose"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none"
+                    android:text="@{task.purpose.asFlow.name}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/task_deadline_date_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/deadline"
+                app:addAsteriskToHint="@{true}"
+                app:bind="@{task.deadline}"
+                app:bindError="@{task.deadline}"
+                app:endIconIsGone="@{true}"
+                app:layout_constraintEnd_toStartOf="@+id/task_deadline_time_layout"
+                app:layout_constraintStart_toStartOf="@+id/task_purpose_layout"
+                app:layout_constraintTop_toBottomOf="@id/task_purpose_layout"
+                app:startIconDrawable="@drawable/calendar"
+                app:toTextConverter='@{Converters.zonedDateTimeConverter("dd.MM.yyyy")}'>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/task_deadline_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/task_deadline_time_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:hint="@string/deadline"
+                app:addAsteriskToHint="@{true}"
+                app:bind="@{task.deadline}"
+                app:bindError="@{task.deadline}"
+                app:endIconIsGone="@{true}"
+                app:layout_constraintEnd_toEndOf="@+id/task_purpose_layout"
+                app:layout_constraintStart_toEndOf="@+id/task_deadline_date_layout"
+                app:layout_constraintTop_toTopOf="@id/task_deadline_date_layout"
+                app:toTextConverter='@{Converters.zonedDateTimeConverter("HH:mm")}'>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/task_deadline_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/task_start_date_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/start_time"
+                app:bind="@{task.startTime}"
+                app:bindError="@{task.startTime}"
+                app:endIconIsGone="@{true}"
+                app:layout_constraintEnd_toStartOf="@+id/task_start_time_layout"
+                app:layout_constraintStart_toStartOf="@+id/task_deadline_date_layout"
+                app:layout_constraintTop_toBottomOf="@id/task_deadline_date_layout"
+                app:startIconDrawable="@drawable/calendar"
+                app:toTextConverter='@{Converters.zonedDateTimeConverter("dd.MM.yyyy")}'>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/task_start_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/task_start_time_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:hint="@string/start_time"
+                app:bind="@{task.startTime}"
+                app:bindError="@{task.startTime}"
+                app:endIconIsGone="@{true}"
+                app:layout_constraintEnd_toEndOf="@+id/task_purpose_layout"
+                app:layout_constraintStart_toEndOf="@+id/task_start_date_layout"
+                app:layout_constraintTop_toTopOf="@id/task_start_date_layout"
+                app:toTextConverter='@{Converters.zonedDateTimeConverter("HH:mm")}'>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/task_start_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusableInTouchMode="false"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <FrameLayout
+                android:id="@+id/task_time_costs_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="@+id/task_start_time_layout"
+                app:layout_constraintStart_toStartOf="@+id/task_start_date_layout"
+                app:layout_constraintTop_toBottomOf="@id/task_start_time_layout">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/task_time_costs_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:hint="@string/duration"
+                    android:visibility="gone"
+                    app:bind="@{task.timeCosts}"
+                    app:endIconIsGone="@{true}"
+                    app:toTextConverter='@{Converters.hmFormatTimeConverter()}'>
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/task_time_costs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusableInTouchMode="false"
+                        android:inputType="none"
+                        android:minWidth="250dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/task_time_costs_pomodoro_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:hint="@string/duration_in_tomatoes"
+                    app:bind="@{task.timeCostsInTomatoes}"
+                    app:endIconIsGone="@{true}"
+                    app:toTextConverter='@{Converters.intConverter()}'>
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/task_time_costs_pomodoro"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusableInTouchMode="false"
+                        android:inputType="none"
+                        android:minWidth="250dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </FrameLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/task_description_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:hint="@string/description"
+                app:layout_constraintEnd_toEndOf="@+id/task_time_costs_container"
+                app:layout_constraintStart_toStartOf="@id/task_time_costs_container"
+                app:layout_constraintTop_toBottomOf="@+id/task_time_costs_container"
+                app:validateBy="@{task.description}">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/task_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textImeMultiLine|textAutoComplete|textAutoCorrect|textCapSentences"
+                    android:maxLines="2" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/legend_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/required_field_legend"
+                android:textAlignment="textStart"
+                app:layout_constraintEnd_toEndOf="@+id/task_description_layout"
+                app:layout_constraintStart_toStartOf="@+id/task_description_layout"
+                app:layout_constraintTop_toBottomOf="@+id/task_description_layout"
+                app:textColoring="@{R.color.pink}"
+                app:textColoringPart='@{"*"}' />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/add_task_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:contentDescription="@string/add_task"
+                android:enabled="@{task.isValidAsFlow}"
+                android:text="@string/add"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/legend_text" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+</layout>

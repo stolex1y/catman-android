@@ -11,9 +11,10 @@ abstract class ValidatedEntity : Serializable {
 
     protected fun <T> validatedProperty(
         initialValue: T,
-        condition: Condition<T?> = Conditions.None()
+        condition: Condition<T?> = Conditions.None(),
+        propertyChangeListener: PropertyChangeListener<T>? = null
     ): ValidatedProperty<T> =
-        ValidatedProperty(initialValue, condition)
+        ValidatedProperty(initialValue, condition, propertyChangeListener)
 
     @Transient
     private val _isValid: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -23,13 +24,17 @@ abstract class ValidatedEntity : Serializable {
     val isValid: Boolean
         get() = _isValid.value
 
+    val isNotValid: Boolean
+        get() = !_isValid.value
+
     private fun updateValidity() {
         _isValid.value = propsValidity.all { it }
     }
 
     inner class ValidatedProperty<T>(
         initialValue: T,
-        val condition: Condition<T?> = Conditions.None<T?>()
+        val condition: Condition<T?> = Conditions.None<T?>(),
+        private val propertyChangeListener: PropertyChangeListener<T>? = null
     ) : Serializable {
         private val index = propsValidity.size
 
@@ -45,13 +50,13 @@ abstract class ValidatedEntity : Serializable {
             get() = condition.isValid(value)
 
         @Transient
-        private val _error: MutableStateFlow<Int?> =
-            MutableStateFlow(condition.validate(initialValue).errorMessageRes)
+        private val _validationResult: MutableStateFlow<ValidationResult> =
+            MutableStateFlow(condition.validate(initialValue))
 
         @Transient
-        val errorFlow: StateFlow<Int?> = _error.asStateFlow()
-        val error: Int?
-            get() = _error.value
+        val validationResultFlow: StateFlow<ValidationResult> = _validationResult.asStateFlow()
+        val validationResult: ValidationResult
+            get() = _validationResult.value
 
         init {
             propsValidity.add(isValid)
@@ -60,6 +65,7 @@ abstract class ValidatedEntity : Serializable {
 
         fun set(value: T) {
             if (value != _state.value) {
+                val oldValue = _state.value
                 _state.value = value
                 if (this@ValidatedEntity.propsValidity.size <= index)
                     throw IllegalStateException()
@@ -70,11 +76,8 @@ abstract class ValidatedEntity : Serializable {
                     }
                 }
 
-                condition.validate(value).takeIf { it.isNotValid }?.let {
-                    _error.value = it.errorMessageRes
-                } ?: run {
-                    _error.value = null
-                }
+                _validationResult.value = condition.validate(value)
+                propertyChangeListener?.afterChange(oldValue, value)
             }
         }
 
@@ -109,5 +112,9 @@ abstract class ValidatedEntity : Serializable {
         override fun hashCode(): Int {
             return value.hashCode()
         }
+    }
+
+    fun interface PropertyChangeListener<V> : Serializable {
+        fun afterChange(oldValue: V, newValue: V)
     }
 }

@@ -2,27 +2,28 @@ package ru.stolexiy.catman.ui.util.work
 
 import android.content.Context
 import androidx.work.CoroutineWorker
-import androidx.work.Data
 import androidx.work.ForegroundInfo
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
 import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
 import timber.log.Timber
 import kotlin.reflect.KClass
 
-abstract class AbstractWorker<I : Any, O> protected constructor(
-    private val inputArgClass: KClass<I>,
+abstract class AbstractWorker<Input : Any, Output> protected constructor(
+    private val notificationId: Int,
+    private val notificationMsg: String,
+    private val workName: String,
+    private val action: suspend (Input) -> kotlin.Result<Output>,
+    private val inputArgClass: KClass<Input>,
     appContext: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
-    protected abstract val notificationId: Int
-    protected abstract val notificationMsg: String
-    protected abstract val workName: String
-
     final override suspend fun doWork(): Result {
-        val inputArg: I = inputData.deserialize(inputArgClass)!!
+        val inputArg: Input = inputData.deserialize(inputArgClass)!!
         Timber.d("'$workName' started")
         var result: Result = Result.failure()
         calculate(inputArg).onFailure {
@@ -48,6 +49,22 @@ abstract class AbstractWorker<I : Any, O> protected constructor(
         )
     }
 
-//    protected abstract fun Data.deserialize(): I
-    protected abstract suspend fun calculate(inputArg: I): kotlin.Result<O>
+    private suspend fun calculate(inputArg: Input): kotlin.Result<Output> {
+        delay(500)
+        return action(inputArg)
+    }
+
+    companion object {
+        const val TAG = "AbstractWorker"
+        inline fun <reified Worker : AbstractWorker<Input, Output>, Input, Output> createWorkRequest(
+            input: Input,
+            tag: String = TAG
+        ): OneTimeWorkRequest {
+            return OneTimeWorkRequestBuilder<Worker>()
+                .addTag(tag)
+                .setInputData(WorkUtils.serialize(input))
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
+        }
+    }
 }

@@ -119,7 +119,7 @@ object AppDependencies {
     fun DependencyHandler.room() {
         add(ConfigurationName.IMPLEMENTATION.configName, roomRuntime)
         add(ConfigurationName.IMPLEMENTATION.configName, roomKtx)
-        add(ConfigurationName.KSP.configName, roomCompiler)
+        add(ConfigurationName.KAPT.configName, roomCompiler)
         add(ConfigurationName.TEST_IMPLEMENTATION.configName, roomTesting)
     }
 

@@ -4,24 +4,29 @@ import kotlin.math.max
 
 class MutableTime(ms: Long) : Time() {
     private var _inMs: Long = 0
-    private var _min: Long = 0
-    private var _sec: Long = 0
-    private var _ms: Long = 0
+    private var _h: Int = 0
+    private var _min: Int = 0
+    private var _sec: Int = 0
+    private var _ms: Int = 0
 
     override val inMs: Long
         get() = _inMs
-    override val min: Long
+    override val h: Int
+        get() = _h
+    override val min: Int
         get() = _min
-    override val sec: Long
+    override val sec: Int
         get() = _sec
-    override val ms: Long
+    override val ms: Int
         get() = _ms
 
     init {
         setTime(ms)
     }
 
-    constructor(min: Long, sec: Long) : this(minAndSecToMs(min, sec))
+    constructor(h: Int = 0, min: Int = 0, sec: Int = 0, ms: Int = 0) : this(
+        convertToMs(h, min, sec, ms)
+    )
 
     constructor(time: Time) : this(time.inMs)
 
@@ -35,9 +40,10 @@ class MutableTime(ms: Long) : Time() {
 
     fun setTime(inMs: Long) {
         this._inMs = inMs
-        _min = inMs / TimeConstants.MIN_TO_MS
-        _sec = inMs % TimeConstants.MIN_TO_MS / TimeConstants.SEC_TO_MS
-        _ms = inMs % TimeConstants.SEC_TO_MS
+        _h = (inMs / TimeConstants.H_TO_MS).toInt()
+        _min = (inMs % TimeConstants.H_TO_MS / TimeConstants.MIN_TO_MS).toInt()
+        _sec = (inMs % TimeConstants.MIN_TO_MS / TimeConstants.SEC_TO_MS).toInt()
+        _ms = (inMs % TimeConstants.SEC_TO_MS).toInt()
     }
 
     fun setTime(time: Time) {
@@ -46,8 +52,11 @@ class MutableTime(ms: Long) : Time() {
 
     private companion object {
         @JvmStatic
-        private fun minAndSecToMs(min: Long, sec: Long): Long {
-            return (min * TimeConstants.MIN_TO_SEC + sec) * TimeConstants.SEC_TO_MS
+        private fun convertToMs(h: Int = 0, min: Int = 0, sec: Int = 0, ms: Int = 0): Long {
+            return (h * TimeConstants.H_TO_MS) +
+                    (min * TimeConstants.MIN_TO_MS) +
+                    (sec * TimeConstants.SEC_TO_MS) +
+                    ms
         }
     }
 

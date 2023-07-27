@@ -9,8 +9,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.stolexiy.catman.core.di.CoroutineModule
-import ru.stolexiy.catman.domain.usecase.category.CategoryGettingUseCase
-import ru.stolexiy.catman.ui.dialog.purpose.model.Category
+import ru.stolexiy.catman.domain.model.DomainCategory
+import ru.stolexiy.catman.domain.repository.category.CategoryGettingRepository
+import ru.stolexiy.catman.ui.dialog.common.model.Category
+import ru.stolexiy.catman.ui.dialog.common.model.toCategory
 import ru.stolexiy.catman.ui.dialog.purpose.model.Purpose
 import ru.stolexiy.catman.ui.util.di.FactoryWithSavedStateHandle
 import ru.stolexiy.catman.ui.util.udf.AbstractViewModel
@@ -24,19 +26,17 @@ import javax.inject.Named
 import javax.inject.Provider
 
 class AddPurposeViewModel @AssistedInject constructor(
-    private val getCategory: CategoryGettingUseCase,
+    private val getCategory: CategoryGettingRepository,
     workManager: Provider<WorkManager>,
     @Named(CoroutineModule.APPLICATION_SCOPE) applicationScope: CoroutineScope,
     @Assisted savedStateHandle: SavedStateHandle
-) : AbstractViewModel<AddPurposeEvent, AddPurposeViewModel.Data, AddPurposeViewModel.State>(
+) : AbstractViewModel<AddPurposeDialogEvent, AddPurposeViewModel.Data, AddPurposeViewModel.State>(
     Data.EMPTY,
-    State.Init,
+    stateProducer,
     applicationScope,
     workManager,
     savedStateHandle
 ) {
-
-    override val loadedState: State = State.Loaded
 
     init {
         startLoadingData()
@@ -47,21 +47,17 @@ class AddPurposeViewModel @AssistedInject constructor(
         Timber.d("cleared")
     }
 
-    override fun dispatchEvent(event: AddPurposeEvent) {
+    override fun dispatchEvent(event: AddPurposeDialogEvent) {
         when (event) {
-            is AddPurposeEvent.Load -> startLoadingData()
-            is AddPurposeEvent.Add -> addPurpose(event.purpose)
-            is AddPurposeEvent.Cancel -> cancelCurrentWork()
-            is AddPurposeEvent.DeleteAdded -> deleteAddedPurpose()
+            is AddPurposeDialogEvent.Load -> startLoadingData()
+            is AddPurposeDialogEvent.Add -> addPurpose(event.purpose)
+            is AddPurposeDialogEvent.Cancel -> cancelCurrentWork()
+            is AddPurposeDialogEvent.DeleteAdded -> deleteAddedPurpose()
         }
     }
 
     override fun loadData(): Flow<Result<Data>> {
         return getCategories()
-    }
-
-    override fun setErrorStateWith(errorMsg: Int) {
-        updateState(State.Error(errorMsg))
     }
 
     private fun addPurpose(purpose: Purpose) {
@@ -94,9 +90,18 @@ class AddPurposeViewModel @AssistedInject constructor(
         return getCategory.all()
             .map { result ->
                 result.map { domainCategories ->
-                    Data(domainCategories.map { Category.fromDomainCategory(it) })
+                    Data(domainCategories.map(DomainCategory::toCategory))
                 }
             }
+    }
+
+    companion object {
+        val stateProducer: IState.Producer<State> = object : IState.Producer<State> {
+            override val initState: State = State.Init
+            override val loadedState: State = State.Loaded
+
+            override fun errorState(error: Int): State = State.Error(error)
+        }
     }
 
     @AssistedFactory

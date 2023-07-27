@@ -267,7 +267,7 @@ class TimerService : Service() {
                 notificationId,
                 Intent(this@TimerService, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    putExtra(MainActivity.START_FRAGMENT_EXTRA_KEY, R.id.timer_fragment)
+                    putExtra(MainActivity.START_FRAGMENT_EXTRA_KEY, R.id.timer)
                 },
                 PendingIntent.FLAG_IMMUTABLE
             )
