@@ -7,36 +7,45 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import ru.stolexiy.catman.domain.model.DomainCategory
 
-
 @Entity(
-    tableName = "categories",
+    tableName = Tables.Categories.NAME,
     foreignKeys = [
         ForeignKey(
             entity = ColorEntity::class,
             parentColumns = ["color_argb"],
-            childColumns = ["category_color"],
+            childColumns = [Tables.Categories.Fields.COLOR],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("category_color")]
+    indices = [Index(Tables.Categories.Fields.COLOR)]
 )
 data class CategoryEntity(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "category_id") val id: Long = 0,
-    @ColumnInfo(name = "category_name") val name: String,
-    @ColumnInfo(name = "category_color") val color: Int,
-    @ColumnInfo(name = "category_description") val description: String
+    @ColumnInfo(name = Tables.Categories.Fields.NAME) val name: String,
+    @ColumnInfo(name = Tables.Categories.Fields.COLOR) val color: Int,
+    @ColumnInfo(name = Tables.Categories.Fields.DESCRIPTION) val description: String,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = Tables.Categories.Fields.ID) val id: Long,
 ) {
-
-    fun toDomainCategory() = DomainCategory(
-        id = id,
-        name = name,
-        color = color,
-        description = description,
-    )
+    data class Response(
+        @ColumnInfo(name = Tables.Categories.Fields.NAME) val name: String,
+        @ColumnInfo(name = Tables.Categories.Fields.COLOR) val color: Int,
+        @ColumnInfo(name = Tables.Categories.Fields.DESCRIPTION) val description: String,
+        @ColumnInfo(name = Tables.Categories.Fields.PART_OF_SPENT_TIME) val partOfSpentTime: Double,
+        @ColumnInfo(name = Tables.Categories.Fields.ID) val id: Long,
+    ) {
+        fun toDomainCategory() = DomainCategory(
+            id = id,
+            name = name,
+            color = color,
+            description = description,
+            partOfSpentTime = partOfSpentTime,
+        )
+    }
 }
 
-fun Array<out DomainCategory>.toCategoryEntities() =
-    map(DomainCategory::toCategoryEntity).toTypedArray()
-
-fun DomainCategory.toCategoryEntity() = CategoryEntity(id, name, color, description)
+fun DomainCategory.toCategoryEntity() = CategoryEntity(
+    id = id,
+    name = name,
+    color = color,
+    description = description,
+)

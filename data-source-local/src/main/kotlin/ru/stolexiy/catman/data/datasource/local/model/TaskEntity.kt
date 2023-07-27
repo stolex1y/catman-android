@@ -6,40 +6,52 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import ru.stolexiy.catman.domain.model.DomainTask
+import ru.stolexiy.common.timer.Time
 import java.time.ZonedDateTime
 
 @Entity(
-    tableName = "tasks",
+    tableName = Tables.Tasks.NAME,
     foreignKeys = [
         ForeignKey(
             entity = PurposeEntity::class,
-            parentColumns = ["purpose_id"],
-            childColumns = ["task_purpose_id"],
+            parentColumns = [Tables.Purposes.Fields.ID],
+            childColumns = [Tables.Tasks.Fields.PURPOSE_ID],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("task_purpose_id"), Index("task_purpose_id", "task_priority")]
+    indices = [Index(Tables.Tasks.Fields.PURPOSE_ID), Index(
+        Tables.Tasks.Fields.PURPOSE_ID,
+        Tables.Tasks.Fields.PRIORITY
+    )]
 )
 data class TaskEntity(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_id") val id: Long,
-    @ColumnInfo(name = "task_purpose_id") val purposeId: Long,
-    @ColumnInfo(name = "task_name") val name: String,
-    @ColumnInfo(name = "task_description") val description: String,
-    @ColumnInfo(name = "task_deadline") val deadline: ZonedDateTime?,
-    @ColumnInfo(name = "task_priority") val priority: Int,
-    @ColumnInfo(name = "task_is_finished") val isFinished: Boolean,
-    @ColumnInfo(name = "task_progress") val progress: Int,
-//    val regularity: Int?,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = Tables.Tasks.Fields.ID) val id: Long,
+    @ColumnInfo(name = Tables.Tasks.Fields.PURPOSE_ID) val purposeId: Long,
+    @ColumnInfo(name = Tables.Tasks.Fields.NAME) val name: String,
+    @ColumnInfo(name = Tables.Tasks.Fields.DESCRIPTION) val description: String,
+    @ColumnInfo(name = Tables.Tasks.Fields.DEADLINE) val deadline: ZonedDateTime,
+    @ColumnInfo(name = Tables.Tasks.Fields.PRIORITY) val priority: Int,
+    @ColumnInfo(name = Tables.Tasks.Fields.IS_FINISHED) val isFinished: Boolean,
+    @ColumnInfo(name = Tables.Tasks.Fields.PLAN_TIME_COSTS) val planTimeCosts: Time?,
+    @ColumnInfo(name = Tables.Tasks.Fields.START_TIME) val startTime: ZonedDateTime?,
+    @ColumnInfo(name = Tables.Tasks.Fields.COMPLETION_TIME) val completionTime: ZonedDateTime?,
+    @ColumnInfo(name = Tables.Tasks.Fields.ACTUAL_TIME_COSTS) val actualTimeCosts: Time,
 ) {
+
+
     fun toDomainTask() = DomainTask(
-        id = id,
-        name = name,
         purposeId = purposeId,
+        name = name,
         deadline = deadline,
         description = description,
-        priority = priority,
         isFinished = isFinished,
+        priority = priority,
+        id = id,
+        planTimeCosts = planTimeCosts,
+        startTime = startTime,
+        completionTime = completionTime,
+        actualTimeCosts = actualTimeCosts,
     )
 }
 
@@ -51,5 +63,8 @@ fun DomainTask.toTaskEntity() = TaskEntity(
     description = description,
     priority = priority,
     isFinished = isFinished,
-    progress = progress
+    planTimeCosts = planTimeCosts,
+    startTime = startTime,
+    completionTime = completionTime,
+    actualTimeCosts = actualTimeCosts,
 )

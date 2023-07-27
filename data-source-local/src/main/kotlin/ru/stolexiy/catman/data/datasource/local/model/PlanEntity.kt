@@ -12,7 +12,7 @@ import java.time.ZonedDateTime
     foreignKeys = [
         ForeignKey(
             entity = TaskEntity::class,
-            parentColumns = ["task_id"],
+            parentColumns = [Tables.Tasks.Fields.ID],
             childColumns = ["plan_task_id"],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE

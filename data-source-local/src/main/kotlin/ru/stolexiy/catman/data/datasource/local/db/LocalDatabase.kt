@@ -5,10 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import ru.stolexiy.catman.data.datasource.local.dao.CategoriesWithPurposesDao
-import ru.stolexiy.catman.data.datasource.local.dao.CategoryDao
+import ru.stolexiy.catman.data.datasource.local.dao.category.CategoryWithPurposesDao
+import ru.stolexiy.catman.data.datasource.local.dao.category.CategoryCrudDao
 import ru.stolexiy.catman.data.datasource.local.dao.ColorDao
-import ru.stolexiy.catman.data.datasource.local.dao.PurposeDao
+import ru.stolexiy.catman.data.datasource.local.dao.purpose.PurposeCrudDao
+import ru.stolexiy.catman.data.datasource.local.dao.purpose.PurposeWithTasksDao
+import ru.stolexiy.catman.data.datasource.local.dao.task.TaskCrudDao
 import ru.stolexiy.catman.data.datasource.local.model.CategoryEntity
 import ru.stolexiy.catman.data.datasource.local.model.ColorEntity
 import ru.stolexiy.catman.data.datasource.local.model.PlanEntity
@@ -23,15 +25,17 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
         PlanEntity::class,
         ColorEntity::class
     ],
-    version = 8,
+    version = 10,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class LocalDatabase : RoomDatabase() {
-    abstract fun categoryDao(): CategoryDao
-    abstract fun purposeDao(): PurposeDao
-    abstract fun categoriesWithPurposesDao(): CategoriesWithPurposesDao
+    abstract fun categoryDao(): CategoryCrudDao
+    abstract fun categoriesWithPurposesDao(): CategoryWithPurposesDao
+    abstract fun purposeDao(): PurposeCrudDao
+    abstract fun purposeWithTasksDao(): PurposeWithTasksDao
     abstract fun colorDao(): ColorDao
+    abstract fun taskCrudDao(): TaskCrudDao
 
     companion object {
         const val DATABASE_NAME = "catman-db"

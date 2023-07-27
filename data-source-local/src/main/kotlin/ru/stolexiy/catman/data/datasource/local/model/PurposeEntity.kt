@@ -10,38 +10,51 @@ import ru.stolexiy.catman.domain.model.DomainPurpose
 import java.time.ZonedDateTime
 
 @Entity(
-    tableName = "purposes",
+    tableName = Tables.Purposes.NAME,
     foreignKeys = [
         ForeignKey(
             entity = CategoryEntity::class,
-            parentColumns = ["category_id"],
-            childColumns = ["purpose_category_id"],
+            parentColumns = [Tables.Categories.Fields.ID],
+            childColumns = [Tables.Purposes.Fields.ID],
             onUpdate = CASCADE,
             onDelete = CASCADE
         )
     ],
-    indices = [Index("purpose_category_id"), Index("purpose_category_id", "purpose_priority")]
+    indices = [
+        Index(Tables.Purposes.Fields.ID),
+        Index(Tables.Purposes.Fields.ID, Tables.Purposes.Fields.PRIORITY)
+    ]
 )
 data class PurposeEntity(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "purpose_id") val id: Long,
-    @ColumnInfo(name = "purpose_name") val name: String,
-    @ColumnInfo(name = "purpose_category_id") val categoryId: Long,
-    @ColumnInfo(name = "purpose_deadline") val deadline: ZonedDateTime,
-    @ColumnInfo(name = "purpose_description") val description: String,
-    @ColumnInfo(name = "purpose_priority") val priority: Int,
-    @ColumnInfo(name = "purpose_is_finished") val isFinished: Boolean,
-    @ColumnInfo(name = "purpose_progress") val progress: Int,
+    @ColumnInfo(name = Tables.Purposes.Fields.NAME) val name: String,
+    @ColumnInfo(name = Tables.Purposes.Fields.CATEGORY_ID) val categoryId: Long,
+    @ColumnInfo(name = Tables.Purposes.Fields.DEADLINE) val deadline: ZonedDateTime,
+    @ColumnInfo(name = Tables.Purposes.Fields.DESCRIPTION) val description: String,
+    @ColumnInfo(name = Tables.Purposes.Fields.PRIORITY) val priority: Int,
+    @ColumnInfo(name = Tables.Purposes.Fields.IS_FINISHED) val isFinished: Boolean,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = Tables.Purposes.Fields.ID) val id: Long,
 ) {
-    fun toDomainPurpose() = DomainPurpose(
-        id = id,
-        name = name,
-        categoryId = categoryId,
-        deadline = deadline,
-        priority = priority,
-        isFinished = isFinished,
-        description = description,
-        progress = progress
-    )
+    data class Response(
+        @ColumnInfo(name = Tables.Purposes.Fields.NAME) val name: String,
+        @ColumnInfo(name = Tables.Purposes.Fields.CATEGORY_ID) val categoryId: Long,
+        @ColumnInfo(name = Tables.Purposes.Fields.DEADLINE) val deadline: ZonedDateTime,
+        @ColumnInfo(name = Tables.Purposes.Fields.DESCRIPTION) val description: String,
+        @ColumnInfo(name = Tables.Purposes.Fields.PRIORITY) val priority: Int,
+        @ColumnInfo(name = Tables.Purposes.Fields.IS_FINISHED) val isFinished: Boolean,
+        @ColumnInfo(name = Tables.Purposes.Fields.PROGRESS) val progress: Double,
+        @ColumnInfo(name = Tables.Purposes.Fields.ID) val id: Long,
+    ) {
+        fun toDomainPurpose() = DomainPurpose(
+            id = id,
+            name = name,
+            categoryId = categoryId,
+            deadline = deadline,
+            priority = priority,
+            isFinished = isFinished,
+            description = description,
+            progress = progress,
+        )
+    }
 }
 
 fun DomainPurpose.toPurposeEntity() = PurposeEntity(
@@ -52,9 +65,4 @@ fun DomainPurpose.toPurposeEntity() = PurposeEntity(
     priority = priority,
     isFinished = isFinished,
     description = description,
-    progress = progress
 )
-
-fun Array<out DomainPurpose>.toPurposeEntities() =
-    map(DomainPurpose::toPurposeEntity).toTypedArray()
-

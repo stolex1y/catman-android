@@ -1,18 +1,21 @@
 package ru.stolexiy.catman.domain.model
 
-import java.io.Serializable
+class PageResponse<EntityField : Field, T>(
+    pageRequest: PageRequest<EntityField>,
+    data: List<T>,
+    count: Long
+) {
+    val page: Int = pageRequest.page ?: 0
 
-class PageResponse<T>(val pageRequest: PageRequest, _data: List<T>, val hasNext: Boolean) :
-    Serializable {
-    val page: Int
-        get() = pageRequest.page
+    val size: Int = pageRequest.size ?: Int.MAX_VALUE
 
-    val size: Int
-        get() = pageRequest.size
+    val hasNext: Boolean = (page + 1L) * size.toLong() < count
+
+    val hasPrev: Boolean = page > 0
 
     val data: List<T>
 
     init {
-        data = _data.take(pageRequest.size)
+        this.data = data.take(size)
     }
 }
