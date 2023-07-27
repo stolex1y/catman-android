@@ -24,6 +24,7 @@ If some event is received from the user, for example, updating data, then this e
 The app uses Room for local database storage. In addition, WorkManager is used to perform background work, so that data change requests are fulfilled, even when the application exits.
 All of these components are connected by the [Hilt][hilt] dependency injection framework.
 At the moment, most screens are created using the [View][view] system, including custom views.
+In addition, data/view binding, services, lifecycle, livedata, navigation, recycler view, kotlin coroutines, kotlin flows were also used.
 
  [compose]: https://developer.android.com/jetpack/compose
  [viewmodel]: https://developer.android.com/topic/libraries/architecture/viewmodel
