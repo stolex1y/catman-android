@@ -58,7 +58,7 @@ android {
 }
 
 dependencies {
-    moduleImplementation(Modules.DOMAIN_REPOSITORY_API)
+    moduleImplementation(Modules.DOMAIN_REPOSITORY)
     moduleImplementation(Modules.DOMAIN_MODEL)
     moduleImplementation(Modules.DATA_SOURCE_LOCAL)
     moduleImplementation(Modules.COMMON)

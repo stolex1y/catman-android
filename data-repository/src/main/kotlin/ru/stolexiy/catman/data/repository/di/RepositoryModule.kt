@@ -4,34 +4,100 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import ru.stolexiy.catman.data.repository.CategoriesWithPurposesRepositoryImpl
-import ru.stolexiy.catman.data.repository.CategoryRepositoryImpl
-import ru.stolexiy.catman.data.repository.ColorRepositoryImpl
-import ru.stolexiy.catman.data.repository.PurposeRepositoryImpl
-import ru.stolexiy.catman.data.repository.TaskRepositoryImpl
-import ru.stolexiy.catman.domain.repository.ColorRepository
-import ru.stolexiy.catman.domain.repository.TaskRepository
-import ru.stolexiy.catman.domain.repository.category.CategoriesWithPurposesRepository
-import ru.stolexiy.catman.domain.repository.category.CategoryRepository
-import ru.stolexiy.catman.domain.repository.purpose.PurposeRepository
+import ru.stolexiy.catman.data.repository.category.CategoryAddingRepositoryImpl
+import ru.stolexiy.catman.data.repository.category.CategoryDeletingRepositoryImpl
+import ru.stolexiy.catman.data.repository.category.CategoryGettingRepositoryImpl
+import ru.stolexiy.catman.data.repository.category.CategoryGettingWithPurposesRepositoryImpl
+import ru.stolexiy.catman.data.repository.category.CategoryUpdatingRepositoryImpl
+import ru.stolexiy.catman.data.repository.color.ColorRepositoryImpl
+import ru.stolexiy.catman.data.repository.purpose.PurposeAddingRepositoryImpl
+import ru.stolexiy.catman.data.repository.purpose.PurposeDeletingRepositoryImpl
+import ru.stolexiy.catman.data.repository.purpose.PurposeGettingByCategoryRepositoryImpl
+import ru.stolexiy.catman.data.repository.purpose.PurposeGettingRepositoryImpl
+import ru.stolexiy.catman.data.repository.purpose.PurposeGettingWithTasksRepositoryImpl
+import ru.stolexiy.catman.data.repository.purpose.PurposeUpdatingRepositoryImpl
+import ru.stolexiy.catman.data.repository.task.TaskAddingRepositoryImpl
+import ru.stolexiy.catman.data.repository.task.TaskDeletingRepositoryImpl
+import ru.stolexiy.catman.data.repository.task.TaskGettingByPurposeRepositoryImpl
+import ru.stolexiy.catman.data.repository.task.TaskGettingFinishedRepositoryImpl
+import ru.stolexiy.catman.data.repository.task.TaskGettingRepositoryImpl
+import ru.stolexiy.catman.data.repository.task.TaskUpdatingRepositoryImpl
+import ru.stolexiy.catman.domain.repository.category.CategoryAddingRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryDeletingRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryGettingRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryGettingWithPurposesRepository
+import ru.stolexiy.catman.domain.repository.category.CategoryUpdatingRepository
+import ru.stolexiy.catman.domain.repository.color.ColorRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeAddingRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeDeletingRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingByCategoryRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingWithTasksRepository
+import ru.stolexiy.catman.domain.repository.purpose.PurposeUpdatingRepository
+import ru.stolexiy.catman.domain.repository.task.TaskAddingRepository
+import ru.stolexiy.catman.domain.repository.task.TaskDeletingRepository
+import ru.stolexiy.catman.domain.repository.task.TaskGettingByPurposeRepository
+import ru.stolexiy.catman.domain.repository.task.TaskGettingFinishedRepository
+import ru.stolexiy.catman.domain.repository.task.TaskGettingRepository
+import ru.stolexiy.catman.domain.repository.task.TaskUpdatingRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface RepositoryModule {
+internal interface RepositoryModule {
     @Binds
-    fun categoryRepository(i: CategoryRepositoryImpl): CategoryRepository
+    fun categoryUpdatingRepository(i: CategoryUpdatingRepositoryImpl): CategoryUpdatingRepository
 
     @Binds
-    fun purposeRepository(i: PurposeRepositoryImpl): PurposeRepository
+    fun categoryAddingRepository(i: CategoryAddingRepositoryImpl): CategoryAddingRepository
 
     @Binds
-    fun categoryWithPurposeRepository(
-        i: CategoriesWithPurposesRepositoryImpl
-    ): CategoriesWithPurposesRepository
+    fun categoryDeletingRepository(i: CategoryDeletingRepositoryImpl): CategoryDeletingRepository
+
+    @Binds
+    fun categoryGettingRepository(i: CategoryGettingRepositoryImpl): CategoryGettingRepository
+
+    @Binds
+    fun categoryGettingWithPurposesRepository(i: CategoryGettingWithPurposesRepositoryImpl): CategoryGettingWithPurposesRepository
+
+
+    @Binds
+    fun purposeUpdatingRepository(i: PurposeUpdatingRepositoryImpl): PurposeUpdatingRepository
+
+    @Binds
+    fun purposeAddingRepository(i: PurposeAddingRepositoryImpl): PurposeAddingRepository
+
+    @Binds
+    fun purposeDeletingRepository(i: PurposeDeletingRepositoryImpl): PurposeDeletingRepository
+
+    @Binds
+    fun purposeGettingWithTasksRepository(i: PurposeGettingWithTasksRepositoryImpl): PurposeGettingWithTasksRepository
+
+    @Binds
+    fun purposeGettingRepository(i: PurposeGettingRepositoryImpl): PurposeGettingRepository
+
+    @Binds
+    fun purposeGettingByCategoryRepository(i: PurposeGettingByCategoryRepositoryImpl): PurposeGettingByCategoryRepository
+
 
     @Binds
     fun colorRepository(i: ColorRepositoryImpl): ColorRepository
 
+
     @Binds
-    fun taskRepository(i: TaskRepositoryImpl): TaskRepository
+    fun taskGettingRepository(i: TaskGettingRepositoryImpl): TaskGettingRepository
+
+    @Binds
+    fun taskUpdatingRepository(i: TaskUpdatingRepositoryImpl): TaskUpdatingRepository
+
+    @Binds
+    fun taskDeletingRepository(i: TaskDeletingRepositoryImpl): TaskDeletingRepository
+
+    @Binds
+    fun taskAddingRepository(i: TaskAddingRepositoryImpl): TaskAddingRepository
+
+    @Binds
+    fun taskGettingByPurposeRepository(i: TaskGettingByPurposeRepositoryImpl): TaskGettingByPurposeRepository
+
+    @Binds
+    fun taskGettingFinishedRepository(i: TaskGettingFinishedRepositoryImpl): TaskGettingFinishedRepository
 }
