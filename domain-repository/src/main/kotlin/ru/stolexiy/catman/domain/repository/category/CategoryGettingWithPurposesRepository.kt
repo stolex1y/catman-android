@@ -9,4 +9,8 @@ interface CategoryGettingWithPurposesRepository {
 //        categorySort: Sort<DomainCategory.Fields> = Sort.asc(DomainCategory.Fields.ID),
 //        purposeSort: Sort<DomainPurpose.Fields> = Sort.asc(DomainPurpose.Fields.ID)
     ): Flow<Result<Map<DomainCategory, List<DomainPurpose>>>>
+
+    fun allOrderedByPurposePriority(
+        asc: Boolean = true
+    ): Flow<Result<Map<DomainCategory, List<DomainPurpose>>>>
 }

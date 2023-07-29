@@ -20,8 +20,11 @@ tasks.named<Test>("test") {
 dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.annotation)
 
     implementation(libs.dagger)
     implementation(libs.gson)
     implementation(libs.junit)
+
+    testImplementation(libs.kotlinx.coroutines.test)
 }

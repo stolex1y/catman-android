@@ -4,7 +4,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Update
 
-@androidx.room.Dao
 abstract class Dao<T> {
 
     @Update
@@ -14,7 +13,7 @@ abstract class Dao<T> {
     abstract suspend fun insert(vararg entities: T): List<Long>
 
     @Delete
-    abstract suspend fun delete(vararg entities: T)
+    abstract suspend fun delete(vararg entities: T): Int
 
-    abstract suspend fun deleteAll()
+    abstract suspend fun deleteAll(): Int
 }

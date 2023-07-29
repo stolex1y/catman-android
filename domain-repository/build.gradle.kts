@@ -28,7 +28,6 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
 
-    implementation(libs.timber)
     implementation(libs.dagger)
     testImplementation(libs.junit)
 }

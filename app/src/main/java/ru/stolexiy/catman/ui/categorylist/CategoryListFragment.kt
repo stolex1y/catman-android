@@ -175,13 +175,22 @@ internal class CategoryListFragment : Fragment() {
                 deletePurpose(item.id)
             }
 
-            override fun onMoveTo(item: CategoryListItem, to: CategoryListItem) {
+            override fun onMoveEnd(list: List<CategoryListItem>?) {
+                if (list.isNullOrEmpty())
+                    return
+                Timber.d("Update priorities")
                 viewModel.dispatchEvent(
-                    CategoryListEvent.SwapPriority(item.id, to.id)
+                    CategoryListEvent.UpdatePriorities(list)
                 )
+            }
+
+            override fun onMoveTo(item: CategoryListItem, to: CategoryListItem) {
                 item as CategoryListItem.PurposeItem
                 to as CategoryListItem.PurposeItem
-                Timber.d("Swap items: '${item.name}' and '${to.name}'")
+                Timber.d("Swap priority of items: ${item.name}, ${to.name}")
+                val temp = item.priority
+                item.priority = to.priority
+                to.priority = temp
             }
         }
     }

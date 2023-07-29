@@ -65,4 +65,6 @@ dependencies {
     kapt(libs.hilt.ext.compiler)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.android)
+
+    testImplementation(libs.junit)
 }

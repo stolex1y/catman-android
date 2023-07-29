@@ -47,7 +47,7 @@ class PurposeGettingByCategoryRepositoryImpl @Inject constructor(
         categoryId: Long,
         asc: Boolean
     ): Flow<Result<List<DomainPurpose>>> {
-        return localDao.getAllByCategoryOrderedByPriority(
+        return localDao.getAllByCategoryOrdered(
             categoryId,
             Sort.create(Tables.Purposes.Fields.PRIORITY, asc).query
         )
@@ -64,7 +64,7 @@ class PurposeGettingByCategoryRepositoryImpl @Inject constructor(
     ): Result<List<DomainPurpose>> = runCatching {
         withContext(dispatcher) {
             Timber.d("get all purposes by category ordered by priority: $categoryId")
-            localDao.getAllByCategoryOrderedByPriorityOnce(
+            localDao.getAllByCategoryOnceOrdered(
                 categoryId,
                 Sort.create(Tables.Purposes.Fields.PRIORITY, asc).query
             )

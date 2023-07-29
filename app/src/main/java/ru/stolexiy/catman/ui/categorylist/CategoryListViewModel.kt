@@ -23,7 +23,7 @@ import ru.stolexiy.catman.ui.util.udf.IState
 import ru.stolexiy.catman.ui.util.work.WorkUtils.deserialize
 import ru.stolexiy.catman.ui.util.work.purpose.AddPurposeWorker
 import ru.stolexiy.catman.ui.util.work.purpose.DeletePurposeWorker
-import ru.stolexiy.catman.ui.util.work.purpose.SwapPurposePriorityWorker
+import ru.stolexiy.catman.ui.util.work.purpose.UpdatePurposesPriorityWorker
 import ru.stolexiy.common.FlowExtensions.mapLatestResult
 import ru.stolexiy.common.di.CoroutineDispatcherNames
 import timber.log.Timber
@@ -49,9 +49,8 @@ class CategoryListViewModel @AssistedInject constructor(
             is CategoryListEvent.Load -> startLoadingData()
             is CategoryListEvent.Add -> addPurpose()
             is CategoryListEvent.Delete -> deletePurpose(event.id)
-            is CategoryListEvent.SwapPriority -> swapPurposesPriority(
-                event.firstId,
-                event.secondId
+            is CategoryListEvent.UpdatePriorities -> updatePurposesPriority(
+                event.list.filterIsInstance<CategoryListItem.PurposeItem>()
             )
 
             is CategoryListEvent.Cancel -> cancelCurrentWork()
@@ -63,10 +62,7 @@ class CategoryListViewModel @AssistedInject constructor(
     }
 
     private fun loadCategoriesWithPurposes() =
-        getCategoryWithPurposes.all(
-//            TODO categorySort = Sort.desc(DomainCategory.Fields.NAME),
-//            TODO purposeSort = Sort.asc(DomainPurpose.Fields.PRIORITY)
-        )
+        getCategoryWithPurposes.allOrderedByPurposePriority()
             .onStart { Timber.d("start loading categories with purposes") }
             .mapLatestResult {
                 Data(it.toCategoryListItems())
@@ -93,8 +89,10 @@ class CategoryListViewModel @AssistedInject constructor(
         startWork(workRequest, State.Added, State.Canceled)
     }
 
-    private fun swapPurposesPriority(firstId: Long, secondId: Long) {
-        val workRequest = SwapPurposePriorityWorker.createWorkRequest(firstId, secondId)
+    private fun updatePurposesPriority(purposes: List<CategoryListItem.PurposeItem>) {
+        val workRequest = UpdatePurposesPriorityWorker.createWorkRequest(
+            purposes.associate { it.id to it.priority }
+        )
         startWork(workRequest, State.Loaded, State.Canceled)
     }
 
@@ -154,5 +152,6 @@ private fun DomainPurpose.toPurposeItem() = CategoryListItem.PurposeItem(
     name = name,
     deadline = deadline,
     isBurning = isDeadlineBurning,
-    progress = progress
+    progress = progress,
+    priority = priority,
 )

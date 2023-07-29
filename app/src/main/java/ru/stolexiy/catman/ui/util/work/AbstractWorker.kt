@@ -24,7 +24,7 @@ abstract class AbstractWorker<Input : Any, Output> protected constructor(
 
     final override suspend fun doWork(): Result {
         val inputArg: Input = inputData.deserialize(inputArgClass)!!
-        Timber.d("'$workName' started")
+        Timber.d("'$workName' started with arg: ${inputData.keyValueMap}")
         var result: Result = Result.failure()
         calculate(inputArg).onFailure {
             Timber.e(it, "'$workName' finished with error")

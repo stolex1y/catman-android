@@ -14,5 +14,5 @@ abstract class ColorDao : Dao<ColorEntity>() {
     abstract fun get(color: Int): Flow<ColorEntity?>
 
     @Query("DELETE FROM colors")
-    abstract override suspend fun deleteAll()
+    abstract override suspend fun deleteAll(): Int
 }

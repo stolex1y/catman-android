@@ -15,13 +15,13 @@ import java.time.ZonedDateTime
         ForeignKey(
             entity = CategoryEntity::class,
             parentColumns = [Tables.Categories.Fields.ID],
-            childColumns = [Tables.Purposes.Fields.ID],
+            childColumns = [Tables.Purposes.Fields.CATEGORY_ID],
             onUpdate = CASCADE,
             onDelete = CASCADE
         )
     ],
     indices = [
-        Index(Tables.Purposes.Fields.ID),
+        Index(Tables.Purposes.Fields.CATEGORY_ID),
         Index(Tables.Purposes.Fields.ID, Tables.Purposes.Fields.PRIORITY)
     ]
 )

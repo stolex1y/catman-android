@@ -55,6 +55,7 @@ android {
 
 dependencies {
     moduleImplementation(Modules.DOMAIN_MODEL)
+    moduleImplementation(Modules.DOMAIN_REPOSITORY)
     moduleImplementation(Modules.COMMON)
 
     implementation(libs.kotlin.stdlib)
@@ -67,7 +68,7 @@ dependencies {
     implementation(libs.hilt.android)
     kaptTest(libs.hilt.compiler)
 
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
 
@@ -81,7 +82,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.ext.junit.ktx)
     androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.androidx.compose.ui.test)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.conditionwatcher)
     androidTestImplementation(libs.androidx.work.testing)

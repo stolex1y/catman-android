@@ -44,7 +44,7 @@ internal class TaskGettingByPurposeRepositoryImpl @Inject constructor(
         purposeId: Long,
         asc: Boolean
     ): Flow<Result<List<DomainTask>>> {
-        return localDao.getAllByPurposeOrderedByPriority(
+        return localDao.getAllByPurposeOrdered(
             purposeId,
             Sort.create(Tables.Tasks.Fields.PRIORITY, asc).query
         )
@@ -61,7 +61,7 @@ internal class TaskGettingByPurposeRepositoryImpl @Inject constructor(
     ): Result<List<DomainTask>> = runCatching {
         withContext(ioDispatcher) {
             Timber.d("get all tasks by purpose ordered by priority: $purposeId")
-            localDao.getAllByPurposeOrderedByPriorityOnce(
+            localDao.getAllByPurposeOnceOrdered(
                 purposeId,
                 Sort.create(Tables.Tasks.Fields.PRIORITY, asc).query
             )

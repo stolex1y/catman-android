@@ -3,7 +3,7 @@ package ru.stolexiy.catman.domain.usecase.purpose
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.domain.model.DomainPurpose
-import ru.stolexiy.catman.domain.model.Sort
+import ru.stolexiy.catman.domain.repository.TransactionProvider
 import ru.stolexiy.catman.domain.repository.category.CategoryGettingRepository
 import ru.stolexiy.catman.domain.repository.purpose.PurposeAddingRepository
 import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingByCategoryRepository
@@ -17,7 +17,8 @@ class PurposeAddingUseCase @Inject constructor(
     private val purposeGetByCategory: PurposeGettingByCategoryRepository,
     private val categoryGet: CategoryGettingRepository,
     private val purposeAdd: PurposeAddingRepository,
-    @Named(CoroutineDispatcherNames.DEFAULT_DISPATCHER) private val dispatcher: CoroutineDispatcher
+    @Named(CoroutineDispatcherNames.DEFAULT_DISPATCHER) private val dispatcher: CoroutineDispatcher,
+    private val transactionProvider: TransactionProvider,
 ) {
     suspend operator fun invoke(vararg entities: DomainPurpose): Result<List<Long>> {
         if (entities.isEmpty())
@@ -28,22 +29,24 @@ class PurposeAddingUseCase @Inject constructor(
                     it.checkDeadlineIsNotPast()
                     it.checkCategoryIsExist(categoryGet)
                 }
-                entities.map { purpose ->
-                    val lastPurposeInCategory =
-                        purposeGetByCategory.allOrderedByPriorityOnce(
-                            purpose.categoryId,
-                            Sort.Direction.DESC
-                        ).getOrThrow().firstOrNull()
-                    val nextPriority = (lastPurposeInCategory?.priority ?: 0) + 1
-                    return@map purpose.copy(
-                        isFinished = false,
-                        priority = nextPriority
-                    )
-                }
-                    .toTypedArray()
-                    .run {
-                        purposeAdd(*this).getOrThrow()
+                transactionProvider.runInTransaction {
+                    entities.map { purpose ->
+                        val lastPurposeInCategory =
+                            purposeGetByCategory.allOrderedByPriorityOnce(
+                                purpose.categoryId,
+                                asc = false
+                            ).getOrThrow().firstOrNull()
+                        val nextPriority = (lastPurposeInCategory?.priority ?: 0) + 1
+                        return@map purpose.copy(
+                            isFinished = false,
+                            priority = nextPriority
+                        )
                     }
+                        .toTypedArray()
+                        .run {
+                            purposeAdd(*this).getOrThrow()
+                        }
+                }
             }
         }
     }

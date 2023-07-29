@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.newSingleThreadContext
 import ru.stolexiy.common.di.CoroutineDispatcherNames.DEFAULT_DISPATCHER
@@ -41,7 +42,7 @@ interface CoroutineModule {
         @Singleton
         fun defaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 
-        @OptIn(DelicateCoroutinesApi::class)
+        @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
         @Provides
         @Singleton
         fun singleThreadDispatcherProvider(): SingleThreadDispatcherProvider =

@@ -2,8 +2,10 @@ package ru.stolexiy.catman.data.repository.di
 
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.stolexiy.catman.data.datasource.local.di.LocalDatasourceNames
 import ru.stolexiy.catman.data.repository.category.CategoryAddingRepositoryImpl
 import ru.stolexiy.catman.data.repository.category.CategoryDeletingRepositoryImpl
 import ru.stolexiy.catman.data.repository.category.CategoryGettingRepositoryImpl
@@ -22,6 +24,7 @@ import ru.stolexiy.catman.data.repository.task.TaskGettingByPurposeRepositoryImp
 import ru.stolexiy.catman.data.repository.task.TaskGettingFinishedRepositoryImpl
 import ru.stolexiy.catman.data.repository.task.TaskGettingRepositoryImpl
 import ru.stolexiy.catman.data.repository.task.TaskUpdatingRepositoryImpl
+import ru.stolexiy.catman.domain.repository.TransactionProvider
 import ru.stolexiy.catman.domain.repository.category.CategoryAddingRepository
 import ru.stolexiy.catman.domain.repository.category.CategoryDeletingRepository
 import ru.stolexiy.catman.domain.repository.category.CategoryGettingRepository
@@ -40,6 +43,8 @@ import ru.stolexiy.catman.domain.repository.task.TaskGettingByPurposeRepository
 import ru.stolexiy.catman.domain.repository.task.TaskGettingFinishedRepository
 import ru.stolexiy.catman.domain.repository.task.TaskGettingRepository
 import ru.stolexiy.catman.domain.repository.task.TaskUpdatingRepository
+import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -100,4 +105,18 @@ internal interface RepositoryModule {
 
     @Binds
     fun taskGettingFinishedRepository(i: TaskGettingFinishedRepositoryImpl): TaskGettingFinishedRepository
+
+    companion object {
+        @Provides
+        @Singleton
+        fun transactionProvider(
+            @Named(LocalDatasourceNames.LOCAL_TRANSACTION_PROVIDER) localTransactionProvider: TransactionProvider,
+        ): TransactionProvider {
+            return object : TransactionProvider {
+                override suspend fun <T> runInTransaction(block: suspend () -> T): T {
+                    return localTransactionProvider.runInTransaction(block)
+                }
+            }
+        }
+    }
 }

@@ -5,7 +5,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import ru.stolexiy.catman.domain.model.DomainTask
-import ru.stolexiy.catman.domain.model.Sort
+import ru.stolexiy.catman.domain.repository.TransactionProvider
 import ru.stolexiy.catman.domain.repository.purpose.PurposeGettingRepository
 import ru.stolexiy.catman.domain.repository.task.TaskAddingRepository
 import ru.stolexiy.catman.domain.repository.task.TaskGettingByPurposeRepository
@@ -20,34 +20,37 @@ class TaskAddingUseCase @Inject constructor(
     private val taskAdd: TaskAddingRepository,
     private val purposeGet: PurposeGettingRepository,
     private val taskGetByPurpose: TaskGettingByPurposeRepository,
-    @Named(CoroutineDispatcherNames.DEFAULT_DISPATCHER) private val dispatcher: CoroutineDispatcher
+    @Named(CoroutineDispatcherNames.DEFAULT_DISPATCHER) private val dispatcher: CoroutineDispatcher,
+    private val transactionProvider: TransactionProvider,
 ) {
     suspend operator fun invoke(vararg tasks: DomainTask): Result<List<Long>> {
         if (tasks.isEmpty())
             return Result.success(emptyList())
         return runCatching {
             withContext(dispatcher) {
-                tasks.map {
-                    async {
-                        it.checkPurposeIsExist(purposeGet)
-                        it.checkDeadlineIsNotPast()
-                        it.checkStartTimeIsNotPast()
+                transactionProvider.runInTransaction {
+                    tasks.map {
+                        async {
+                            it.checkPurposeIsExist(purposeGet)
+                            it.checkDeadlineIsNotPast()
+                            it.checkStartTimeIsNotPast()
+                        }
+                    }.awaitAll()
+                    tasks.map { task ->
+                        val lastTaskInPurpose = taskGetByPurpose.allOrderedByPriorityOnce(
+                            task.purposeId,
+                            asc = false
+                        ).getOrThrow().firstOrNull()
+                        val nextPriority = (lastTaskInPurpose?.priority ?: 0) + 1
+                        return@map task.copy(
+                            priority = nextPriority
+                        )
                     }
-                }.awaitAll()
-                tasks.map { task ->
-                    val lastTaskInPurpose = taskGetByPurpose.allOrderedByPriorityOnce(
-                        task.purposeId,
-                        Sort.Direction.DESC
-                    ).getOrThrow().firstOrNull()
-                    val nextPriority = (lastTaskInPurpose?.priority ?: 0) + 1
-                    return@map task.copy(
-                        priority = nextPriority
-                    )
+                        .toTypedArray()
+                        .run {
+                            taskAdd(*this).getOrThrow()
+                        }
                 }
-                    .toTypedArray()
-                    .run {
-                        taskAdd(*this).getOrThrow()
-                    }
             }
         }
     }

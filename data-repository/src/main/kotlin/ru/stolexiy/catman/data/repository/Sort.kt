@@ -1,17 +1,19 @@
 package ru.stolexiy.catman.data.repository
 
 data class Sort(
-    val field: String,
+    val fieldName: String,
     val direction: Direction = Direction.ASC,
-    var then: Sort? = null
 ) {
-    val query: String = ""
+    var then: Sort? = null
+        private set
+
+    val query: String
         get() {
-            val query: StringBuilder = StringBuilder("$field ${direction.value}")
+            val query = StringBuilder("$fieldName ${direction.value}")
             var curSort: Sort = this
             while (curSort.then != null) {
                 curSort = curSort.then!!
-                query.append(", ${curSort.field} ${curSort.direction.value}")
+                query.append(", ${curSort.fieldName} ${curSort.direction.value}")
             }
             return query.toString()
         }
@@ -28,7 +30,7 @@ data class Sort(
 
     fun then(sort: Sort): Sort {
         then = sort
-        return sort
+        return this
     }
 
     enum class Direction(val value: String) {

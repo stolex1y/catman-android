@@ -16,6 +16,7 @@ sealed class CategoryListItem : ListItem {
         override val id: Long,
         val name: String,
         val isBurning: Boolean,
+        var priority: Int,
         deadline: ZonedDateTime,
         progress: Double
     ) : CategoryListItem() {

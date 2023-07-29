@@ -10,4 +10,5 @@ interface ItemActionListener<T : ListItem> {
     fun onSwipeToEnd(item: T) {}
     fun onSwipeToStart(item: T) {}
     fun onMoveTo(item: T, to: T) {}
+    fun onMoveEnd(list: List<T>?) {}
 }

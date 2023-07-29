@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import ru.stolexiy.catman.data.datasource.local.dao.category.CategoryWithPurposesDao
-import ru.stolexiy.catman.data.datasource.local.dao.category.CategoryCrudDao
+import ru.stolexiy.catman.data.datasource.local.BuildConfig
 import ru.stolexiy.catman.data.datasource.local.dao.ColorDao
+import ru.stolexiy.catman.data.datasource.local.dao.category.CategoryCrudDao
+import ru.stolexiy.catman.data.datasource.local.dao.category.CategoryWithPurposesDao
 import ru.stolexiy.catman.data.datasource.local.dao.purpose.PurposeCrudDao
 import ru.stolexiy.catman.data.datasource.local.dao.purpose.PurposeWithTasksDao
 import ru.stolexiy.catman.data.datasource.local.dao.task.TaskCrudDao
@@ -16,6 +17,8 @@ import ru.stolexiy.catman.data.datasource.local.model.ColorEntity
 import ru.stolexiy.catman.data.datasource.local.model.PlanEntity
 import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
+import timber.log.Timber
+import java.util.concurrent.Executors
 
 @Database(
     entities = [
@@ -25,7 +28,7 @@ import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
         PlanEntity::class,
         ColorEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -54,5 +57,15 @@ abstract class LocalDatabase : RoomDatabase() {
                 .fallbackToDestructiveMigration()
                 .addCallback(LocalDatabaseCallback())
                 .build()
+
+        private fun Builder<LocalDatabase>.setLoggingQueryCallback() {
+            if (BuildConfig.DEBUG) {
+                setQueryCallback(object : QueryCallback {
+                    override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                        Timber.v("query: $sqlQuery; args: ${bindArgs.joinToString(", ")}")
+                    }
+                }, Executors.newSingleThreadExecutor())
+            }
+        }
     }
 }

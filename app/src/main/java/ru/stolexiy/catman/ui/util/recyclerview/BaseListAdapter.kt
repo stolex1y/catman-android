@@ -47,6 +47,9 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
     }
 
     private inner class TouchHelperCallback : ItemTouchHelper.Callback() {
+        var movingStartPosition: Int? = null
+        var movingEndPosition: Int? = null
+
         override fun getMovementFlags(
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder
@@ -80,13 +83,16 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
             source: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
+            if (movingStartPosition == null)
+                movingStartPosition = source.adapterPosition
             if (source.itemViewType != target.itemViewType)
                 return false
-            val sourceItem = source.adapterPosition.run(this@BaseListAdapter::getItem)
-            val targetItem = target.adapterPosition.run(this@BaseListAdapter::getItem)
+            val sourceItem = getItem(source.adapterPosition)
+            val targetItem = getItem(target.adapterPosition)
             itemActionListeners[source.itemViewType]?.onMoveTo(sourceItem, targetItem)
             list!![source.adapterPosition] = targetItem
             list!![target.adapterPosition] = sourceItem
+            movingEndPosition = target.adapterPosition
             notifyItemMoved(source.adapterPosition, target.adapterPosition)
             return true
         }
@@ -124,14 +130,24 @@ abstract class BaseListAdapter<T : ListItem> : ListAdapter<T, BaseListAdapter.Vi
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)
 
-            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                viewHolder?.itemView?.alpha = 0.5f
+            if (viewHolder == null)
+                return
+            when (actionState) {
+                ItemTouchHelper.ACTION_STATE_DRAG -> viewHolder.itemView.alpha = 0.5f
             }
         }
 
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
             super.clearView(recyclerView, viewHolder)
             viewHolder.itemView.alpha = 1.0f
+            val moveListener = itemActionListeners[viewHolder.itemViewType] ?: return
+            if (movingStartPosition != null && movingStartPosition != movingEndPosition) {
+                val min = min(movingEndPosition!!, movingStartPosition!!)
+                val max = max(movingEndPosition!!, movingStartPosition!!)
+                moveListener.onMoveEnd(list?.subList(min, max + 1))
+                movingStartPosition = null
+                movingEndPosition = null
+            }
         }
     }
 

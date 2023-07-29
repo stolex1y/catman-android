@@ -92,6 +92,8 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.preference)
     implementation(libs.timber)
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui.ktx)
 
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.foundation)
@@ -128,7 +130,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.ext.junit.ktx)
     androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.androidx.compose.ui.test)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.conditionwatcher)
     androidTestImplementation(libs.androidx.work.testing)

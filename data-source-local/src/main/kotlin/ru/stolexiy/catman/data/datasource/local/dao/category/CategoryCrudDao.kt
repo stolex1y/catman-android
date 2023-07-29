@@ -33,5 +33,5 @@ abstract class CategoryCrudDao : Dao<CategoryEntity>() {
     abstract suspend fun getOnce(id: Long): CategoryEntity.Response?
 
     @Query(DELETE_ALL)
-    abstract override suspend fun deleteAll()
+    abstract override suspend fun deleteAll(): Int
 }

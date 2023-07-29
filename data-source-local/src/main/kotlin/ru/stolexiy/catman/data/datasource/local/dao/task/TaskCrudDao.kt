@@ -1,8 +1,12 @@
 package ru.stolexiy.catman.data.datasource.local.dao.task
 
 import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
 import ru.stolexiy.catman.data.datasource.local.dao.Dao
+import ru.stolexiy.catman.data.datasource.local.model.PurposeEntity
 import ru.stolexiy.catman.data.datasource.local.model.TaskEntity
 import ru.stolexiy.catman.data.datasource.local.model.Tables.Tasks.Fields as field
 import ru.stolexiy.catman.data.datasource.local.model.Tables.Tasks.NAME as table
@@ -12,8 +16,6 @@ private const val GET_BY_ID = "$GET_ALL WHERE ${field.ID} = :id"
 private const val DELETE_ALL = "DELETE FROM $table"
 private const val GET_ALL_BY_PURPOSE =
     "$GET_ALL WHERE ${field.PURPOSE_ID} = :purposeId"
-private const val GET_ALL_BY_PURPOSE_ORDER_BY =
-    "$GET_ALL_BY_PURPOSE ORDER BY :sorting"
 
 @androidx.room.Dao
 abstract class TaskCrudDao : Dao<TaskEntity>() {
@@ -31,7 +33,7 @@ abstract class TaskCrudDao : Dao<TaskEntity>() {
     abstract suspend fun getOnce(id: Long): TaskEntity?
 
     @Query(DELETE_ALL)
-    abstract override suspend fun deleteAll()
+    abstract override suspend fun deleteAll(): Int
 
     @Query(GET_ALL_BY_PURPOSE)
     abstract fun getAllByPurpose(
@@ -43,15 +45,42 @@ abstract class TaskCrudDao : Dao<TaskEntity>() {
         purposeId: Long
     ): List<TaskEntity>
 
-    @Query(GET_ALL_BY_PURPOSE_ORDER_BY)
-    abstract fun getAllByPurposeOrderedByPriority(
-        purposeId: Long,
-        sorting: String
+    @RawQuery(observedEntities = [TaskEntity::class, PurposeEntity::class])
+    internal abstract fun getAllByPurposeOrdered(
+        query: SupportSQLiteQuery
     ): Flow<List<TaskEntity>>
 
-    @Query(GET_ALL_BY_PURPOSE_ORDER_BY)
-    abstract suspend fun getAllByPurposeOrderedByPriorityOnce(
+    @RawQuery(observedEntities = [TaskEntity::class, PurposeEntity::class])
+    internal abstract suspend fun getAllByPurposeOnceOrdered(
+        query: SupportSQLiteQuery
+    ): List<TaskEntity>
+
+    fun getAllByPurposeOrdered(
         purposeId: Long,
         sorting: String
-    ): List<TaskEntity>
+    ): Flow<List<TaskEntity>> {
+        return getAllByPurposeOrdered(
+            getAllByCategoryOrderedQuery(purposeId, sorting)
+        )
+    }
+
+    suspend fun getAllByPurposeOnceOrdered(
+        purposeId: Long,
+        sorting: String
+    ): List<TaskEntity> {
+        return getAllByPurposeOnceOrdered(
+            getAllByCategoryOrderedQuery(purposeId, sorting)
+        )
+    }
+
+    companion object {
+        private fun getAllByCategoryOrderedQuery(
+            purposeId: Long,
+            sorting: String
+        ): SupportSQLiteQuery {
+            val query =
+                "$GET_ALL WHERE ${field.PURPOSE_ID} = $purposeId ORDER BY $sorting"
+            return SimpleSQLiteQuery(query, arrayOf())
+        }
+    }
 }
